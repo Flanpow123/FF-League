@@ -185,6 +185,11 @@ var NEWS_URL = "news.json";
 
 var API = "https://api.sleeper.app/v1";
 
+/* Projections live on Sleeper's internal host, not the documented one.
+   It is undocumented and unsupported, so everything here degrades quietly
+   if it disappears or refuses cross-origin requests. */
+var PROJ_API = "https://api.sleeper.com";
+
 /* Add ?desk to the URL to reveal the briefing tools. Without it the
    site is read-only and gives no hint that a human is involved. */
 var DESK = /[?&]desk\b/.test(location.search);
@@ -193,7 +198,8 @@ var S = {
   league:null, users:{}, rosters:[], week:1, lastWeek:1,
   matchups:{}, transactions:[], claims:[], players:null,
   news:null, historyLoaded:false, finalWeek:0,
-  regWeeks:14, draftPicks:null, eff:null, history:null, historyPromise:null
+  regWeeks:14, draftPicks:null, eff:null, history:null, historyPromise:null,
+  projections:null, projError:null, projWeek:null
 };
 
 /* ---------- helpers ---------- */
@@ -362,6 +368,16 @@ function optimalLineup(playerIds, pointsMap, rosterPositions, players){
     if(x.cand){ total += x.cand.pts; lineup.push({slot:x.slot.slot, pid:x.cand.pid, pts:x.cand.pts}); }
   });
   return { points: total, lineup: lineup };
+}
+
+/* Blend what a team has actually scored with what their roster projects.
+   Early on the projection carries it; by midseason the real scores do. */
+function blendMean(observed, n, projected, priorWeight){
+  var pw = priorWeight==null ? 4 : priorWeight;
+  if(projected==null) return observed;
+  if(!n) return projected;
+  var w = n/(n+pw);
+  return w*observed + (1-w)*projected;
 }
 
 /* Standard normal, Box-Muller. */
@@ -704,9 +720,82 @@ function buildClaims(){
 /* ============================================================
    THE WIRE — takes the page writes by itself, no AI involved
    ============================================================ */
+/* Before any games exist, the only real numbers are the projections. */
+function preseasonWire(){
+  var items=[];
+  var strength=projectedStrength();
+  if(!strength) return items;
+
+  var rows=S.rosters.map(function(r){
+    return {rid:r.roster_id, p:strength[r.roster_id]};
+  }).filter(function(x){ return x.p!=null; })
+    .sort(function(a,b){ return b.p-a.p; });
+  if(rows.length<3) return items;
+
+  var top=rows[0], bot=rows[rows.length-1];
+  var spread=top.p-bot.p;
+  var median=rows[Math.floor(rows.length/2)].p;
+
+  items.push({
+    tag:"Preseason",
+    hl:esc(teamName(top.rid))+" has the best roster in the league on paper, projected for "+num(top.p,1)+" a week",
+    dt:"That is "+num(top.p-median,1)+" points a week clear of the median team. Paper is undefeated in September."
+  });
+
+  items.push({
+    tag:"Preseason",
+    hl:esc(teamName(bot.rid))+" projects last at "+num(bot.p,1)+" a week",
+    dt:num(spread,1)+" points a week separates first from last. Over a full season that is a landslide or a rounding error, depending on who you ask."
+  });
+
+  var within=rows.filter(function(r){ return top.p-r.p<=8; }).length;
+  if(within>=3){
+    items.push({
+      tag:"Logjam",
+      hl:within+" teams project within 8 points a week of each other at the top",
+      dt:"Which is to say the projections cannot tell them apart, and neither can anyone else."
+    });
+  }
+
+  var second=rows[1];
+  if(top.p-second.p>=6){
+    items.push({
+      tag:"Gap",
+      hl:esc(teamName(top.rid))+" projects "+num(top.p-second.p,1)+" points a week ahead of second place",
+      dt:esc(teamName(second.rid))+" is the closest thing to competition, and it is not especially close."
+    });
+  }
+
+  // Cross-reference the draft: did the projections agree with the draft grade?
+  if(S.draftPicks&&S.draftPicks.length&&S.players){
+    var dr=gradeDraft(S.draftPicks,S.players,S.rosters.length);
+    if(dr.length){
+      var bestDraft=dr[0];
+      var projRank={};
+      rows.forEach(function(r,i){ projRank[r.rid]=i+1; });
+      var pr=projRank[bestDraft.rid];
+      if(pr){
+        items.push({
+          tag:"Draft check",
+          hl:esc(teamName(bestDraft.rid))+" drafted the best value in the league and projects "+ordinal(pr),
+          dt:"Value per pick of "+(bestDraft.avgValue>0?"+":"")+num(bestDraft.avgValue,1)
+            +(pr<=3?". The draft board and the projections agree for once."
+                   :". Getting value and having the best roster are apparently different things.")
+        });
+      }
+    }
+  }
+
+  return items;
+}
+function ordinal(n){
+  var s=["th","st","nd","rd"], v=n%100;
+  return n+(s[(v-20)%10]||s[v]||s[0]);
+}
+
 function buildWire(){
   var items=[], wk=S.finalWeek;
-  if(!wk) return items;
+  if(!wk) return preseasonWire();
 
   var gs=games(wk), bench=benchPoints(wk), ap=allPlay(), scores=weeklyScores();
 
@@ -854,7 +943,11 @@ function buildWire(){
    ============================================================ */
 function renderNews(){
   var html='<h2>The wire</h2>'
-    +'<p class="note">Written by the page itself from this week&rsquo;s actual numbers. Always current, never wrong, no opinions it cannot back up.</p>';
+    +'<p class="note">'
+    +(S.finalWeek
+      ? 'Written by the page itself from this week&rsquo;s actual numbers. Always current, never wrong, no opinions it cannot back up.'
+      : 'Written by the page itself. Nothing has been played, so everything here comes from the projections.')
+    +'</p>';
 
   var wire=buildWire();
   if(wire.length){
@@ -989,6 +1082,19 @@ function briefingText(){
     L.push("");
   }
 
+  var strength=projectedStrength();
+  if(strength){
+    L.push("PROJECTED WEEKLY SCORE (best lineup each roster could start, week "+S.projWeek+")");
+    S.rosters.map(function(r){ return {rid:r.roster_id, p:strength[r.roster_id]}; })
+      .filter(function(x){ return x.p!=null; })
+      .sort(function(a,b){ return b.p-a.p; })
+      .forEach(function(x,i){ L.push((i+1)+". "+teamName(x.rid)+": "+num(x.p,1)); });
+    L.push("");
+  } else if(S.projError){
+    L.push("PROJECTIONS UNAVAILABLE: "+S.projError);
+    L.push("");
+  }
+
   var odds=playoffOdds();
   if(odds){
     L.push("PLAYOFF ODDS (5000 simulations, top "+odds.spots+" advance, "+odds.weeksLeft+" weeks left)");
@@ -1095,10 +1201,32 @@ function renderWeek(){
     if(g.length===1){ html+='<div class="game">'+sideHTML(g[0],true)+'<div class="gap">No opponent this week.</div></div>'; return; }
     var a=g[0],b=g[1],pa=Number(a.points)||0,pb=Number(b.points)||0;
     var lead=pa===pb?"Tied":teamName(pa>pb?a.roster_id:b.roster_id)+" by "+num(Math.abs(pa-pb));
-    html+='<div class="game">'+sideHTML(a,pa>=pb)+sideHTML(b,pb>=pa)+'<div class="gap">'+esc(lead)+'</div></div>';
+    var pr=projLine(a,b);
+    html+='<div class="game">'+sideHTML(a,pa>=pb)+sideHTML(b,pb>=pa)
+      +'<div class="gap">'+esc(lead)+(pr?' &nbsp;&middot;&nbsp; '+esc(pr):'')+'</div></div>';
   });
   $("tab-week").innerHTML=html+'</div>';
 }
+/* Projected total for a side, using whoever is actually in the lineup. */
+function projFor(m){
+  if(!S.projections) return null;
+  var ids=m.starters&&m.starters.length?m.starters:(m.players||[]);
+  if(!ids.length) return null;
+  var t=0,n=0;
+  ids.forEach(function(pid){
+    if(!pid||pid==="0") return;
+    var v=S.projections[pid];
+    if(v!=null){ t+=v; n++; }
+  });
+  return n?t:null;
+}
+function projLine(a,b){
+  if(S.projWeek!==S.week) return "";
+  var pa=projFor(a), pb=projFor(b);
+  if(pa==null||pb==null) return "";
+  return "Projected " + num(pa,1) + " to " + num(pb,1);
+}
+
 function sideHTML(m,leading){
   var av=avatar(m.roster_id);
   return '<div class="side'+(leading?' lead':'')+'">'
@@ -1234,14 +1362,19 @@ function loadPlayers(){
     .catch(function(){ return null; })
     .then(function(data){
       if(data&&typeof data==="object"&&Object.keys(data).length>500){
-        S.players=data; repaint(); return;
+        S.players=data; afterPlayers(); return;
       }
-      return get("/players/nfl").then(function(all){ S.players=all; repaint(); }).catch(function(){});
+      return get("/players/nfl").then(function(all){ S.players=all; afterPlayers(); }).catch(function(){});
     });
 }
 function repaint(){
   computeEfficiency();
-  renderStandings(); renderPower(); renderDraft(); renderMoves(); renderNews();
+  renderStandings(); renderPower(); renderDraft(); renderMoves(); renderNews(); renderWeek();
+}
+
+function afterPlayers(){
+  repaint();
+  loadProjections().then(function(){ renderPower(); renderWeek(); renderNews(); });
 }
 
 /* ============================================================
@@ -1361,6 +1494,65 @@ function computeEfficiency(){
 }
 
 /* ============================================================
+   PROJECTIONS
+   ============================================================ */
+function scoringKey(){
+  var ss=(S.league&&S.league.scoring_settings)||{};
+  var rec=Number(ss.rec)||0;
+  if(rec>=1) return "pts_ppr";
+  if(rec>0)  return "pts_half_ppr";
+  return "pts_std";
+}
+
+function loadProjections(){
+  var week=S.week, season=S.league&&S.league.season;
+  if(!season) return Promise.resolve();
+  S.projWeek=week;
+  var url=PROJ_API+"/projections/nfl/"+season+"/"+week+"?season_type=regular&order_by=ppr";
+  return fetch(url)
+    .then(function(r){
+      if(!r.ok) throw new Error("projections returned "+r.status);
+      return r.json();
+    })
+    .then(function(list){
+      if(!list||!list.length) throw new Error("projections came back empty");
+      var key=scoringKey(), map={}, n=0;
+      list.forEach(function(row){
+        var pid=row.player_id||(row.player&&row.player.player_id);
+        if(!pid) return;
+        var st=row.stats||{};
+        var v=st[key];
+        if(v==null) v=st.pts_ppr;
+        if(v==null) v=st.pts_std;
+        if(v==null) return;
+        map[pid]=Number(v)||0; n++;
+      });
+      if(!n) throw new Error("no usable point values in the projection feed");
+      S.projections=map;
+      S.projError=null;
+    })
+    .catch(function(e){
+      S.projections=null;
+      S.projError=e.message||String(e);
+    });
+}
+
+/* What each roster's best lineup projects for, before anything is played. */
+function projectedStrength(){
+  if(!S.projections||!S.players) return null;
+  var slots=(S.league&&S.league.roster_positions)||[];
+  if(!slots.length) return null;
+  var out={};
+  S.rosters.forEach(function(r){
+    var ids=r.players||[];
+    if(!ids.length) return;
+    var best=optimalLineup(ids,S.projections,slots,S.players);
+    if(best&&best.points) out[r.roster_id]=best.points;
+  });
+  return Object.keys(out).length?out:null;
+}
+
+/* ============================================================
    PLAYOFF ODDS
    ============================================================ */
 function playoffOdds(){
@@ -1373,23 +1565,32 @@ function playoffOdds(){
     });
   });
 
-  var enough=0;
-  S.rosters.forEach(function(r){ if((perTeam[r.roster_id]||[]).length>=2) enough++; });
-  if(enough<S.rosters.length) return null;
+  var proj=projectedStrength();
+  var played=0;
+  S.rosters.forEach(function(r){ played=Math.max(played,(perTeam[r.roster_id]||[]).length); });
+
+  // Nothing to go on at all.
+  if(!proj && played<2) return null;
 
   var all=[];
   Object.keys(perTeam).forEach(function(k){ all=all.concat(perTeam[k]); });
-  var leagueSd=meanSd(all).sd||15;
+  var leagueSd=meanSd(all).sd;
 
   var teams=S.rosters.map(function(r){
     var st=r.settings||{};
-    var ms=meanSd(perTeam[r.roster_id]||[]);
+    var list=perTeam[r.roster_id]||[];
+    var ms=meanSd(list);
+    var p=proj?proj[r.roster_id]:null;
+    var mean=blendMean(ms.mean,list.length,p!=null?p:null);
+    var sd;
+    if(list.length>=3&&ms.sd>0) sd=ms.sd;
+    else if(leagueSd>0) sd=leagueSd;
+    else sd=Math.max(18,mean*0.20);      // typical weekly spread when nothing is known
     return {
       rid:r.roster_id,
       wins:(Number(st.wins)||0)+(Number(st.ties)||0)*0.5,
       pts:pts(st.fpts,st.fpts_decimal),
-      mean:ms.mean,
-      sd:ms.sd>0?ms.sd:leagueSd
+      mean:mean, sd:sd
     };
   });
 
@@ -1409,7 +1610,10 @@ function playoffOdds(){
 
   var spots=(S.league.settings&&S.league.settings.playoff_teams)||6;
   var res=simulateSeason({teams:teams,schedule:remaining,playoffSpots:spots,runs:5000});
-  return {rows:res, weeksLeft:remaining.length, spots:spots};
+  var meanBy={};
+  teams.forEach(function(t){ meanBy[t.rid]=t; });
+  return {rows:res, weeksLeft:remaining.length, spots:spots,
+          basis:(proj?(played>=2?"blend":"projection"):"scores"), teams:meanBy, played:played};
 }
 
 /* ============================================================
@@ -1426,21 +1630,23 @@ function renderPower(){
     return {id:r.roster_id, apPct:a.games?a.w/a.games:0, avg:avg, recent:recent, played:list.length};
   });
 
-  if(!rows.some(function(r){return r.played;})){
-    $("tab-power").innerHTML='<h2>Power rankings</h2><div class="msg">Nothing to rank yet. This fills in once week 1 goes final.</div>';
-    return;
-  }
+  var ranked = rows.some(function(r){return r.played;});
+  var html;
 
-  function norm(key){
-    var vals=rows.map(function(r){return r[key];});
-    var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),span=hi-lo;
-    rows.forEach(function(r){ r["n_"+key]=span?(r[key]-lo)/span:0.5; });
-  }
-  norm("apPct");norm("avg");norm("recent");
-  rows.forEach(function(r){ r.score=100*(0.50*r.n_apPct+0.30*r.n_avg+0.20*r.n_recent); });
-  rows.sort(function(a,b){ return b.score-a.score; });
+  if(!ranked){
+    html='<h2>In-season power rankings</h2><div class="msg">These need games. '
+      +'Until week 1 goes final, the preseason rankings below are the ones that count.</div>';
+  } else {
+    function norm(key){
+      var vals=rows.map(function(r){return r[key];});
+      var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),span=hi-lo;
+      rows.forEach(function(r){ r["n_"+key]=span?(r[key]-lo)/span:0.5; });
+    }
+    norm("apPct");norm("avg");norm("recent");
+    rows.forEach(function(r){ r.score=100*(0.50*r.n_apPct+0.30*r.n_avg+0.20*r.n_recent); });
+    rows.sort(function(a,b){ return b.score-a.score; });
 
-  var html='<h2>Power rankings</h2>'
+    html='<h2>Power rankings</h2>'
     +'<p class="note">Half all-play record, three tenths season scoring, two tenths the last three weeks. Ignores who you happened to be scheduled against.</p>'
     +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Rating</th><th>All-play</th><th>Points per week</th><th>Last 3 weeks</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
@@ -1449,9 +1655,74 @@ function renderPower(){
       +'<td>'+num(r.score,1)+'</td><td>'+a.w+'-'+a.l+'</td><td>'+num(r.avg,1)+'</td><td>'+num(r.recent,1)+'</td></tr>';
   });
   html+='</tbody></table></div>';
+  }
 
-  html+=oddsHTML()+swapHTML();
+  html+=projectedHTML()+oddsHTML()+swapHTML();
   $("tab-power").innerHTML=html;
+}
+
+function projectedHTML(){
+  var o=playoffOdds();
+  var preseason=!S.finalWeek;
+  var heading=preseason?'Preseason power rankings':'Projected finish';
+  var h='<h2 style="margin-top:34px">'+heading+'</h2>';
+  if(!o){
+    return h+'<div class="msg">'
+      +(S.projError
+        ? 'Projections are unavailable ('+esc(S.projError)+') and no games have been played yet, so there is nothing to project from.'
+        : 'Nothing to project from yet.')
+      +'</div>';
+  }
+
+  // Expected wins comes straight out of the same simulation.
+  var scores=scoresByWeek(), sched=schedulesByWeek();
+  var teams=o.teams;
+  var remaining=0;
+  for(var w=S.finalWeek+1; w<=S.regWeeks; w++){ if(sched[w]) remaining++; }
+
+  var rows=S.rosters.map(function(r){
+    var st=r.settings||{};
+    var t=teams[r.roster_id]||{mean:0,sd:0};
+    var wins=Number(st.wins)||0, losses=Number(st.losses)||0, ties=Number(st.ties)||0;
+    // Chance of beating a league-average opponent, week to week.
+    var others=S.rosters.filter(function(x){ return x.roster_id!==r.roster_id; })
+      .map(function(x){ return (teams[x.roster_id]||{mean:0}).mean; });
+    var oppMean=others.length?others.reduce(function(a,b){return a+b;},0)/others.length:t.mean;
+    var oppSd=t.sd;
+    var z=(t.mean-oppMean)/Math.sqrt(Math.max(1e-6,t.sd*t.sd+oppSd*oppSd));
+    var pWin=0.5*(1+erf(z/Math.SQRT2));
+    var projWins=wins+pWin*remaining;
+    return {rid:r.roster_id, mean:t.mean, wins:wins, losses:losses, ties:ties,
+            pWin:pWin, projWins:projWins, projLosses:(wins+losses+ties)+remaining-projWins};
+  }).sort(function(a,b){ return b.projWins-a.projWins||b.mean-a.mean; });
+
+  var label = o.basis==="projection"
+    ? 'Nothing has been played, so this is purely roster talent on paper: the best lineup each team could start, simulated across the full season.'
+    : (o.basis==="blend"
+        ? 'Blends what each team has actually scored with what their roster projects. The real scores take over as the season goes on.'
+        : 'Built from scoring so far. Projections were unavailable, so rosters are not being read directly.');
+
+  h+='<p class="note">'+label+' Weekly projection is the best lineup each roster could start this week.</p>';
+  h+='<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Projected record</th>'
+    +'<th>Weekly projection</th><th>Win chance per week</th><th>Now</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    var cls=r.pWin>=0.58?"pos":(r.pWin<=0.42?"neg":"");
+    h+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.rid)+'</td>'
+      +'<td>'+num(r.projWins,1)+'-'+num(r.projLosses,1)+'</td>'
+      +'<td>'+num(r.mean,1)+'</td>'
+      +'<td class="'+cls+'">'+Math.round(r.pWin*100)+'%</td>'
+      +'<td>'+r.wins+'-'+r.losses+(r.ties?'-'+r.ties:'')+'</td></tr>';
+  });
+  return h+'</tbody></table></div>';
+}
+
+/* Abramowitz and Stegun 7.1.26, plenty accurate for a win probability. */
+function erf(x){
+  var s=x<0?-1:1; x=Math.abs(x);
+  var a1=0.254829592,a2=-0.284496736,a3=1.421413741,a4=-1.453152027,a5=1.061405429,p=0.3275911;
+  var t=1/(1+p*x);
+  var y=1-((((a5*t+a4)*t+a3)*t+a2)*t+a1)*t*Math.exp(-x*x);
+  return s*y;
 }
 
 function oddsHTML(){
@@ -1462,7 +1733,10 @@ function oddsHTML(){
       +'<div class="msg">Not enough games yet to simulate.</div>';
   }
   h+='<p class="note">Five thousand simulations of the '+o.weeksLeft+' week'+(o.weeksLeft===1?'':'s')
-    +' left, drawing each team&rsquo;s weekly score from their own average and volatility. Top '+o.spots+' make it.</p>';
+    +' left. Top '+o.spots+' make it. '
+    +(o.basis==="projection"?'Team strength is coming from projections only, so treat these as opening lines.'
+      :(o.basis==="blend"?'Team strength blends real scoring with roster projections.'
+        :'Team strength comes from scoring so far.'))+'</p>';
   var rows=o.rows.slice().sort(function(a,b){ return b.playoffs-a.playoffs||b.topSeed-a.topSeed; });
   h+='<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Playoff odds</th><th>Top seed</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
