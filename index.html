@@ -171,10 +171,10 @@ var LEAGUE_ID = "1385278901562929152";   // Sigma Pi B, 2026
    delete the ones you hate. The key on the left is what news.json
    refers to. */
 var ANALYSTS = {
-  analyst:     { name:"Ward Delaney",   role:"lead analyst",            color:"var(--cool)"   },
-  firestarter: { name:"Deacon Pyle",    role:"this is about character", color:"var(--flag)"   },
-  quant:       { name:"Odessa Prine",   role:"numbers desk",            color:"var(--gold)"   },
-  troll:       { name:"Roy Tannehill",  role:"never wrong, ask him",    color:"var(--violet)" }
+  analyst:     { name:"Ward Delaney",  role:"CBS Sports, senior NFL columnist", color:"var(--cool)"   },
+  firestarter: { name:"Deacon Pyle",   role:"ESPN, morning debate show",       color:"var(--flag)"   },
+  quant:       { name:"Odessa Prine",  role:"The Athletic, numbers desk",       color:"var(--gold)"   },
+  troll:       { name:"Roy Tannehill", role:"FS1, afternoon drive",            color:"var(--violet)" }
 };
 
 /* Where the written stories come from.
@@ -471,65 +471,166 @@ function scheduleSwap(scoresByWeek, schedules){
   return out;
 }
 
-/* Draft value: where a player went versus how highly they are regarded. */
-function gradeDraft(picks, players, teamsCount){
-  /* Sleeper's search_rank is a global ranking over every player in the
-     database, so comparing it straight to a pick number is meaningless.
-     Instead, rank only the players who were actually drafted against each
-     other. That gives a consensus order for this exact pool, and the gap
-     between where a player sat in that order and where he actually went
-     is the value. League-wide it sums to zero, so the table is purely
-     relative and nobody can be dragged down by the size of the pool. */
-  var withRank = [];
-  picks.forEach(function(p){
-    var pl = players && players[p.player_id];
-    var r = pl && pl.search_rank!=null ? Number(pl.search_rank) : null;
-    if(r!=null && isFinite(r)) withRank.push({pick:p.pick_no, rank:r});
+/* How many of each position the league starts in total. Flex slots are
+   split across their eligible positions in proportion to dedicated slots. */
+function positionalDemand(rosterPositions, teams){
+  var base={}, flex=[];
+  (rosterPositions||[]).forEach(function(s){
+    if(BENCH_SLOTS[s]) return;
+    var elig = SLOT_ELIGIBILITY[s] || [s];
+    if(elig.length===1) base[elig[0]] = (base[elig[0]]||0)+1;
+    else flex.push(elig);
   });
-  var slotsUsed = withRank.map(function(x){ return x.pick; }).sort(function(a,b){ return a-b; });
-  withRank.sort(function(a,b){ return a.rank-b.rank; });
-  var consensus = {};
-  withRank.forEach(function(x,i){ consensus[x.pick] = slotsUsed[i]; });
+  var snap={};
+  Object.keys(base).forEach(function(p){ snap[p]=base[p]; });
+  flex.forEach(function(elig){
+    var total=0;
+    elig.forEach(function(p){ total += snap[p]||0; });
+    elig.forEach(function(p){
+      base[p] = (base[p]||0) + (total ? (snap[p]||0)/total : 1/elig.length);
+    });
+  });
+  var demand={};
+  Object.keys(base).forEach(function(p){ demand[p] = base[p]*(teams||12); });
+  return demand;
+}
+
+/* Draft value.
+
+   The honest way to compare a quarterback to a running back is not talent
+   ranking, it is points above the worst starter you could have had instead.
+   In a one-QB league the twelfth quarterback is nearly as good as the first,
+   so QB1 is worth little over replacement; the same is not true at running
+   back. Kickers land at essentially zero by construction.
+
+   Projected points drive this when they are available. Without them we fall
+   back to ranking players within their own position, which still removes the
+   fake bonus every team gets for waiting on quarterback, but cannot tell you
+   that a kicker in round two was a crime. */
+function gradeDraft(picks, players, rosterPositions, projections, teams){
+  var demand = positionalDemand(rosterPositions, teams);
+
+  var slots={}, flexSlots=[];
+  (rosterPositions||[]).forEach(function(s){
+    if(BENCH_SLOTS[s]) return;
+    var elig = SLOT_ELIGIBILITY[s] || [s];
+    if(elig.length===1) slots[elig[0]] = (slots[elig[0]]||0)+1;
+    else flexSlots.push(elig);
+  });
+  function depthFor(pos){
+    var d = slots[pos]||0;
+    flexSlots.forEach(function(e){ if(e.indexOf(pos)>=0) d++; });
+    return d||1;
+  }
+
+  function infoFor(p){
+    var pl = players && players[p.player_id];
+    var rank = pl && pl.search_rank!=null ? Number(pl.search_rank) : null;
+    if(rank!=null && !isFinite(rank)) rank = null;
+    var pos = (pl && pl.position) || (p.metadata && p.metadata.position) || "?";
+    var age = pl && pl.age ? Number(pl.age) : null;
+    var proj = projections && projections[p.player_id]!=null ? Number(projections[p.player_id]) : null;
+    if(proj!=null && !isFinite(proj)) proj = null;
+    return {rank:rank, pos:pos, age:age, proj:proj};
+  }
+
+  // Group the drafted pool by position.
+  var byPos={}, haveProj=0, total=0;
+  picks.forEach(function(p){
+    var info = infoFor(p);
+    if(info.pos==="?") return;
+    total++;
+    if(info.proj!=null) haveProj++;
+    (byPos[info.pos] = byPos[info.pos] || []).push({pick:p.pick_no, info:info});
+  });
+  var useProj = total>0 && haveProj/total >= 0.6;
+
+  var expected = {}, vorpOf = {};
+
+  if(useProj){
+    // Replacement level is the last startable body at each position.
+    var board = [];
+    Object.keys(byPos).forEach(function(pos){
+      var list = byPos[pos].filter(function(x){ return x.info.proj!=null; })
+        .sort(function(a,b){ return b.info.proj-a.info.proj; });
+      if(!list.length) return;
+      var idx = Math.max(0, Math.min(list.length-1, Math.round(demand[pos]||list.length)));
+      var repl = list[idx] ? list[idx].info.proj : list[list.length-1].info.proj;
+      list.forEach(function(x){
+        var v = x.info.proj - repl;
+        vorpOf[x.pick] = v;
+        board.push({pick:x.pick, v:v});
+      });
+    });
+    var used = board.map(function(x){ return x.pick; }).sort(function(a,b){ return a-b; });
+    board.sort(function(a,b){ return b.v-a.v; });
+    board.forEach(function(x,i){ expected[x.pick] = used[i]; });
+  } else {
+    Object.keys(byPos).forEach(function(pos){
+      var list = byPos[pos].filter(function(x){ return x.info.rank!=null; });
+      if(!list.length) return;
+      var used = list.map(function(x){ return x.pick; }).sort(function(a,b){ return a-b; });
+      list.slice().sort(function(a,b){ return a.info.rank-b.info.rank; })
+        .forEach(function(x,i){ expected[x.pick] = used[i]; });
+    });
+  }
 
   var byRoster = {};
   picks.forEach(function(p){
     var rid = p.roster_id;
     if(rid==null) return;
-    if(!byRoster[rid]) byRoster[rid]={rid:rid, picks:[], value:0, counted:0, ages:[], positions:{}};
-    var slot = byRoster[rid];
-    var pl = players && players[p.player_id];
-    var rank = pl && pl.search_rank!=null ? Number(pl.search_rank) : null;
-    var pos = (pl && pl.position) || (p.metadata && p.metadata.position) || "?";
-    slot.positions[pos] = (slot.positions[pos]||0)+1;
-    if(pl && pl.age) slot.ages.push(Number(pl.age));
+    if(!byRoster[rid]) byRoster[rid] = {rid:rid, picks:[], ages:[], positions:{}};
+    var slot = byRoster[rid], info = infoFor(p);
+    slot.positions[info.pos] = (slot.positions[info.pos]||0)+1;
+    if(info.age) slot.ages.push(info.age);
 
-    var value = null;
-    var seat = consensus[p.pick_no];
-    if(seat!=null){
-      value = p.pick_no - seat;                 // positive = fell to you
-      if(value >  75) value =  75;              // one pick shouldn't decide it
+    var value = null, exp = expected[p.pick_no];
+    if(exp!=null){
+      value = p.pick_no - exp;
+      if(value >  75) value =  75;
       if(value < -75) value = -75;
-      slot.value += value;
-      slot.counted++;
     }
-    slot.picks.push({pid:p.player_id, pick:p.pick_no, round:p.round, pos:pos, rank:rank, value:value});
+    slot.picks.push({pid:p.player_id, pick:p.pick_no, round:p.round, pos:info.pos,
+                     rank:info.rank, proj:info.proj, vorp:vorpOf[p.pick_no]!=null?vorpOf[p.pick_no]:null,
+                     expected:exp, value:value});
   });
 
   var rows = Object.keys(byRoster).map(function(k){
     var s = byRoster[k];
-    s.avgValue = s.counted ? s.value/s.counted : 0;
+
+    // Who on this roster is plausibly a starter at their own position.
+    var seen = {};
+    s.picks.slice().sort(function(a,b){
+      if(useProj) return (b.proj==null?-1e9:b.proj) - (a.proj==null?-1e9:a.proj);
+      return (a.rank==null?1e9:a.rank) - (b.rank==null?1e9:b.rank);
+    }).forEach(function(p){
+      var n = (seen[p.pos] = (seen[p.pos]||0)+1);
+      p.starter = n <= depthFor(p.pos);
+      p.weight = p.starter ? 1 : 0.35;
+    });
+
+    var wv=0, wt=0;
+    s.picks.forEach(function(p){
+      if(p.value==null) return;
+      wv += p.value*p.weight;
+      wt += p.weight;
+    });
+    s.value = wv;
+    s.counted = s.picks.filter(function(p){ return p.value!=null; }).length;
+    s.avgValue = wt ? wv/wt : 0;
     s.avgAge = s.ages.length ? s.ages.reduce(function(t,v){return t+v;},0)/s.ages.length : null;
+    s.basis = useProj ? "projection" : "rank";
     s.picks.sort(function(a,b){ return a.pick-b.pick; });
-    s.best = s.picks.filter(function(p){return p.value!=null;})
-      .sort(function(a,b){ return b.value-a.value; })[0] || null;
-    s.worst = s.picks.filter(function(p){return p.value!=null;})
-      .sort(function(a,b){ return a.value-b.value; })[0] || null;
+
+    var scored = s.picks.filter(function(p){ return p.value!=null && p.starter; });
+    if(!scored.length) scored = s.picks.filter(function(p){ return p.value!=null; });
+    s.best  = scored.slice().sort(function(a,b){ return b.value-a.value; })[0] || null;
+    s.worst = scored.slice().sort(function(a,b){ return a.value-b.value; })[0] || null;
     return s;
   });
   rows.sort(function(a,b){ return b.avgValue-a.avgValue; });
   return rows;
 }
-
 /* ============================================================
    BOOT
    ============================================================ */
@@ -768,7 +869,7 @@ function preseasonWire(){
 
   // Cross-reference the draft: did the projections agree with the draft grade?
   if(S.draftPicks&&S.draftPicks.length&&S.players){
-    var dr=gradeDraft(S.draftPicks,S.players,S.rosters.length);
+    var dr=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.projections,S.rosters.length);
     if(dr.length){
       var bestDraft=dr[0];
       var projRank={};
@@ -941,6 +1042,138 @@ function buildWire(){
 /* ============================================================
    NEWSROOM
    ============================================================ */
+
+/* ============================================================
+   THE POLL
+   Analysts submit ballots in news.json. The page does the counting,
+   which keeps the opinions opinionated and the arithmetic honest.
+   ============================================================ */
+function resolveTeam(name){
+  var n=String(name||"").trim().toLowerCase();
+  if(!n) return null;
+  var i, rid;
+  for(i=0;i<S.rosters.length;i++){
+    rid=S.rosters[i].roster_id;
+    if(teamName(rid).trim().toLowerCase()===n) return rid;
+  }
+  for(i=0;i<S.rosters.length;i++){
+    rid=S.rosters[i].roster_id;
+    if(String(manager(rid)).trim().toLowerCase()===n) return rid;
+  }
+  // Curly apostrophes, emoji and stray punctuation should never decide this.
+  var k=normKey(n);
+  if(k){
+    for(i=0;i<S.rosters.length;i++){
+      rid=S.rosters[i].roster_id;
+      if(normKey(teamName(rid))===k) return rid;
+    }
+    for(i=0;i<S.rosters.length;i++){
+      rid=S.rosters[i].roster_id;
+      var tk=normKey(teamName(rid));
+      if(tk&&(tk.indexOf(k)===0||k.indexOf(tk)===0)) return rid;
+    }
+  }
+  for(i=0;i<S.rosters.length;i++){
+    rid=S.rosters[i].roster_id;
+    var t=teamName(rid).trim().toLowerCase();
+    if(t.indexOf(n)===0||n.indexOf(t)===0) return rid;
+  }
+  return null;
+}
+function normKey(s){
+  return String(s==null?"":s).toLowerCase().replace(/[^a-z0-9]/g,"");
+}
+
+function pollHTML(){
+  var poll=S.news&&S.news.poll;
+  if(!poll||!poll.ballots||!poll.ballots.length) return "";
+
+  var voters=[], tally={}, unresolved=[];
+  poll.ballots.forEach(function(b){
+    var order=b.ranking||[];
+    if(!order.length) return;
+    var a=ANALYSTS[b.analyst]||{name:b.analyst||"Anonymous",role:"",color:"var(--dim)"};
+    voters.push({key:b.analyst, meta:a, comment:b.comment||""});
+    order.forEach(function(nm,i){
+      var rid=resolveTeam(nm);
+      if(rid==null){ if(unresolved.indexOf(nm)<0) unresolved.push(nm); return; }
+      if(!tally[rid]) tally[rid]={rid:rid, points:0, firsts:0, ranks:{}};
+      tally[rid].points += (order.length - i);
+      if(i===0) tally[rid].firsts++;
+      tally[rid].ranks[b.analyst] = i+1;
+    });
+  });
+  if(!voters.length) return "";
+
+  var rows=Object.keys(tally).map(function(k){ return tally[k]; })
+    .sort(function(a,b){ return b.points-a.points||b.firsts-a.firsts; });
+  if(!rows.length) return "";
+
+  var h='<h2>'+esc(poll.title||"The poll")+'</h2>'
+    +'<p class="note">'
+    +esc(poll.note||("Each desk submits a full ballot. First place is worth "+S.rosters.length+" points down to 1, exactly like the college football polls. The page counts the votes."))
+    +'</p>';
+
+  h+='<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Points</th><th>First</th>';
+  voters.forEach(function(v){
+    var short=v.meta.name.split(" ").slice(-1)[0];
+    h+='<th>'+esc(short)+'</th>';
+  });
+  h+='<th>Spread</th></tr></thead><tbody>';
+
+  rows.forEach(function(r,i){
+    h+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.rid)+'</td>'
+      +'<td>'+r.points+'</td><td>'+(r.firsts||'')+'</td>';
+    var vals=[];
+    voters.forEach(function(v){
+      var rk=r.ranks[v.key];
+      if(rk) vals.push(rk);
+      h+='<td>'+(rk||'--')+'</td>';
+    });
+    var spread=vals.length>1?Math.max.apply(null,vals)-Math.min.apply(null,vals):0;
+    h+='<td class="'+(spread>=5?"neg":"")+'">'+(spread||'')+'</td></tr>';
+  });
+  h+='</tbody></table></div>';
+
+  // Where the room disagrees most.
+  var arg=rows.slice().map(function(r){
+    var vals=[];
+    voters.forEach(function(v){ if(r.ranks[v.key]) vals.push({k:v.key,r:r.ranks[v.key]}); });
+    if(vals.length<2) return null;
+    vals.sort(function(a,b){ return a.r-b.r; });
+    return {rid:r.rid, low:vals[0], high:vals[vals.length-1], spread:vals[vals.length-1].r-vals[0].r};
+  }).filter(Boolean).sort(function(a,b){ return b.spread-a.spread; })[0];
+
+  if(arg&&arg.spread>=3){
+    var hiName=(ANALYSTS[arg.low.k]||{}).name||arg.low.k;
+    var loName=(ANALYSTS[arg.high.k]||{}).name||arg.high.k;
+    h+='<div class="wire" style="margin-top:14px"><div class="wire-item">'
+      +'<div class="hl"><span class="tag">Split</span>'+esc(teamName(arg.rid))
+      +' is the biggest argument in the room</div>'
+      +'<div class="dt">'+esc(hiName)+' has them '+ordinal(arg.low.r)+'. '
+      +esc(loName)+' has them '+ordinal(arg.high.r)+'. '+arg.spread+' spots apart.</div></div></div>';
+  }
+
+  if(voters.some(function(v){ return v.comment; })){
+    h+='<div class="takes" style="margin-top:18px;border-top:none;padding-top:0">';
+    voters.forEach(function(v){
+      if(!v.comment) return;
+      var initials=v.meta.name.replace(/^The\s+/i,"").slice(0,2);
+      h+='<div class="take">'
+        +'<div class="face" style="background:'+v.meta.color+'">'+esc(initials)+'</div>'
+        +'<div class="body"><div class="who">'+esc(v.meta.name)
+        +(v.meta.role?'<span class="role">'+esc(v.meta.role)+'</span>':'')+'</div>'
+        +'<div class="txt">'+esc(v.comment)+'</div></div></div>';
+    });
+    h+='</div>';
+  }
+
+  if(unresolved.length){
+    h+='<p class="note" style="margin-top:12px">Not matched to a team: '+esc(unresolved.join(", "))+'</p>';
+  }
+  return h+'<div style="height:34px"></div>';
+}
+
 function renderNews(){
   var html='<h2>The wire</h2>'
     +'<p class="note">'
@@ -960,6 +1193,8 @@ function renderNews(){
   } else {
     html+='<div class="msg" style="margin-bottom:34px">Nothing to report yet. The wire fills in as soon as a week goes final.</div>';
   }
+
+  html+=pollHTML();
 
   html+='<h2>The desk</h2>'
     +'<p class="note">Longer pieces. These come from news.json, sitting next to this page.</p>';
@@ -1105,7 +1340,7 @@ function briefingText(){
   }
 
   if(S.draftPicks&&S.draftPicks.length&&S.players){
-    var dr=gradeDraft(S.draftPicks,S.players,S.rosters.length);
+    var dr=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.projections,S.rosters.length);
     if(dr.length){
       L.push("DRAFT VALUE (positive means players fell to them, negative means they reached)");
       dr.forEach(function(r,i){
@@ -1374,7 +1609,7 @@ function repaint(){
 
 function afterPlayers(){
   repaint();
-  loadProjections().then(function(){ renderPower(); renderWeek(); renderNews(); });
+  loadProjections().then(function(){ renderPower(); renderWeek(); renderDraft(); renderNews(); });
 }
 
 /* ============================================================
@@ -1792,6 +2027,17 @@ function swapHTML(){
 /* ============================================================
    DRAFT REPORT CARD
    ============================================================ */
+function draftBasisNote(){
+  if(S.projections){
+    return 'Each player is valued by projected points above the last startable body at his own position, so a quarterback is measured against '
+      + 'quarterbacks and a kicker is worth close to nothing whenever he went. That board is matched back onto the picks this league actually spent. '
+      + 'Positive means value fell to you, negative means you reached. Players who would not crack your starting lineup count for a third as much, '
+      + 'because a steal on your fifth receiver does not win anything.';
+  }
+  return 'Projections are unavailable, so players are ranked against others at their own position using Sleeper\u2019s ranking. That removes the fake '
+    + 'bonus every team gets for waiting on quarterback, but it cannot tell you that a kicker went too early.';
+}
+
 function renderDraft(){
   var box=$("tab-draft");
   if(!S.draftPicks||!S.draftPicks.length){
@@ -1803,7 +2049,7 @@ function renderDraft(){
     return;
   }
 
-  var rows=gradeDraft(S.draftPicks,S.players,S.rosters.length);
+  var rows=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.projections,S.rosters.length);
   if(!rows.length){
     box.innerHTML='<h2>Draft report card</h2><div class="msg">Draft picks came back without team assignments, so they cannot be graded.</div>';
     return;
@@ -1814,16 +2060,15 @@ function renderDraft(){
   starters.forEach(function(s){ need[s]=(need[s]||0)+1; });
 
   var html='<h2>Draft report card</h2>'
-    +'<p class="note">Every player taken in this draft, reordered by how highly Sleeper ranks them, then matched back against the picks that were actually used. '
-    +'Positive means players fell to you, negative means you reached. It nets to zero across the league, so this is purely who beat whom. '
-    +'Sleeper&rsquo;s ranking is a popularity proxy rather than a projection, so read it as a strong opinion, not a verdict.</p>'
+    +'<p class="note">'+draftBasisNote()+'</p>'
     +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Value per pick</th><th>Best pick</th><th>Worst pick</th><th>Average age</th></tr></thead><tbody>';
 
   rows.forEach(function(r,i){
     var cls=r.avgValue>3?"pos":(r.avgValue<-3?"neg":"");
     function pk(p){
       if(!p) return "--";
-      return '<div>'+esc(playerName(p.pid))+'</div><div class="mgr">pick '+p.pick+', '+(p.value>0?'+':'')+p.value+'</div>';
+      return '<div>'+esc(playerName(p.pid))+'</div><div class="mgr">'+esc(p.pos)+', pick '+p.pick
+        +(p.expected!=null&&p.expected!==p.pick?' vs '+p.expected:'')+', '+(p.value>0?'+':'')+p.value+'</div>';
     }
     html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.rid)+'</td>'
       +'<td class="'+cls+'">'+(r.avgValue>0?'+':'')+num(r.avgValue,1)+'</td>'
