@@ -1,0 +1,29 @@
+{
+  "week": 0,
+  "generated": "sample",
+  "stories": [
+    {
+      "sample": true,
+      "headline": "This is where the written stories go",
+      "body": "Everything in this file is an example so you can see the shape of it. Replace the whole stories list with real ones and this banner disappears.\n\nA story has a headline, a body of one or more paragraphs, and any number of takes from the analyst characters. Blank lines in the body become separate paragraphs. Nothing here is fetched from anywhere, so the writing can be as long or as short as you want.",
+      "takes": [
+        {
+          "analyst": "analyst",
+          "text": "The format is deliberately boring so the writing can carry it. Headline, body, takes. That's the whole schema."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "I have not read the body of this story and I already disagree with it. Put me down for the opposite of whatever it says."
+        },
+        {
+          "analyst": "quant",
+          "text": "Four analysts, one JSON file, zero servers. The efficiency here is the story nobody is covering."
+        },
+        {
+          "analyst": "troll",
+          "text": "Imagine building a whole newspaper about twelve guys who can't set a lineup on time."
+        }
+      ]
+    }
+  ]
+}

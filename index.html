@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sigma Pi B</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --turf:#0D1411; --panel:#141F1A; --panel2:#1B2A23; --line:#25392F;
+    --text:#E9EFEA; --dim:#8CA398;
+    --gold:#F0C24B; --flag:#E2593B; --good:#5FCB8B; --cool:#6FB3D2; --violet:#A98BD6;
+    --sans:'Barlow',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --cond:'Barlow Condensed','Barlow',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{background:var(--turf);color:var(--text);font-family:var(--sans);font-size:16px;line-height:1.5;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:940px;margin:0 auto;padding:0 16px 80px}
+
+  .masthead{padding:28px 0 18px;border-bottom:1px solid var(--line);display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .masthead h1{font-family:var(--cond);font-weight:700;font-size:clamp(34px,7vw,52px);letter-spacing:-.01em;line-height:.95;margin:0}
+  .masthead .sub{color:var(--dim);font-size:14px;margin-top:6px}
+  .clock{font-family:var(--cond);font-weight:600;font-size:15px;color:var(--gold);border:1px solid var(--line);border-radius:2px;padding:5px 10px;white-space:nowrap}
+
+  nav{display:flex;gap:2px;margin:0 -16px;padding:10px 16px;overflow-x:auto;-webkit-overflow-scrolling:touch;border-bottom:1px solid var(--line);position:sticky;top:0;background:var(--turf);z-index:20}
+  nav button{font-family:var(--cond);font-size:19px;font-weight:600;background:none;border:none;border-bottom:2px solid transparent;color:var(--dim);padding:6px 12px;cursor:pointer;white-space:nowrap}
+  nav button:hover{color:var(--text)}
+  nav button[aria-selected="true"]{color:var(--gold);border-bottom-color:var(--gold)}
+  nav button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  section[hidden]{display:none}
+  section{padding-top:22px}
+  h2{font-family:var(--cond);font-weight:600;font-size:26px;margin:0 0 4px;letter-spacing:.01em}
+  .note{color:var(--dim);font-size:14px;margin:0 0 18px}
+
+  /* ---------- the wire (auto-generated takes) ---------- */
+  .wire{display:grid;gap:1px;background:var(--line);border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-bottom:34px}
+  .wire-item{background:var(--panel);padding:12px 14px}
+  .wire-item .hl{font-family:var(--cond);font-weight:600;font-size:20px;line-height:1.15;margin-bottom:3px}
+  .wire-item .dt{color:var(--dim);font-size:13.5px;font-variant-numeric:tabular-nums}
+  .wire-item .tag{color:var(--gold);font-family:var(--cond);font-size:14px;font-weight:600;margin-right:8px}
+
+  /* ---------- stories ---------- */
+  .story{border:1px solid var(--line);border-radius:3px;background:var(--panel);padding:18px 16px;margin-bottom:14px}
+  .story h3{font-family:var(--cond);font-weight:700;font-size:clamp(23px,4.4vw,30px);line-height:1.08;margin:0 0 10px}
+  .story p{margin:0 0 11px;font-size:15.5px;max-width:66ch}
+  .story p:last-of-type{margin-bottom:0}
+  .sample{border:1px dashed var(--gold);color:var(--gold);font-size:13px;border-radius:2px;padding:5px 9px;margin-bottom:12px}
+
+  .takes{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;display:grid;gap:12px}
+  .take{display:flex;gap:11px}
+  .face{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-weight:700;font-size:16px;color:var(--turf)}
+  .take .body{flex:1;min-width:0}
+  .take .who{font-weight:600;font-size:14.5px}
+  .take .role{color:var(--dim);font-weight:400;font-size:13px;margin-left:7px}
+  .take .txt{font-size:15px;margin-top:2px;max-width:64ch}
+
+  .btn{font-family:var(--cond);font-size:18px;font-weight:600;background:var(--gold);color:var(--turf);border:none;border-radius:3px;padding:9px 16px;cursor:pointer}
+  .btn:hover{filter:brightness(1.08)}
+  .btn:focus-visible{outline:2px solid var(--text);outline-offset:2px}
+  .btn.ghost{background:none;color:var(--dim);border:1px solid var(--line)}
+  .btn.ghost:hover{color:var(--text)}
+  .bar{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:26px 0 0;padding-top:18px;border-top:1px solid var(--line)}
+  .bar .hint{color:var(--dim);font-size:13.5px;flex:1;min-width:200px}
+
+  /* ---------- scoreboard ---------- */
+  .board{display:grid;gap:10px}
+  .game{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:12px 14px;display:grid;gap:8px}
+  .side{display:flex;align-items:center;gap:10px}
+  .side .pts{margin-left:auto;font-family:var(--cond);font-weight:700;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;color:var(--dim)}
+  .side.lead .pts{color:var(--gold)}
+  .side.lead .tname{color:var(--text)}
+  .tname{font-weight:600;font-size:15px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .mgr{color:var(--dim);font-size:12.5px;font-weight:400}
+  .av{width:30px;height:30px;border-radius:50%;background:var(--panel2);flex:none;object-fit:cover}
+  .gap{border-top:1px dashed var(--line);padding-top:7px;font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
+
+  /* ---------- tables ---------- */
+  .scroll{overflow-x:auto;margin:0 -16px;padding:0 16px}
+  table{border-collapse:collapse;width:100%;min-width:560px}
+  th,td{padding:9px 8px;text-align:right;font-variant-numeric:tabular-nums;font-size:14.5px}
+  th{font-family:var(--cond);font-weight:600;font-size:15px;color:var(--dim);border-bottom:1px solid var(--line);white-space:nowrap}
+  td{border-bottom:1px solid rgba(37,57,47,.55)}
+  th:first-child,td:first-child{text-align:center;width:34px;padding-left:0;color:var(--dim)}
+  th:nth-child(2),td:nth-child(2){text-align:left}
+  tbody tr:hover{background:var(--panel)}
+  .team-cell{display:flex;align-items:center;gap:9px;min-width:190px}
+  .team-cell .tname{color:var(--text)}
+  .rank-1 td:first-child{color:var(--gold);font-weight:600}
+  .pos{color:var(--good)} .neg{color:var(--flag)}
+
+  /* ---------- moves ---------- */
+  .feed{display:grid;gap:10px}
+  .move{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:12px 14px}
+  .move-top{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;margin-bottom:8px}
+  .kind{font-family:var(--cond);font-weight:600;font-size:15px;color:var(--turf);background:var(--gold);border-radius:2px;padding:1px 7px}
+  .kind.trade{background:var(--good)}
+  .when{color:var(--dim);font-size:12.5px;margin-left:auto}
+  .line{display:flex;align-items:center;gap:9px;padding:3px 0;font-size:14.5px}
+  .line .pav{width:26px;height:26px;border-radius:3px;background:var(--panel2);flex:none;object-fit:cover}
+  .who{color:var(--dim);font-size:13px}
+  .bids{margin-top:9px;border-top:1px dashed var(--line);padding-top:8px}
+  .bid{display:flex;gap:10px;font-size:13.5px;color:var(--dim);padding:2px 0}
+  .bid b{font-family:var(--cond);font-size:16px;font-weight:700;min-width:44px;color:var(--dim);font-variant-numeric:tabular-nums}
+  .bid.win{color:var(--text)} .bid.win b{color:var(--gold)}
+  .bid .lbl{margin-left:auto;font-size:12px}
+
+  .msg{border:1px solid var(--line);border-radius:3px;background:var(--panel);padding:18px;color:var(--dim);font-size:15px}
+  .msg.bad{border-color:var(--flag);color:var(--text)}
+  .msg code{font-size:13px;color:var(--gold);word-break:break-all}
+  .season-block{margin-bottom:30px}
+  .season-head{display:flex;align-items:baseline;gap:12px;border-bottom:1px solid var(--line);padding-bottom:6px;margin-bottom:4px}
+  .season-head h3{font-family:var(--cond);font-weight:700;font-size:24px;margin:0}
+  .champ{color:var(--gold);font-size:14px}
+  footer{margin-top:44px;padding-top:16px;border-top:1px solid var(--line);color:var(--dim);font-size:13px}
+  @media (prefers-reduced-motion:no-preference){
+    .game,.move,.story{animation:in .3s ease both}
+    @keyframes in{from{opacity:0}to{opacity:1}}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <h1 id="leagueName">Loading league</h1>
+      <div class="sub" id="leagueSub">Connecting to Sleeper</div>
+    </div>
+    <div class="clock" id="clock"></div>
+  </header>
+
+  <nav role="tablist">
+    <button role="tab" data-tab="news" aria-selected="true">Newsroom</button>
+    <button role="tab" data-tab="week" aria-selected="false">Scoreboard</button>
+    <button role="tab" data-tab="standings" aria-selected="false">Standings</button>
+    <button role="tab" data-tab="power" aria-selected="false">Power</button>
+    <button role="tab" data-tab="moves" aria-selected="false">Moves</button>
+    <button role="tab" data-tab="history" aria-selected="false">History</button>
+  </nav>
+
+  <section id="tab-news"><div class="msg">Reading the league.</div></section>
+  <section id="tab-week" hidden></section>
+  <section id="tab-standings" hidden></section>
+  <section id="tab-power" hidden></section>
+  <section id="tab-moves" hidden></section>
+  <section id="tab-history" hidden></section>
+
+  <footer>
+    Live data from the Sleeper API, read fresh every time this page loads. Nothing is stored anywhere.
+  </footer>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ============================================================
+   CONFIG
+   ============================================================ */
+var LEAGUE_ID = "1385278901562929152";   // Sigma Pi B, 2026
+
+/* The analyst characters. Rename them, recolor them, add more,
+   delete the ones you hate. The key on the left is what news.json
+   refers to. */
+var ANALYSTS = {
+  analyst:     { name:"Ward Delaney",   role:"lead analyst",            color:"var(--cool)"   },
+  firestarter: { name:"Deacon Pyle",    role:"this is about character", color:"var(--flag)"   },
+  quant:       { name:"Odessa Prine",   role:"numbers desk",            color:"var(--gold)"   },
+  troll:       { name:"Roy Tannehill",  role:"never wrong, ask him",    color:"var(--violet)" }
+};
+
+/* Where the written stories come from.
+   "news.json"  = a file sitting next to this page. Updating it means redeploying.
+   A full URL   = anywhere else, e.g. a GitHub gist raw link. Updating it means
+                  editing that file and nothing else. No redeploy, no credits. */
+var NEWS_URL = "news.json";
+
+var API = "https://api.sleeper.app/v1";
+
+/* Add ?desk to the URL to reveal the briefing tools. Without it the
+   site is read-only and gives no hint that a human is involved. */
+var DESK = /[?&]desk\b/.test(location.search);
+
+var S = {
+  league:null, users:{}, rosters:[], week:1, lastWeek:1,
+  matchups:{}, transactions:[], claims:[], players:null,
+  news:null, historyLoaded:false, finalWeek:0
+};
+
+/* ---------- helpers ---------- */
+function $(id){ return document.getElementById(id); }
+function esc(s){
+  return String(s==null?"":s).replace(/[&<>"']/g,function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+function num(n,d){ d=d==null?2:d; var v=Number(n); return isFinite(v)?v.toFixed(d):"0.00"; }
+function get(path){
+  return fetch(API+path).then(function(r){
+    if(!r.ok) throw new Error("Sleeper returned "+r.status+" for "+path);
+    return r.json();
+  });
+}
+function pts(a,b){ return (Number(a)||0) + (Number(b)||0)/100; }
+function rosterById(id){
+  for(var i=0;i<S.rosters.length;i++){ if(S.rosters[i].roster_id===id) return S.rosters[i]; }
+  return null;
+}
+function teamName(rid){
+  var r=rosterById(rid); if(!r) return "Roster "+rid;
+  var u=S.users[r.owner_id]; if(!u) return "Roster "+rid;
+  return (u.metadata&&u.metadata.team_name)||u.display_name||("Roster "+rid);
+}
+function manager(rid){ var r=rosterById(rid),u=r&&S.users[r.owner_id]; return u?(u.display_name||""):""; }
+function avatar(rid){
+  var r=rosterById(rid),u=r&&S.users[r.owner_id];
+  return u&&u.avatar?"https://sleepercdn.com/avatars/thumbs/"+u.avatar:"";
+}
+function teamCell(rid){
+  var av=avatar(rid),mg=manager(rid);
+  return '<div class="team-cell">'
+    +(av?'<img class="av" src="'+esc(av)+'" alt="" loading="lazy">':'<div class="av"></div>')
+    +'<div><div class="tname">'+esc(teamName(rid))+'</div>'
+    +(mg?'<div class="mgr">'+esc(mg)+'</div>':'')+'</div></div>';
+}
+function playerName(pid){
+  if(!pid) return "";
+  if(S.players&&S.players[pid]){
+    var p=S.players[pid];
+    return p.full_name||((p.first_name||"")+" "+(p.last_name||"")).trim()||pid;
+  }
+  if(/^[A-Z]{2,3}$/.test(pid)) return pid+" defense";
+  return "Player "+pid;
+}
+function playerMeta(pid){
+  var p=S.players&&S.players[pid]; if(!p) return "";
+  return [p.position,p.team].filter(Boolean).join(" · ");
+}
+function playerImg(pid){
+  if(/^[A-Z]{2,3}$/.test(pid)) return "https://sleepercdn.com/images/team_logos/nfl/"+pid.toLowerCase()+".png";
+  return "https://sleepercdn.com/content/nfl/players/thumb/"+pid+".jpg";
+}
+function playerLine(pid){
+  var meta=playerMeta(pid);
+  return '<div class="line">'
+    +'<img class="pav" src="'+esc(playerImg(pid))+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
+    +'<span>'+esc(playerName(pid))+'</span>'
+    +(meta?'<span class="who">'+esc(meta)+'</span>':'')+'</div>';
+}
+function when(ms){
+  if(!ms) return "";
+  var d=new Date(Number(ms)); if(isNaN(d.getTime())) return "";
+  return d.toLocaleDateString(undefined,{month:"short",day:"numeric"});
+}
+function fail(msg){
+  $("tab-news").innerHTML='<div class="msg bad"><b>Could not load the league.</b><br>'+esc(msg)
+    +'<br><br>Most likely no internet, or the league ID in this file is wrong. Current ID: <code>'+esc(LEAGUE_ID)+'</code></div>';
+}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function boot(){
+  var state;
+  var newsSrc = NEWS_URL + (NEWS_URL.indexOf("?")<0?"?":"&") + "t=" + Date.now();
+  fetch(newsSrc,{cache:"no-store"})
+    .then(function(r){ return r.ok?r.json():null; })
+    .catch(function(){ return null; })
+    .then(function(n){ S.news=n; return get("/state/nfl"); })
+    .then(function(st){
+      state=st||{};
+      return Promise.all([
+        get("/league/"+LEAGUE_ID),
+        get("/league/"+LEAGUE_ID+"/users"),
+        get("/league/"+LEAGUE_ID+"/rosters")
+      ]);
+    })
+    .then(function(res){
+      S.league=res[0]||{};
+      (res[1]||[]).forEach(function(u){ S.users[u.user_id]=u; });
+      S.rosters=res[2]||[];
+
+      var wk=Number(state.display_week||state.week||1)||1;
+      if(String(S.league.season)!==String(state.season)) wk=1;
+      S.week=Math.max(1,Math.min(wk,18));
+      S.lastWeek=S.week;
+
+      S.finalWeek=0;
+      S.rosters.forEach(function(r){
+        var st2=r.settings||{};
+        var g=(Number(st2.wins)||0)+(Number(st2.losses)||0)+(Number(st2.ties)||0);
+        if(g>S.finalWeek) S.finalWeek=g;
+      });
+      if(S.finalWeek>S.lastWeek) S.finalWeek=S.lastWeek;
+
+      paintMasthead();
+
+      var weeks=[],w;
+      for(w=1;w<=S.lastWeek;w++) weeks.push(w);
+      return Promise.all([
+        Promise.all(weeks.map(function(w){ return get("/league/"+LEAGUE_ID+"/matchups/"+w).catch(function(){return [];}); })),
+        Promise.all(weeks.map(function(w){ return get("/league/"+LEAGUE_ID+"/transactions/"+w).catch(function(){return [];}); }))
+      ]).then(function(out){
+        weeks.forEach(function(w,i){ S.matchups[w]=out[0][i]||[]; });
+        var tx=[];
+        weeks.forEach(function(w,i){ (out[1][i]||[]).forEach(function(t){ t._week=w; tx.push(t); }); });
+        tx.sort(function(a,b){ return (b.status_updated||0)-(a.status_updated||0); });
+        S.transactions=tx;
+        S.claims=buildClaims();
+      });
+    })
+    .then(function(){
+      renderNews(); renderWeek(); renderStandings(); renderPower(); renderMoves();
+      loadPlayers();
+    })
+    .catch(function(e){ fail(e.message||String(e)); });
+}
+
+function paintMasthead(){
+  $("leagueName").textContent=S.league.name||"Sigma Pi B";
+  var bits=[S.league.season+" season",(S.rosters.length||12)+" teams"];
+  if(S.league.scoring_settings&&S.league.scoring_settings.rec) bits.push("PPR");
+  $("leagueSub").textContent=bits.join(", ");
+  var ps=(S.league.settings&&S.league.settings.playoff_week_start)||15;
+  $("clock").textContent=(S.week>=ps?"Playoffs, week ":"Week ")+S.week;
+}
+
+/* ============================================================
+   ANALYSIS — every number the newsroom is allowed to use
+   ============================================================ */
+function weeklyScores(){
+  var byRoster={};
+  S.rosters.forEach(function(r){ byRoster[r.roster_id]=[]; });
+  Object.keys(S.matchups).forEach(function(w){
+    if(Number(w)>S.finalWeek) return;
+    var played=(S.matchups[w]||[]).some(function(m){ return (Number(m.points)||0)>0; });
+    if(!played) return;
+    (S.matchups[w]||[]).forEach(function(m){
+      if(byRoster[m.roster_id]) byRoster[m.roster_id].push({week:Number(w),points:Number(m.points)||0});
+    });
+  });
+  Object.keys(byRoster).forEach(function(k){ byRoster[k].sort(function(a,b){return a.week-b.week;}); });
+  return byRoster;
+}
+
+function allPlay(){
+  var scores=weeklyScores(),out={},weeks={};
+  S.rosters.forEach(function(r){ out[r.roster_id]={w:0,l:0,games:0}; });
+  Object.keys(scores).forEach(function(rid){
+    scores[rid].forEach(function(s){ (weeks[s.week]=weeks[s.week]||[]).push({rid:Number(rid),p:s.points}); });
+  });
+  Object.keys(weeks).forEach(function(w){
+    var list=weeks[w];
+    list.forEach(function(me){
+      list.forEach(function(o){
+        if(me.rid===o.rid) return;
+        out[me.rid].games++;
+        if(me.p>o.p) out[me.rid].w++; else if(me.p<o.p) out[me.rid].l++;
+      });
+    });
+  });
+  return out;
+}
+
+/* Points that sat on the bench, per team, for a given week. */
+function benchPoints(week){
+  var out={};
+  (S.matchups[week]||[]).forEach(function(m){
+    var starters={},total=0;
+    (m.starters||[]).forEach(function(p){ starters[p]=1; });
+    var pp=m.players_points||{};
+    Object.keys(pp).forEach(function(pid){ if(!starters[pid]) total+=Number(pp[pid])||0; });
+    out[m.roster_id]={points:total, best:bestBench(pp,starters)};
+  });
+  return out;
+}
+function bestBench(pp,starters){
+  var top=null;
+  Object.keys(pp).forEach(function(pid){
+    if(starters[pid]) return;
+    var v=Number(pp[pid])||0;
+    if(!top||v>top.points) top={pid:pid,points:v};
+  });
+  return top;
+}
+
+/* Pair up matchups for a week: [{a,b,margin}] */
+function games(week){
+  var g={},out=[];
+  (S.matchups[week]||[]).forEach(function(m){
+    if(m.matchup_id==null) return;
+    (g[m.matchup_id]=g[m.matchup_id]||[]).push(m);
+  });
+  Object.keys(g).forEach(function(k){
+    var p=g[k]; if(p.length<2) return;
+    var a=p[0],b=p[1];
+    var pa=Number(a.points)||0, pb=Number(b.points)||0;
+    out.push({
+      win: pa>=pb?a:b, lose: pa>=pb?b:a,
+      winPts: Math.max(pa,pb), losePts: Math.min(pa,pb),
+      margin: Math.abs(pa-pb)
+    });
+  });
+  return out;
+}
+
+function buildClaims(){
+  var map={},out=[];
+  S.transactions.forEach(function(t){
+    if(t.type!=="waiver"||!t.adds) return;
+    Object.keys(t.adds).forEach(function(pid){
+      var key=t._week+":"+pid;
+      var c=map[key];
+      if(!c){ c=map[key]={week:t._week,pid:pid,bids:[],when:t.status_updated}; out.push(c); }
+      c.bids.push({
+        roster:(t.roster_ids&&t.roster_ids[0])||t.adds[pid],
+        amount:(t.settings&&t.settings.waiver_bid)||0,
+        won:t.status==="complete",
+        drops:t.drops||null
+      });
+      if((t.status_updated||0)>(c.when||0)) c.when=t.status_updated;
+    });
+  });
+  out.forEach(function(c){ c.bids.sort(function(a,b){return b.amount-a.amount;}); });
+  out.sort(function(a,b){ return (b.when||0)-(a.when||0); });
+  return out;
+}
+
+/* ============================================================
+   THE WIRE — takes the page writes by itself, no AI involved
+   ============================================================ */
+function buildWire(){
+  var items=[], wk=S.finalWeek;
+  if(!wk) return items;
+
+  var gs=games(wk), bench=benchPoints(wk), ap=allPlay(), scores=weeklyScores();
+
+  // Everyone's score this week, ranked.
+  var week=[];
+  (S.matchups[wk]||[]).forEach(function(m){ week.push({rid:m.roster_id,p:Number(m.points)||0}); });
+  week.sort(function(a,b){ return b.p-a.p; });
+
+  // 1. Highest-scoring loser
+  var hiLoser=null;
+  gs.forEach(function(g){ if(!hiLoser||g.losePts>hiLoser.losePts) hiLoser=g; });
+  if(hiLoser){
+    var beatCount=week.filter(function(x){ return x.p<hiLoser.losePts; }).length;
+    items.push({
+      tag:"Week "+wk,
+      hl:esc(teamName(hiLoser.lose.roster_id))+" scored enough to beat "+beatCount+" of "+(week.length-1)+" teams and lost anyway",
+      dt:num(hiLoser.losePts)+" points, into a "+num(hiLoser.winPts)+" buzzsaw from "+esc(teamName(hiLoser.win.roster_id))+"."
+    });
+  }
+
+  // 2. Lowest-scoring winner
+  var loWinner=null;
+  gs.forEach(function(g){ if(!loWinner||g.winPts<loWinner.winPts) loWinner=g; });
+  if(loWinner && (!hiLoser || loWinner.win.roster_id!==hiLoser.win.roster_id)){
+    var lostToCount=week.filter(function(x){ return x.p>loWinner.winPts; }).length;
+    items.push({
+      tag:"Schedule luck",
+      hl:esc(teamName(loWinner.win.roster_id))+" won with "+num(loWinner.winPts)+" and "+lostToCount+" teams outscored them",
+      dt:"A win is a win. It is also, in this case, a coincidence."
+    });
+  }
+
+  // 3. Biggest bench crime
+  var worst=null;
+  Object.keys(bench).forEach(function(rid){
+    var b=bench[rid];
+    if(b.best && (!worst||b.best.points>worst.best.points)) worst={rid:Number(rid),best:b.best,points:b.points};
+  });
+  if(worst && worst.best.points>12){
+    items.push({
+      tag:"Bench",
+      hl:esc(teamName(worst.rid))+" left "+num(worst.best.points,1)+" points sitting on the bench",
+      dt:esc(playerName(worst.best.pid))+" put that up in street clothes. Total bench output: "+num(worst.points,1)+"."
+    });
+  }
+
+  // 4. Blowout and nailbiter
+  var blow=null,close=null;
+  gs.forEach(function(g){
+    if(!blow||g.margin>blow.margin) blow=g;
+    if(!close||g.margin<close.margin) close=g;
+  });
+  if(blow && blow.margin>30){
+    items.push({
+      tag:"Blowout",
+      hl:esc(teamName(blow.win.roster_id))+" beat "+esc(teamName(blow.lose.roster_id))+" by "+num(blow.margin,1),
+      dt:num(blow.winPts)+" to "+num(blow.losePts)+". Not a game so much as an errand."
+    });
+  }
+  if(close && close.margin<6 && (!blow||close!==blow)){
+    items.push({
+      tag:"Nailbiter",
+      hl:num(close.margin,2)+" points decided "+esc(teamName(close.win.roster_id))+" over "+esc(teamName(close.lose.roster_id)),
+      dt:"Somewhere in there, one flex decision was worth the whole week."
+    });
+  }
+
+  // 5. Season-long luck
+  var luck=S.rosters.map(function(r){
+    var st=r.settings||{}, w=Number(st.wins)||0;
+    var g=w+(Number(st.losses)||0)+(Number(st.ties)||0);
+    var a=ap[r.roster_id]||{w:0,games:0};
+    var pct=a.games?a.w/a.games:0;
+    return {rid:r.roster_id, luck:w-pct*g, w:w, exp:pct*g};
+  }).sort(function(a,b){ return b.luck-a.luck; });
+  if(luck.length>1 && S.finalWeek>=3){
+    var top=luck[0], bot=luck[luck.length-1];
+    if(top.luck>1){
+      items.push({
+        tag:"Fraud watch",
+        hl:esc(teamName(top.rid))+" is "+num(top.luck,1)+" wins ahead of what they have earned",
+        dt:"Record says "+top.w+" wins. The scores say "+num(top.exp,1)+"."
+      });
+    }
+    if(bot.luck<-1){
+      items.push({
+        tag:"Robbery",
+        hl:esc(teamName(bot.rid))+" is "+num(Math.abs(bot.luck),1)+" wins short of what they have earned",
+        dt:"Record says "+bot.w+" wins. The scores say "+num(bot.exp,1)+"."
+      });
+    }
+  }
+
+  // 6. Biggest overpay on waivers
+  var contested=S.claims.filter(function(c){ return c.bids.length>1 && c.bids[0].won; });
+  if(contested.length){
+    var gapMax=null;
+    contested.forEach(function(c){
+      var gap=c.bids[0].amount-c.bids[1].amount;
+      if(!gapMax||gap>gapMax.gap) gapMax={c:c,gap:gap};
+    });
+    if(gapMax && gapMax.gap>0){
+      var c=gapMax.c;
+      items.push({
+        tag:"FAAB",
+        hl:esc(teamName(c.bids[0].roster))+" paid $"+c.bids[0].amount+" for "+esc(playerName(c.pid))+" when $"+(c.bids[1].amount+1)+" would have done it",
+        dt:"Beat the next bid by $"+gapMax.gap+", with "+c.bids.length+" teams in on it."
+      });
+    }
+  }
+
+  // 7. Broke
+  var budget=(S.league.settings&&S.league.settings.waiver_budget)||100;
+  var broke=S.rosters.map(function(r){
+    return {rid:r.roster_id, left:budget-(Number((r.settings||{}).waiver_budget_used)||0)};
+  }).sort(function(a,b){ return a.left-b.left; })[0];
+  if(broke && broke.left<=budget*0.15){
+    items.push({
+      tag:"FAAB",
+      hl:esc(teamName(broke.rid))+" has $"+broke.left+" left for the rest of the season",
+      dt:"Every injury from here is a personal problem."
+    });
+  }
+
+  return items;
+}
+
+/* ============================================================
+   NEWSROOM
+   ============================================================ */
+function renderNews(){
+  var html='<h2>The wire</h2>'
+    +'<p class="note">Written by the page itself from this week&rsquo;s actual numbers. Always current, never wrong, no opinions it cannot back up.</p>';
+
+  var wire=buildWire();
+  if(wire.length){
+    html+='<div class="wire">';
+    wire.forEach(function(i){
+      html+='<div class="wire-item"><div class="hl"><span class="tag">'+esc(i.tag)+'</span>'+i.hl+'</div>'
+        +'<div class="dt">'+i.dt+'</div></div>';
+    });
+    html+='</div>';
+  } else {
+    html+='<div class="msg" style="margin-bottom:34px">Nothing to report yet. The wire fills in as soon as a week goes final.</div>';
+  }
+
+  html+='<h2>The desk</h2>'
+    +'<p class="note">Longer pieces. These come from news.json, sitting next to this page.</p>';
+
+  var stories=(S.news&&S.news.stories)||[];
+  if(stories.length){
+    stories.forEach(function(st){ html+=storyHTML(st); });
+  } else {
+    html+='<div class="msg">No stories loaded. Add a <code>news.json</code> file next to this page and they will appear here.</div>';
+  }
+
+  // The briefing tools only exist for whoever knows to add ?desk to the URL.
+  if(DESK){
+    html+='<div class="bar">'
+      +'<button class="btn" id="copyBriefing">Copy this week&rsquo;s briefing</button>'
+      +'<span class="hint">Only visible because this URL ends in ?desk. Nobody else sees this.</span>'
+      +'</div>';
+  }
+
+  $("tab-news").innerHTML=html;
+  var b=$("copyBriefing");
+  if(b) b.addEventListener("click",copyBriefing);
+}
+
+function storyHTML(st){
+  var h='<article class="story">';
+  if(st.sample) h+='<div class="sample">Sample story. Replace this in news.json.</div>';
+  h+='<h3>'+esc(st.headline||"Untitled")+'</h3>';
+  String(st.body||"").split(/\n\s*\n/).forEach(function(p){
+    if(p.trim()) h+='<p>'+esc(p.trim())+'</p>';
+  });
+  if(st.takes&&st.takes.length){
+    h+='<div class="takes">';
+    st.takes.forEach(function(t){
+      var a=ANALYSTS[t.analyst]||{name:t.analyst||"Anonymous",role:"",color:"var(--dim)"};
+      var initials=a.name.replace(/^The\s+/i,"").slice(0,2);
+      h+='<div class="take">'
+        +'<div class="face" style="background:'+a.color+'">'+esc(initials)+'</div>'
+        +'<div class="body"><div class="who">'+esc(a.name)
+        +(a.role?'<span class="role">'+esc(a.role)+'</span>':'')+'</div>'
+        +'<div class="txt">'+esc(t.text||"")+'</div></div></div>';
+    });
+    h+='</div>';
+  }
+  return h+'</article>';
+}
+
+/* ============================================================
+   BRIEFING — one clipboard dump of every fact the site knows
+   ============================================================ */
+function briefingText(){
+  var L=[], wk=S.finalWeek||S.week;
+  var ap=allPlay(), scores=weeklyScores();
+  var budget=(S.league.settings&&S.league.settings.waiver_budget)||100;
+
+  L.push("LEAGUE BRIEFING");
+  L.push((S.league.name||"League")+", "+S.league.season+" season, through week "+wk);
+  L.push("Teams: "+S.rosters.length+". FAAB budget: $"+budget+".");
+  L.push("");
+
+  L.push("STANDINGS (rank, team, manager, record, points for, points against, all-play, expected wins, luck)");
+  var rows=S.rosters.map(function(r){
+    var st=r.settings||{};
+    var w=Number(st.wins)||0,l=Number(st.losses)||0,t=Number(st.ties)||0;
+    var a=ap[r.roster_id]||{w:0,l:0,games:0};
+    var pct=a.games?a.w/a.games:0;
+    return {rid:r.roster_id,w:w,l:l,t:t,
+      pf:pts(st.fpts,st.fpts_decimal), pa:pts(st.fpts_against,st.fpts_against_decimal),
+      ap:a, exp:pct*(w+l+t), luck:w-pct*(w+l+t)};
+  }).sort(function(a,b){ return b.w-a.w||b.pf-a.pf; });
+  rows.forEach(function(r,i){
+    L.push((i+1)+". "+teamName(r.rid)+" ("+manager(r.rid)+") "+r.w+"-"+r.l+(r.t?"-"+r.t:"")
+      +", PF "+num(r.pf)+", PA "+num(r.pa)
+      +", all-play "+r.ap.w+"-"+r.ap.l
+      +", expected "+num(r.exp,1)+", luck "+(r.luck>0?"+":"")+num(r.luck,1));
+  });
+  L.push("");
+
+  if(S.finalWeek){
+    var bench=benchPoints(S.finalWeek);
+    L.push("WEEK "+S.finalWeek+" RESULTS");
+    games(S.finalWeek).forEach(function(g){
+      L.push(teamName(g.win.roster_id)+" "+num(g.winPts)+" def "+teamName(g.lose.roster_id)+" "+num(g.losePts)
+        +" (margin "+num(g.margin)+")");
+    });
+    L.push("");
+    L.push("WEEK "+S.finalWeek+" BENCH POINTS (points left unstarted, best benched player)");
+    Object.keys(bench).forEach(function(rid){
+      var b=bench[rid];
+      L.push(teamName(Number(rid))+": "+num(b.points,1)
+        +(b.best?", best bench "+playerName(b.best.pid)+" "+num(b.best.points,1):""));
+    });
+    L.push("");
+  }
+
+  L.push("SCORING BY WEEK");
+  S.rosters.forEach(function(r){
+    var list=scores[r.roster_id]||[];
+    if(!list.length) return;
+    L.push(teamName(r.roster_id)+": "+list.map(function(s){ return "wk"+s.week+" "+num(s.points,1); }).join(", "));
+  });
+  L.push("");
+
+  L.push("FAAB REMAINING");
+  S.rosters.map(function(r){
+    return {rid:r.roster_id, used:Number((r.settings||{}).waiver_budget_used)||0};
+  }).sort(function(a,b){ return a.used-b.used; }).forEach(function(r){
+    L.push(teamName(r.rid)+": $"+(budget-r.used)+" left, $"+r.used+" spent");
+  });
+  L.push("");
+
+  L.push("WAIVER CLAIMS, NEWEST FIRST (winning bid first, then losing bids)");
+  S.claims.slice(0,25).forEach(function(c){
+    var parts=c.bids.map(function(b){
+      return teamName(b.roster)+" $"+b.amount+(b.won?" WON":" lost");
+    });
+    L.push("Week "+c.week+": "+playerName(c.pid)+(playerMeta(c.pid)?" ("+playerMeta(c.pid)+")":"")
+      +" -- "+parts.join("; "));
+  });
+  L.push("");
+
+  var trades=S.transactions.filter(function(t){ return t.type==="trade"&&t.status==="complete"; });
+  if(trades.length){
+    L.push("TRADES");
+    trades.forEach(function(t){
+      var lines=[];
+      (t.roster_ids||[]).forEach(function(rid){
+        var gets=[];
+        if(t.adds) Object.keys(t.adds).forEach(function(pid){ if(t.adds[pid]===rid) gets.push(playerName(pid)); });
+        (t.draft_picks||[]).forEach(function(p){ if(p.owner_id===rid) gets.push(p.season+" round "+p.round+" pick"); });
+        lines.push(teamName(rid)+" gets "+(gets.join(", ")||"nothing"));
+      });
+      L.push("Week "+t._week+": "+lines.join(" | "));
+    });
+    L.push("");
+  }
+
+  var fa=S.transactions.filter(function(t){ return t.type==="free_agent"&&t.status==="complete"; }).slice(0,20);
+  if(fa.length){
+    L.push("RECENT FREE AGENT MOVES");
+    fa.forEach(function(t){
+      var a=[],d=[];
+      if(t.adds) Object.keys(t.adds).forEach(function(pid){ a.push(playerName(pid)+" to "+teamName(t.adds[pid])); });
+      if(t.drops) Object.keys(t.drops).forEach(function(pid){ d.push(playerName(pid)+" from "+teamName(t.drops[pid])); });
+      L.push("Week "+t._week+": added "+(a.join(", ")||"none")+"; dropped "+(d.join(", ")||"none"));
+    });
+  }
+
+  return L.join("\n");
+}
+
+function copyBriefing(){
+  var btn=$("copyBriefing"), text=briefingText();
+  function done(ok){
+    btn.textContent = ok ? "Copied. Paste it to your writer." : "Copy failed, see the box below";
+    if(!ok){
+      var pre=document.createElement("textarea");
+      pre.value=text;
+      pre.style.cssText="width:100%;height:260px;margin-top:12px;background:var(--panel);color:var(--text);border:1px solid var(--line);border-radius:3px;padding:10px;font-size:12px";
+      btn.parentNode.appendChild(pre);
+      pre.select();
+    }
+    setTimeout(function(){ btn.textContent="Copy this week\u2019s briefing"; },4000);
+  }
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){done(true);},function(){done(false);});
+  } else { done(false); }
+}
+
+/* ============================================================
+   SCOREBOARD
+   ============================================================ */
+function renderWeek(){
+  var rows=S.matchups[S.week]||[], groups={};
+  rows.forEach(function(m){
+    var k=m.matchup_id==null?("bye"+m.roster_id):m.matchup_id;
+    (groups[k]=groups[k]||[]).push(m);
+  });
+  var keys=Object.keys(groups);
+  if(!keys.length){
+    $("tab-week").innerHTML='<h2>Week '+S.week+'</h2><div class="msg">No matchups posted yet for this week.</div>';
+    return;
+  }
+  keys.sort(function(a,b){
+    var sa=groups[a].reduce(function(t,m){return t+(Number(m.points)||0);},0);
+    var sb=groups[b].reduce(function(t,m){return t+(Number(m.points)||0);},0);
+    return sb-sa;
+  });
+  var html='<h2>Week '+S.week+'</h2><p class="note">Scores update live during games.</p><div class="board">';
+  keys.forEach(function(k){
+    var g=groups[k];
+    if(g.length===1){ html+='<div class="game">'+sideHTML(g[0],true)+'<div class="gap">No opponent this week.</div></div>'; return; }
+    var a=g[0],b=g[1],pa=Number(a.points)||0,pb=Number(b.points)||0;
+    var lead=pa===pb?"Tied":teamName(pa>pb?a.roster_id:b.roster_id)+" by "+num(Math.abs(pa-pb));
+    html+='<div class="game">'+sideHTML(a,pa>=pb)+sideHTML(b,pb>=pa)+'<div class="gap">'+esc(lead)+'</div></div>';
+  });
+  $("tab-week").innerHTML=html+'</div>';
+}
+function sideHTML(m,leading){
+  var av=avatar(m.roster_id);
+  return '<div class="side'+(leading?' lead':'')+'">'
+    +(av?'<img class="av" src="'+esc(av)+'" alt="" loading="lazy">':'<div class="av"></div>')
+    +'<div><div class="tname">'+esc(teamName(m.roster_id))+'</div>'
+    +'<div class="mgr">'+esc(manager(m.roster_id))+'</div></div>'
+    +'<div class="pts">'+num(m.points)+'</div></div>';
+}
+
+/* ============================================================
+   STANDINGS
+   ============================================================ */
+function renderStandings(){
+  var ap=allPlay();
+  var rows=S.rosters.map(function(r){
+    var st=r.settings||{};
+    var w=Number(st.wins)||0,l=Number(st.losses)||0,t=Number(st.ties)||0,games=w+l+t;
+    var a=ap[r.roster_id]||{w:0,games:0};
+    var pct=a.games?a.w/a.games:0;
+    return {id:r.roster_id,w:w,l:l,t:t,
+      pf:pts(st.fpts,st.fpts_decimal), pa:pts(st.fpts_against,st.fpts_against_decimal),
+      expected:pct*games, luck:w-pct*games};
+  }).sort(function(a,b){ return b.w-a.w||b.pf-a.pf||a.l-b.l; });
+
+  var html='<h2>Standings</h2>'
+    +'<p class="note">Expected wins is what your scores were worth against the whole league each week. Luck is the gap between that and your actual record.</p>'
+    +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Record</th><th>Points for</th><th>Points against</th><th>Expected wins</th><th>Luck</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    var cls=r.luck>0.75?"pos":(r.luck<-0.75?"neg":"");
+    html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.id)+'</td>'
+      +'<td>'+r.w+'-'+r.l+(r.t?'-'+r.t:'')+'</td><td>'+num(r.pf)+'</td><td>'+num(r.pa)+'</td>'
+      +'<td>'+num(r.expected,1)+'</td><td class="'+cls+'">'+(r.luck>0?'+':'')+num(r.luck,1)+'</td></tr>';
+  });
+  $("tab-standings").innerHTML=html+'</tbody></table></div>';
+}
+
+/* ============================================================
+   POWER
+   ============================================================ */
+function renderPower(){
+  var scores=weeklyScores(), ap=allPlay();
+  var rows=S.rosters.map(function(r){
+    var list=scores[r.roster_id]||[];
+    var avg=list.length?list.reduce(function(t,s){return t+s.points;},0)/list.length:0;
+    var rl=list.slice(-3);
+    var recent=rl.length?rl.reduce(function(t,s){return t+s.points;},0)/rl.length:0;
+    var a=ap[r.roster_id]||{w:0,games:0};
+    return {id:r.roster_id, apPct:a.games?a.w/a.games:0, avg:avg, recent:recent, played:list.length};
+  });
+  if(!rows.some(function(r){return r.played;})){
+    $("tab-power").innerHTML='<h2>Power rankings</h2><div class="msg">Nothing to rank yet. This fills in once week 1 goes final.</div>';
+    return;
+  }
+  function norm(key){
+    var vals=rows.map(function(r){return r[key];});
+    var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),span=hi-lo;
+    rows.forEach(function(r){ r["n_"+key]=span?(r[key]-lo)/span:0.5; });
+  }
+  norm("apPct");norm("avg");norm("recent");
+  rows.forEach(function(r){ r.score=100*(0.50*r.n_apPct+0.30*r.n_avg+0.20*r.n_recent); });
+  rows.sort(function(a,b){ return b.score-a.score; });
+
+  var html='<h2>Power rankings</h2>'
+    +'<p class="note">Half all-play record, three tenths season scoring, two tenths the last three weeks. Ignores who you happened to be scheduled against.</p>'
+    +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Rating</th><th>All-play</th><th>Points per week</th><th>Last 3 weeks</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    var a=ap[r.id]||{w:0,l:0};
+    html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.id)+'</td>'
+      +'<td>'+num(r.score,1)+'</td><td>'+a.w+'-'+a.l+'</td><td>'+num(r.avg,1)+'</td><td>'+num(r.recent,1)+'</td></tr>';
+  });
+  $("tab-power").innerHTML=html+'</tbody></table></div>';
+}
+
+/* ============================================================
+   MOVES
+   ============================================================ */
+function renderMoves(){
+  var budget=(S.league.settings&&S.league.settings.waiver_budget)||100;
+  var faab='<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>FAAB left</th><th>Spent</th><th>Moves</th></tr></thead><tbody>';
+  S.rosters.map(function(r){
+    var st=r.settings||{};
+    return {id:r.roster_id,used:Number(st.waiver_budget_used)||0,moves:Number(st.total_moves)||0};
+  }).sort(function(a,b){ return b.used-a.used; }).forEach(function(r,i){
+    faab+='<tr><td>'+(i+1)+'</td><td>'+teamCell(r.id)+'</td><td>$'+(budget-r.used)+'</td><td>$'+r.used+'</td><td>'+r.moves+'</td></tr>';
+  });
+  faab+='</tbody></table></div>';
+
+  var items=[];
+  S.claims.forEach(function(c){ items.push({sort:c.when||0,html:claimHTML(c)}); });
+  S.transactions.forEach(function(t){
+    if(t.type!=="waiver"&&t.status==="complete") items.push({sort:t.status_updated||0,html:otherHTML(t)});
+  });
+  items.sort(function(a,b){ return b.sort-a.sort; });
+
+  var feed=items.length
+    ? '<div class="feed">'+items.slice(0,60).map(function(i){return i.html;}).join("")+'</div>'
+    : '<div class="msg">No transactions yet this season.</div>';
+
+  $("tab-moves").innerHTML='<h2>FAAB</h2><p class="note">Budget is $'+budget+' per team, ranked by who has spent the most.</p>'
+    +faab+'<h2 style="margin-top:34px">Recent moves</h2>'
+    +'<p class="note">Losing bids appear when Sleeper reports them, so you can see who got outbid and by how much.</p>'+feed;
+}
+
+function claimHTML(c){
+  var winner=null;
+  c.bids.forEach(function(b){ if(b.won&&!winner) winner=b; });
+  var h='<div class="move"><div class="move-top"><span class="kind">Waiver</span>'
+    +'<span class="who">Week '+c.week+'</span><span class="when">'+when(c.when)+'</span></div>';
+  h+=playerLine(c.pid);
+  if(winner&&winner.drops){
+    Object.keys(winner.drops).forEach(function(pid){
+      h+='<div class="line"><span class="who">Dropped '+esc(playerName(pid))+'</span></div>';
+    });
+  }
+  h+='<div class="bids">';
+  c.bids.forEach(function(b){
+    h+='<div class="bid'+(b.won?' win':'')+'"><b>$'+b.amount+'</b><span>'+esc(teamName(b.roster))+'</span>'
+      +'<span class="lbl">'+(b.won?"claimed":"outbid")+'</span></div>';
+  });
+  if(c.bids.length>1){
+    h+='<div class="bid"><span class="lbl" style="margin-left:0">'+c.bids.length
+      +' teams bid. Won by $'+(c.bids[0].amount-c.bids[1].amount)+' over the next best offer.</span></div>';
+  }
+  return h+'</div></div>';
+}
+
+function otherHTML(t){
+  var kind=t.type==="trade"?"Trade":(t.type==="free_agent"?"Free agent":t.type);
+  var h='<div class="move"><div class="move-top"><span class="'+(t.type==="trade"?"kind trade":"kind")+'">'+esc(kind)+'</span>'
+    +'<span class="who">Week '+t._week+'</span><span class="when">'+when(t.status_updated)+'</span></div>';
+  if(t.type==="trade"){
+    (t.roster_ids||[]).forEach(function(rid){
+      var gets=[];
+      if(t.adds) Object.keys(t.adds).forEach(function(pid){ if(t.adds[pid]===rid) gets.push(pid); });
+      var picks=(t.draft_picks||[]).filter(function(p){return p.owner_id===rid;})
+        .map(function(p){ return p.season+" round "+p.round; });
+      h+='<div class="line"><span class="who">'+esc(teamName(rid))+' gets</span></div>';
+      gets.forEach(function(pid){ h+=playerLine(pid); });
+      picks.forEach(function(p){ h+='<div class="line"><span>'+esc(p)+' pick</span></div>'; });
+      if(!gets.length&&!picks.length) h+='<div class="line"><span class="who">nothing but vibes</span></div>';
+    });
+  } else {
+    if(t.adds) Object.keys(t.adds).forEach(function(pid){
+      h+=playerLine(pid)+'<div class="line"><span class="who">added by '+esc(teamName(t.adds[pid]))+'</span></div>';
+    });
+    if(t.drops) Object.keys(t.drops).forEach(function(pid){
+      h+='<div class="line"><span class="who">dropped '+esc(playerName(pid))+' ('+esc(teamName(t.drops[pid]))+')</span></div>';
+    });
+  }
+  return h+'</div>';
+}
+
+/* ============================================================
+   PLAYERS
+   ============================================================ */
+function loadPlayers(){
+  fetch(API+"/players/nfl?active=true")
+    .then(function(r){ return r.ok?r.json():null; })
+    .catch(function(){ return null; })
+    .then(function(data){
+      if(data&&typeof data==="object"&&Object.keys(data).length>500){
+        S.players=data; repaint(); return;
+      }
+      return get("/players/nfl").then(function(all){ S.players=all; repaint(); }).catch(function(){});
+    });
+}
+function repaint(){ renderMoves(); renderNews(); }
+
+/* ============================================================
+   HISTORY
+   ============================================================ */
+function renderHistory(){
+  if(S.historyLoaded) return;
+  S.historyLoaded=true;
+  var box=$("tab-history");
+  box.innerHTML='<h2>League history</h2><div class="msg">Walking back through past seasons.</div>';
+  var seasons=[];
+  function step(id){
+    if(!id||seasons.length>=8) return Promise.resolve();
+    return Promise.all([
+      get("/league/"+id),
+      get("/league/"+id+"/users").catch(function(){return [];}),
+      get("/league/"+id+"/rosters").catch(function(){return [];}),
+      get("/league/"+id+"/winners_bracket").catch(function(){return [];})
+    ]).then(function(r){
+      seasons.push({league:r[0],users:r[1],rosters:r[2],bracket:r[3]});
+      return step(r[0]&&r[0].previous_league_id);
+    }).catch(function(){});
+  }
+  step(LEAGUE_ID).then(function(){
+    if(!seasons.length){
+      box.innerHTML='<h2>League history</h2><div class="msg">No past seasons are linked to this league yet.</div>';
+      return;
+    }
+    var html='<h2>League history</h2><p class="note">Every season Sleeper still has on file, newest first.</p>';
+    seasons.forEach(function(s){
+      var uMap={};
+      (s.users||[]).forEach(function(u){ uMap[u.user_id]=u; });
+      function nm(rid){
+        var r=(s.rosters||[]).filter(function(x){return x.roster_id===rid;})[0];
+        var u=r&&uMap[r.owner_id];
+        if(!u) return "Roster "+rid;
+        return (u.metadata&&u.metadata.team_name)||u.display_name||("Roster "+rid);
+      }
+      var champ="";
+      (s.bracket||[]).forEach(function(m){ if(m&&m.p===1&&m.w) champ=nm(m.w); });
+      var rows=(s.rosters||[]).map(function(r){
+        var st=r.settings||{};
+        return {id:r.roster_id,w:Number(st.wins)||0,l:Number(st.losses)||0,t:Number(st.ties)||0,
+          pf:pts(st.fpts,st.fpts_decimal), pa:pts(st.fpts_against,st.fpts_against_decimal)};
+      }).sort(function(a,b){ return b.w-a.w||b.pf-a.pf; });
+      html+='<div class="season-block"><div class="season-head"><h3>'+esc(s.league.season||"")+'</h3>'
+        +'<span class="champ">'+(champ?'Champion: '+esc(champ):'No champion recorded')+'</span></div>'
+        +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Record</th><th>Points for</th><th>Points against</th></tr></thead><tbody>';
+      rows.forEach(function(r,i){
+        html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td>'
+          +'<td><div class="team-cell"><div class="tname">'+esc(nm(r.id))+'</div></div></td>'
+          +'<td>'+r.w+'-'+r.l+(r.t?'-'+r.t:'')+'</td><td>'+num(r.pf)+'</td><td>'+num(r.pa)+'</td></tr>';
+      });
+      html+='</tbody></table></div></div>';
+    });
+    box.innerHTML=html;
+  });
+}
+
+/* ---------- tabs ---------- */
+var tabs=Array.prototype.slice.call(document.querySelectorAll('nav button'));
+tabs.forEach(function(btn){
+  btn.addEventListener("click",function(){
+    tabs.forEach(function(b){
+      var on=b===btn;
+      b.setAttribute("aria-selected",on?"true":"false");
+      $("tab-"+b.dataset.tab).hidden=!on;
+    });
+    if(btn.dataset.tab==="history") renderHistory();
+  });
+});
+
+boot();
+})();
+</script>
+</body>
+</html>
