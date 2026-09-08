@@ -183,6 +183,10 @@ var ANALYSTS = {
                   editing that file and nothing else. No redeploy, no credits. */
 var NEWS_URL = "news.json";
 
+/* Past editions. The folder needs an index.json listing them, because a
+   static host cannot list a directory for us. */
+var ARCHIVE_URL = "archive/";
+
 var API = "https://api.sleeper.app/v1";
 
 /* Projections live on Sleeper's internal host, not the documented one.
@@ -199,7 +203,8 @@ var S = {
   matchups:{}, transactions:[], claims:[], players:null,
   news:null, historyLoaded:false, finalWeek:0,
   regWeeks:14, draftPicks:null, eff:null, history:null, historyPromise:null,
-  projections:null, projError:null, projWeek:null
+  projections:null, projError:null, projWeek:null,
+  archive:null, archivePromise:null, archiveError:null
 };
 
 /* ---------- helpers ---------- */
@@ -368,6 +373,41 @@ function optimalLineup(playerIds, pointsMap, rosterPositions, players){
     if(x.cand){ total += x.cand.pts; lineup.push({slot:x.slot.slot, pid:x.cand.pid, pts:x.cand.pts}); }
   });
   return { points: total, lineup: lineup };
+}
+
+/* Score a predicted ordering against how things actually turned out.
+   Pairwise accuracy is the readable one: of every pair of teams, how
+   often did you put them in the right order. */
+function scoreRanking(predicted, actualRank){
+  var list = (predicted||[]).filter(function(id){ return actualRank[id]!=null; });
+  var n = list.length;
+  if(n < 2) return null;
+
+  var sumErr = 0, worst = null, best = null;
+  list.forEach(function(id,i){
+    var pred = i+1, act = actualRank[id], err = Math.abs(pred-act);
+    sumErr += err;
+    if(!worst || err > worst.err) worst = {id:id, err:err, predicted:pred, actual:act};
+    if(!best  || err < best.err)  best  = {id:id, err:err, predicted:pred, actual:act};
+  });
+
+  var pairs = 0, correct = 0;
+  for(var a=0; a<n; a++){
+    for(var b=a+1; b<n; b++){
+      pairs++;
+      if(actualRank[list[a]] < actualRank[list[b]]) correct++;
+    }
+  }
+
+  return {
+    n:n, pairs:pairs, correct:correct,
+    pairwise: pairs ? correct/pairs : 0,
+    mae: sumErr/n,
+    exact: list.filter(function(id,i){ return actualRank[id]===i+1; }).length,
+    worst: worst, best: best,
+    top: {id:list[0], actual:actualRank[list[0]]},
+    bottom: {id:list[n-1], actual:actualRank[list[n-1]]}
+  };
 }
 
 /* Blend what a team has actually scored with what their roster projects.
@@ -640,7 +680,7 @@ function boot(){
   fetch(newsSrc,{cache:"no-store"})
     .then(function(r){ return r.ok?r.json():null; })
     .catch(function(){ return null; })
-    .then(function(n){ S.news=n; return get("/state/nfl"); })
+    .then(function(n){ S.news=n; loadArchive().then(function(){ renderNews(); }); return get("/state/nfl"); })
     .then(function(st){
       state=st||{};
       return Promise.all([
@@ -1040,6 +1080,67 @@ function buildWire(){
 }
 
 /* ============================================================
+   RECEIPTS — every ballot ever cast, checked against reality
+   ============================================================ */
+function receiptsHTML(){
+  var polls = [];
+  allEditions().forEach(function(ed){
+    if(ed && ed.poll && ed.poll.ballots && ed.poll.ballots.length){
+      polls.push({poll:ed.poll, week:ed.week, generated:ed.generated});
+    }
+  });
+  if(!polls.length) return "";
+
+  var actual = actualRankMap();
+  if(!actual){
+    return '<h2 style="margin-top:34px">Poll receipts</h2>'
+      + '<div class="msg">Every ballot above is on the record. The moment week 1 goes final, '
+      + 'each one gets scored against the actual standings and nobody gets to quietly revise it.</div>';
+  }
+
+  var h = '<h2 style="margin-top:34px">Poll receipts</h2>'
+    + '<p class="note">Each ballot scored against the standings as they stand after week ' + S.finalWeek + '. '
+    + 'Pairwise accuracy is the share of all team pairs a desk put in the right order. '
+    + 'Nobody submits these twice.</p>';
+
+  polls.slice(-3).reverse().forEach(function(entry){
+    var rows = [];
+    entry.poll.ballots.forEach(function(b){
+      var a = ANALYSTS[b.analyst];
+      if(!a || !b.ranking || !b.ranking.length) return;
+      var ids = b.ranking.map(function(nm){ return resolveTeam(nm); }).filter(function(x){ return x!=null; });
+      var sc = scoreRanking(ids, actual);
+      if(sc) rows.push({key:b.analyst, meta:a, sc:sc});
+    });
+    if(!rows.length) return;
+    rows.sort(function(x,y){ return y.sc.pairwise-x.sc.pairwise || x.sc.mae-y.sc.mae; });
+
+    h += '<div class="poll-wrap"><div class="season-head"><h3>'
+      + esc(entry.poll.title || "Poll") + '</h3>'
+      + '<span class="champ">' + (entry.week!=null ? 'submitted week ' + entry.week : '') + '</span></div>'
+      + '<div class="scroll"><table><thead><tr><th></th><th>Desk</th><th>Pairwise</th>'
+      + '<th>Avg spots off</th><th>Their pick to win</th><th>Biggest miss</th></tr></thead><tbody>';
+
+    rows.forEach(function(r,i){
+      var s = r.sc;
+      var cls = s.pairwise>=0.7?"pos":(s.pairwise<=0.4?"neg":"");
+      var topName = s.top.id!=null ? teamName(s.top.id) : "--";
+      var worstName = s.worst && s.worst.id!=null ? teamName(s.worst.id) : "--";
+      h += '<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td>'
+        + '<td><div class="team-cell"><div class="tname" style="color:'+r.meta.color+'">'+esc(r.meta.name)+'</div>'
+        + '<div class="mgr">'+esc(r.meta.role)+'</div></div></td>'
+        + '<td class="'+cls+'">'+Math.round(s.pairwise*100)+'%</td>'
+        + '<td>'+num(s.mae,1)+'</td>'
+        + '<td>'+esc(topName)+'<div class="mgr">actually '+ordinal(s.top.actual)+'</div></td>'
+        + '<td>'+esc(worstName)+'<div class="mgr">had them '+ordinal(s.worst.predicted)
+        + ', actually '+ordinal(s.worst.actual)+'</div></td></tr>';
+    });
+    h += '</tbody></table></div></div>';
+  });
+  return h;
+}
+
+/* ============================================================
    NEWSROOM
    ============================================================ */
 
@@ -1195,6 +1296,7 @@ function renderNews(){
   }
 
   html+=pollHTML();
+  html+=receiptsHTML();
 
   html+='<h2>The desk</h2>'
     +'<p class="note">Longer pieces. These come from news.json, sitting next to this page.</p>';
@@ -1245,6 +1347,84 @@ function storyHTML(st){
 /* ============================================================
    BRIEFING — one clipboard dump of every fact the site knows
    ============================================================ */
+/* Everything the writer needs to know about what has already been published. */
+function editorialContext(){
+  var L = [], eds = allEditions();
+  if(!eds.length) return "";
+
+  L.push("EDITORIAL CONTEXT");
+  if(S.archiveError) L.push("(archive unavailable: " + S.archiveError + ")");
+
+  var prev = eds.slice(-2);
+  prev.forEach(function(ed){
+    var label = ed.week!=null ? ("WEEK " + ed.week) : "PREVIOUS";
+    L.push("");
+    L.push(label + " HEADLINES");
+    (ed.stories||[]).forEach(function(s){ L.push("- " + s.headline); });
+  });
+
+  var last = eds[eds.length-1];
+  if(last && last.stories){
+    var byAnalyst = {};
+    last.stories.forEach(function(s){
+      (s.takes||[]).forEach(function(t){
+        var a = ANALYSTS[t.analyst];
+        if(!a) return;
+        (byAnalyst[a.name] = byAnalyst[a.name] || []).push(t.text);
+      });
+    });
+    if(Object.keys(byAnalyst).length){
+      L.push("");
+      L.push("MOST RECENT ANALYST TAKES (these are on the record and can be judged)");
+      Object.keys(byAnalyst).forEach(function(nm){
+        L.push(nm + ":");
+        byAnalyst[nm].slice(0,4).forEach(function(t){
+          L.push("  - " + (t.length>200 ? t.slice(0,197)+"..." : t));
+        });
+      });
+    }
+  }
+
+  // Ballots, plus how they are holding up. Capped so the briefing stays pasteable.
+  var actual = actualRankMap();
+  var polled = eds.filter(function(ed){ return ed.poll && ed.poll.ballots && ed.poll.ballots.length; });
+  polled.slice(-2).forEach(function(ed){
+    L.push("");
+    L.push("BALLOTS ON THE RECORD: " + (ed.poll.title || "poll")
+      + (ed.week!=null ? " (week " + ed.week + ")" : ""));
+    ed.poll.ballots.forEach(function(b){
+      var a = ANALYSTS[b.analyst];
+      if(!a || !b.ranking) return;
+      L.push(a.name + ": " + b.ranking.join(" > "));
+      if(actual){
+        var ids = b.ranking.map(function(nm){ return resolveTeam(nm); }).filter(function(x){ return x!=null; });
+        var sc = scoreRanking(ids, actual);
+        if(sc){
+          L.push("  scored so far: " + Math.round(sc.pairwise*100) + "% pairwise, "
+            + num(sc.mae,1) + " spots off on average"
+            + (sc.worst ? ", worst call " + teamName(sc.worst.id)
+                + " (had them " + sc.worst.predicted + ", actually " + sc.worst.actual + ")" : ""));
+        }
+      }
+    });
+  });
+
+  var open = [];
+  eds.forEach(function(ed){
+    (ed.stories||[]).forEach(function(s){
+      if(s.storyline) open.push(s.storyline);
+    });
+  });
+  if(open.length){
+    L.push("");
+    L.push("ONGOING STORYLINES");
+    open.forEach(function(s){ L.push("- " + s); });
+  }
+
+  L.push("");
+  return L.join("\n");
+}
+
 function briefingText(){
   var L=[], wk=S.finalWeek||S.week;
   var ap=allPlay(), scores=weeklyScores();
@@ -1389,6 +1569,15 @@ function briefingText(){
       L.push("Week "+t._week+": added "+(a.join(", ")||"none")+"; dropped "+(d.join(", ")||"none"));
     });
   }
+
+  L.push(editorialContext());
+
+  L.push("HOW TO USE THIS");
+  L.push("Work out what actually changed since the previous edition first, then continue existing");
+  L.push("storylines, then check whether any earlier take can now be judged, then look for new stories.");
+  L.push("Do not manufacture continuity and do not rerun last week's article unless the evidence moved.");
+  L.push("Every factual claim must come from this briefing. Analysts may exaggerate what the facts mean;");
+  L.push("they may not invent facts.");
 
   return L.join("\n");
 }
@@ -1726,6 +1915,80 @@ function computeEfficiency(){
     e.lost=e.optimal-e.actual;
   });
   S.eff=eff;
+}
+
+/* ============================================================
+   ARCHIVE — past editions, so the newsroom has a memory
+   ============================================================ */
+function bust(u){ return u + (u.indexOf("?")<0?"?":"&") + "t=" + Date.now(); }
+
+function loadArchive(){
+  if(S.archivePromise) return S.archivePromise;
+  S.archivePromise = fetch(bust(ARCHIVE_URL+"index.json"),{cache:"no-store"})
+    .then(function(r){
+      if(!r.ok) throw new Error("no archive index (" + r.status + ")");
+      return r.json();
+    })
+    .then(function(idx){
+      var eds = (idx && idx.editions) || [];
+      eds = eds.slice(-12);
+      return Promise.all(eds.map(function(e){
+        var file = typeof e === "string" ? e : e.file;
+        if(!file) return null;
+        return fetch(bust(ARCHIVE_URL+file),{cache:"no-store"})
+          .then(function(r){ return r.ok?r.json():null; })
+          .catch(function(){ return null; })
+          .then(function(doc){
+            if(!doc) return null;
+            if(typeof e === "object"){
+              if(doc.week==null && e.week!=null) doc.week = e.week;
+              if(!doc.generated && e.generated) doc.generated = e.generated;
+            }
+            return doc;
+          });
+      }));
+    })
+    .then(function(list){
+      S.archive = list.filter(Boolean).sort(function(a,b){ return (a.week||0)-(b.week||0); });
+      S.archiveError = null;
+      return S.archive;
+    })
+    .catch(function(e){
+      S.archive = [];
+      S.archiveError = e.message || String(e);
+      return S.archive;
+    });
+  return S.archivePromise;
+}
+
+/* Current edition plus every archived one, oldest first. An archived copy of
+   the edition that is still on the front page would otherwise be counted
+   twice, so match on week and headline and keep the live one. */
+function allEditions(){
+  var out = (S.archive || []).slice();
+  if(S.news){
+    var key = editionKey(S.news);
+    out = out.filter(function(e){ return editionKey(e) !== key; });
+    out.push(S.news);
+  }
+  return out;
+}
+function editionKey(ed){
+  if(!ed) return "";
+  var first = (ed.stories && ed.stories[0] && ed.stories[0].headline) || "";
+  return (ed.week==null?"?":ed.week) + "|" + first;
+}
+
+/* Where each team actually sits right now. */
+function actualRankMap(){
+  if(!S.finalWeek) return null;
+  var rows = S.rosters.map(function(r){
+    var st = r.settings||{};
+    return {rid:r.roster_id, w:Number(st.wins)||0, pf:pts(st.fpts,st.fpts_decimal)};
+  }).sort(function(a,b){ return b.w-a.w || b.pf-a.pf; });
+  var map = {};
+  rows.forEach(function(r,i){ map[r.rid] = i+1; });
+  return map;
 }
 
 /* ============================================================
