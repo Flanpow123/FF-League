@@ -1,27 +1,70 @@
 {
-  "week": 0,
-  "generated": "sample",
+  "week": 1,
+  "generated": "2026-09-07",
   "stories": [
     {
-      "sample": true,
-      "headline": "This is where the written stories go",
-      "body": "Everything in this file is an example so you can see the shape of it. Replace the whole stories list with real ones and this banner disappears.\n\nA story has a headline, a body of one or more paragraphs, and any number of takes from the analyst characters. Blank lines in the body become separate paragraphs. Nothing here is fetched from anywhere, so the writing can be as long or as short as you want.",
+      "headline": "A Week 1 starting quarterback is sitting on this league's waiver wire",
+      "body": "Before a single snap of the 2026 season, Chrisbourg97 released Kyler Murray from I'sah Likely to win Deebo. The return was Tre Tucker. No FAAB was involved, because no FAAB has been involved in anything yet. This was a free swap, made voluntarily, by a person who had all summer to think about it.\n\nMurray signed with Minnesota in March after Arizona let him go, and Kevin O'Connell named him the starter over J.J. McCarthy before the first preseason game. He will be under center in Week 1. He is also, as of this writing, available to all twelve teams in Sigma Pi B, none of whom have picked him up.",
       "takes": [
         {
           "analyst": "analyst",
-          "text": "The format is deliberately boring so the writing can carry it. Headline, body, takes. That's the whole schema."
+          "text": "There is a coherent version of this. If you are streaming the position and you needed the roster spot, fine. But you make that move in Week 4 when you know something. Making it in September, before any information exists, is not strategy. It is just a preference."
         },
         {
           "analyst": "firestarter",
-          "text": "I have not read the body of this story and I already disagree with it. Put me down for the opposite of whatever it says."
+          "text": "This is not about Tre Tucker. This is about a man who looked at a starting quarterback and felt nothing. You want to know why this franchise has never won anything? It is right here. It is this transaction. Cut the starter, keep the vibes."
         },
         {
           "analyst": "quant",
-          "text": "Four analysts, one JSON file, zero servers. The efficiency here is the story nobody is covering."
+          "text": "Twelve teams. Six total transactions. Eleven of them declined to add a starting quarterback who was placed directly in front of them at no cost. The market is not inefficient here. The market is asleep."
         },
         {
           "analyst": "troll",
-          "text": "Imagine building a whole newspaper about twelve guys who can't set a lineup on time."
+          "text": "I have been telling this league for two years that nobody here reads. Now there is a Week 1 starter rotting on the wire and the same eleven people who ignored my analysis are ignoring him too. Do not ask me for help in October."
+        }
+      ]
+    },
+    {
+      "headline": "TeenageTutenNinjaTurtles made half the league's moves and ended up roughly where he started",
+      "body": "Jpalms97 accounted for three of the six transactions in Sigma Pi B this week. He added Darren Waller, dropping Greg Dulcich. He added Kaleb Johnson, dropping Cyrus Allen. Then he added Juwan Johnson, and the player he dropped to make room was Darren Waller.\n\nSo the sequence, in order, is: sign Waller, then cut Waller, inside the same week, without Waller having played a down for him. Three moves, two tight ends, one round trip.",
+      "takes": [
+        {
+          "analyst": "quant",
+          "text": "Fifty percent of all league activity came from one roster. The other eleven teams combined for three transactions. That is not aggression, that is churn, and churn has no measured relationship with anything except the number of times you open the app."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "You do not get credit for effort. This is a man frantically rearranging deck chairs on a boat that has not left the harbor. Sign him, cut him, sign somebody else. That is not a plan, that is a nervous condition."
+        },
+        {
+          "analyst": "analyst",
+          "text": "In fairness, moving off Dulcich and landing on Juwan Johnson is a real upgrade at the position. The Waller detour cost him nothing but the appearance of a plan. I would rather have an active manager than a dormant one."
+        },
+        {
+          "analyst": "troll",
+          "text": "Darren Waller spent about forty-eight hours on this roster. That is longer than some of his actual retirements."
+        }
+      ]
+    },
+    {
+      "headline": "Nine teams have not touched their rosters at all",
+      "body": "Every transaction this week came from three managers. Jpalms97 made three, DisFantasyNut69 made two, and Chrisbourg97 made one. That leaves nine teams whose entire 2026 offseason consists of drafting and then closing the app: Coker? I hardly know her!, Let Baker Bake, Baltimore Boofers, Crashee'd My Ford, Kamara Sutra, #CrookedAdam, Team Ketchup, Team Mountain, and CeeDee's TD's.\n\nAll twelve teams still hold their full $100 FAAB. Nobody has bid on anything. The waiver wire in this league is not competitive, because nobody has arrived at it yet.\n\nThe two moves not yet mentioned belong to DisFantasyNut69 of Scheme, who added the kicker Tyler Loop and then, days later, dropped the kicker Tyler Loop to add the kicker Spencer Shrader.",
+      "takes": [
+        {
+          "analyst": "troll",
+          "text": "Two of the six transactions in this entire league were one guy trading a kicker for a different kicker. That is the state of Sigma Pi B. Somewhere a man is agonizing over Tyler Loop while a starting quarterback goes unclaimed."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "Nine teams did nothing. Nothing! Do not come to me in November crying about injuries. You had a whole week and you could not be bothered to look at your own roster. That is not bad luck, that is apathy, and apathy is a choice."
+        },
+        {
+          "analyst": "analyst",
+          "text": "I would push back gently here. There is no waiver information before Week 1, and doing nothing in September is often correct. The teams that stood still have not lost anything yet. Ask me again once we have seen a snap."
+        },
+        {
+          "analyst": "quant",
+          "text": "Twelve hundred dollars of combined FAAB, entirely unspent. Full budgets across the board is the only genuinely encouraging number in this briefing, and it is encouraging by accident."
         }
       ]
     }
