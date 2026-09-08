@@ -1296,7 +1296,11 @@ function pollHTML(){
 }
 
 function renderNews(){
-  var html='<h2>The wire</h2>'
+  var stories=(S.news&&S.news.stories)||[];
+
+  var html=tocHTML(stories);
+
+  html+='<h2>The wire</h2>'
     +'<p class="note">'
     +(S.finalWeek
       ? 'Written by the page itself from this week&rsquo;s actual numbers. Always current, never wrong, no opinions it cannot back up.'
@@ -1321,9 +1325,7 @@ function renderNews(){
   html+='<h2>The desk</h2>'
     +'<p class="note">Analysis, argument, and the occasional grudge.</p>';
 
-  var stories=(S.news&&S.news.stories)||[];
   if(stories.length){
-    html+=tocHTML(stories);
     stories.forEach(function(st,i){ html+=storyHTML(st,i); });
   } else {
     html+='<div class="msg">No stories filed yet this week. The wire above never sleeps.</div>';
@@ -1356,8 +1358,11 @@ function renderNews(){
 /* A wire-style index of what is on the desk, so the front page reads like
    a front page instead of a scroll. */
 function tocHTML(stories){
-  if(!stories || stories.length < 2) return "";
-  var h='<div class="wire toc">';
+  if(!stories || !stories.length) return "";
+  var h='<h2>In this edition</h2>'
+    +'<p class="note">'+stories.length+' '+(stories.length===1?'story':'stories')
+    +' on the desk. Tap one to jump to it.</p>'
+    +'<div class="wire toc">';
   stories.forEach(function(st,i){
     var body=String(st.body||"").trim();
     var first=body.split(/(?<=[.!?])\s/)[0] || "";
