@@ -1,70 +1,92 @@
 {
   "week": 1,
-  "generated": "2026-09-07",
+  "generated": "2026-09-08",
   "stories": [
     {
-      "headline": "A Week 1 starting quarterback is sitting on this league's waiver wire",
-      "body": "Before a single snap of the 2026 season, Chrisbourg97 released Kyler Murray from I'sah Likely to win Deebo. The return was Tre Tucker. No FAAB was involved, because no FAAB has been involved in anything yet. This was a free swap, made voluntarily, by a person who had all summer to think about it.\n\nMurray signed with Minnesota in March after Arizona let him go, and Kevin O'Connell named him the starter over J.J. McCarthy before the first preseason game. He will be under center in Week 1. He is also, as of this writing, available to all twelve teams in Sigma Pi B, none of whom have picked him up.",
+      "headline": "Killian has the best roster in the league and the worst draft in it",
+      "body": "Team Ketchup projects for 128.3 points a week, the highest figure in Sigma Pi B, and carries the best playoff odds at 73 percent. Killian also finished eleventh of twelve in draft value, at negative 8.1 per pick. Only Jerey graded worse.\n\nThose two facts are not in conflict. Draft value measures whether players fell to you relative to where they were ranked. Roster projection measures how many points the resulting team is expected to score. Killian paid above market for players who project well, which is a defensible thing to do and a terrible look on a spreadsheet.\n\nThe league behind him is a traffic jam. Ten of the twelve teams project within 8.3 points a week of each other, running from Killian's 128.3 down to Jake's 120.0. His lead over Kevin in second is 2.5 points a week, which over a full season is close to nothing.",
       "takes": [
         {
-          "analyst": "analyst",
-          "text": "There is a coherent version of this. If you are streaming the position and you needed the roster spot, fine. But you make that move in Week 4 when you know something. Making it in September, before any information exists, is not strategy. It is just a preference."
-        },
-        {
           "analyst": "firestarter",
-          "text": "This is not about Tre Tucker. This is about a man who looked at a starting quarterback and felt nothing. You want to know why this franchise has never won anything? It is right here. It is this transaction. Cut the starter, keep the vibes."
+          "text": "So the reward for reaching on everybody is the top projection in the league? No. I refuse. You do not get to overpay for eleven guys and be called a genius in September. Ask me in November when the projections have stopped protecting him."
         },
         {
           "analyst": "quant",
-          "text": "Twelve teams. Six total transactions. Eleven of them declined to add a starting quarterback who was placed directly in front of them at no cost. The market is not inefficient here. The market is asleep."
+          "text": "A 2.5 point weekly edge over second place is inside the noise. Ten teams sit within 8.3 points of each other, which means the projections are effectively saying they cannot tell this league apart. The only two teams it can distinguish are at the bottom."
+        },
+        {
+          "analyst": "analyst",
+          "text": "The useful read is that Killian drafted for his own board rather than the consensus one, and his board projects better. That is what conviction looks like when it works. It looks identical to stubbornness when it does not, and we will not know which this is for two months."
         },
         {
           "analyst": "troll",
-          "text": "I have been telling this league for two years that nobody here reads. Now there is a Week 1 starter rotting on the wire and the same eleven people who ignored my analysis are ignoring him too. Do not ask me for help in October."
+          "text": "Eleventh in the draft, first in the projections. Killian is the guy who overpays for everything at the store and then tells you he got a great deal. Somehow the receipt says he did."
         }
       ]
     },
     {
-      "headline": "TeenageTutenNinjaTurtles made half the league's moves and ended up roughly where he started",
-      "body": "Jpalms97 accounted for three of the six transactions in Sigma Pi B this week. He added Darren Waller, dropping Greg Dulcich. He added Kaleb Johnson, dropping Cyrus Allen. Then he added Juwan Johnson, and the player he dropped to make room was Darren Waller.\n\nSo the sequence, in order, is: sign Waller, then cut Waller, inside the same week, without Waller having played a down for him. Three moves, two tight ends, one round trip.",
+      "headline": "Both teams named after a player drafted that player as their worst pick, and both project in the bottom two",
+      "body": "Jeff runs Let Baker Bake. He took Baker Mayfield at pick 37, which grades as the single worst pick on his roster. Let Baker Bake projects last in the league at 109.7 a week, with 8 percent playoff odds, the only team in single digits.\n\nAdam runs Coker? I hardly know her! He took Jalen Coker at pick 126, which grades as the single worst pick on his roster. Coker? I hardly know her! projects eleventh at 114.9, with 20 percent playoff odds.\n\nNobody planned this. Two managers independently built a team identity around one player, paid a premium to actually get him, and now sit in the only two spots the projections are confident about. There is a 5.1 point gap between tenth and eleventh, and another 5.2 between eleventh and twelfth. The rest of the league is bunched together. These two are on their own.",
       "takes": [
         {
-          "analyst": "quant",
-          "text": "Fifty percent of all league activity came from one roster. The other eleven teams combined for three transactions. That is not aggression, that is churn, and churn has no measured relationship with anything except the number of times you open the app."
+          "analyst": "troll",
+          "text": "You cannot name the team first and draft second. That is not a strategy, that is a commitment ceremony. Somewhere out there Kevin named his team #CrookedAdam and is currently projecting second, because he built his roster around a grudge instead of a guy."
         },
         {
           "analyst": "firestarter",
-          "text": "You do not get credit for effort. This is a man frantically rearranging deck chairs on a boat that has not left the harbor. Sign him, cut him, sign somebody else. That is not a plan, that is a nervous condition."
+          "text": "Jeff took Baker Mayfield at thirty-seven! Thirty-seven! You do not reach two rounds early for a quarterback because it makes your team name work. That is not fandom, that is a man negotiating against himself."
+        },
+        {
+          "analyst": "quant",
+          "text": "The bottom two are separated from tenth place by more than the entire spread of the top ten. When a distribution has a tail that clean, it is usually real. These are not unlucky teams. They are worse teams."
         },
         {
           "analyst": "analyst",
-          "text": "In fairness, moving off Dulcich and landing on Juwan Johnson is a real upgrade at the position. The Waller detour cost him nothing but the appearance of a plan. I would rather have an active manager than a dormant one."
-        },
-        {
-          "analyst": "troll",
-          "text": "Darren Waller spent about forty-eight hours on this roster. That is longer than some of his actual retirements."
+          "text": "In Adam's defense, Coker at 126 is a late pick and the cost of being wrong there is close to zero. His problem is not that pick, it is that his roster projects 13.4 points a week behind the leader. Jeff's Mayfield reach at 37 is the more expensive mistake by a wide margin."
         }
       ]
     },
     {
-      "headline": "Nine teams have not touched their rosters at all",
-      "body": "Every transaction this week came from three managers. Jpalms97 made three, DisFantasyNut69 made two, and Chrisbourg97 made one. That leaves nine teams whose entire 2026 offseason consists of drafting and then closing the app: Coker? I hardly know her!, Let Baker Bake, Baltimore Boofers, Crashee'd My Ford, Kamara Sutra, #CrookedAdam, Team Ketchup, Team Mountain, and CeeDee's TD's.\n\nAll twelve teams still hold their full $100 FAAB. Nobody has bid on anything. The waiver wire in this league is not competitive, because nobody has arrived at it yet.\n\nThe two moves not yet mentioned belong to DisFantasyNut69 of Scheme, who added the kicker Tyler Loop and then, days later, dropped the kicker Tyler Loop to add the kicker Spencer Shrader.",
+      "headline": "The best value pick of Chris's entire draft was the quarterback he cut",
+      "body": "Kyler Murray at pick 178 grades as the strongest value on I'sah Likely to win Deebo. Nothing else Chris did in the draft came close. Murray is Minnesota's Week 1 starter, taken with the 178th pick, which is the definition of a player falling into your lap.\n\nChris then dropped him for Tre Tucker before a single game was played.\n\nThe rest of his draft grades at negative 1.6 per pick, eighth in the league, with Deebo Samuel at 106 as his worst selection. His roster now projects eighth at 122.8 a week and his playoff odds sit at exactly 50 percent, the coin flip he has earned.",
       "takes": [
         {
-          "analyst": "troll",
-          "text": "Two of the six transactions in this entire league were one guy trading a kicker for a different kicker. That is the state of Sigma Pi B. Somewhere a man is agonizing over Tyler Loop while a starting quarterback goes unclaimed."
-        },
-        {
           "analyst": "firestarter",
-          "text": "Nine teams did nothing. Nothing! Do not come to me in November crying about injuries. You had a whole week and you could not be bothered to look at your own roster. That is not bad luck, that is apathy, and apathy is a choice."
+          "text": "I said it last week and the numbers came back and agreed with me. This was the best thing he did all draft and he undid it for free. You cannot hand me a starting quarterback in the fifteenth round and then throw him away and expect me to stay calm about it."
         },
         {
           "analyst": "analyst",
-          "text": "I would push back gently here. There is no waiver information before Week 1, and doing nothing in September is often correct. The teams that stood still have not lost anything yet. Ask me again once we have seen a snap."
+          "text": "Fifty percent playoff odds is not a disaster, and Tre Tucker is a real player. But the value chain matters here. He found the one edge in his draft and then traded it for a lateral move at a position he was already deep at."
         },
         {
           "analyst": "quant",
-          "text": "Twelve hundred dollars of combined FAAB, entirely unspent. Full budgets across the board is the only genuinely encouraging number in this briefing, and it is encouraging by accident."
+          "text": "Murray at 178 was worth more than the other seventeen picks on that roster combined by this measure. Removing your single largest positive contributor and receiving nothing measurable back is not a strategy I can model."
+        },
+        {
+          "analyst": "troll",
+          "text": "Chris spent eighteen rounds building a roster and the highlight of it is a guy who is currently available to all eleven of you. Go get him. Somebody. Anybody."
+        }
+      ]
+    },
+    {
+      "headline": "Jake drafted beautifully and it does not appear to matter",
+      "body": "Baltimore Boofers graded second in the league in draft value at plus 8.7 per pick, headlined by Trevor Lawrence at 125. Jake's roster projects tenth at 120.0 a week, with 39 percent playoff odds, the worst of anyone outside the bottom two.\n\nThe inverse also happened. Jerey's Kamara Sutra graded dead last at negative 11.0 per pick and projects seventh at 123.2, comfortably ahead of Jake.\n\nOnly Kevin managed both. #CrookedAdam graded first in draft value at plus 8.8 and projects second at 125.8, with Patrick Mahomes at 152 as the standout. Brian's Team Mountain did nearly the same, third in value and fourth in projection.",
+      "takes": [
+        {
+          "analyst": "quant",
+          "text": "A caveat on my own numbers, since nobody else here will offer one. Every top draft grade in this league is anchored by a quarterback taken late: Mahomes at 152, Lawrence at 125, Goff at 168, Murray at 178. The ranking this metric uses does not know we start one quarterback, so it treats normal positional discipline as genius. Read the draft column with that in mind."
+        },
+        {
+          "analyst": "analyst",
+          "text": "Getting value and building a good team are genuinely different skills. Jake collected players who went later than they should have. Killian collected players who score. Only one of those shows up on the scoreboard."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "Thirty-nine percent! Second best draft in the league and he is closer to the basement than the top seed. Congratulations on your beautiful spreadsheet, Jake. They do not hand out trophies for procurement."
+        },
+        {
+          "analyst": "troll",
+          "text": "Jerey had the worst draft in the league by this measure and projects three spots ahead of the guy who had the second best. I have been telling you for two years that this whole exercise is astrology for men who own multiple jerseys."
         }
       ]
     }
