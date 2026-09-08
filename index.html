@@ -138,7 +138,9 @@
     <button role="tab" data-tab="week" aria-selected="false">Scoreboard</button>
     <button role="tab" data-tab="standings" aria-selected="false">Standings</button>
     <button role="tab" data-tab="power" aria-selected="false">Power</button>
+    <button role="tab" data-tab="draft" aria-selected="false">Draft</button>
     <button role="tab" data-tab="moves" aria-selected="false">Moves</button>
+    <button role="tab" data-tab="records" aria-selected="false">Records</button>
     <button role="tab" data-tab="history" aria-selected="false">History</button>
   </nav>
 
@@ -146,7 +148,9 @@
   <section id="tab-week" hidden></section>
   <section id="tab-standings" hidden></section>
   <section id="tab-power" hidden></section>
+  <section id="tab-draft" hidden></section>
   <section id="tab-moves" hidden></section>
+  <section id="tab-records" hidden></section>
   <section id="tab-history" hidden></section>
 
   <footer>
@@ -188,7 +192,8 @@ var DESK = /[?&]desk\b/.test(location.search);
 var S = {
   league:null, users:{}, rosters:[], week:1, lastWeek:1,
   matchups:{}, transactions:[], claims:[], players:null,
-  news:null, historyLoaded:false, finalWeek:0
+  news:null, historyLoaded:false, finalWeek:0,
+  regWeeks:14, draftPicks:null, eff:null, history:null, historyPromise:null
 };
 
 /* ---------- helpers ---------- */
@@ -262,6 +267,254 @@ function fail(msg){
 }
 
 /* ============================================================
+   ANALYTICS ENGINE
+   ============================================================ */
+
+var SLOT_ELIGIBILITY = {
+  QB:["QB"], RB:["RB"], WR:["WR"], TE:["TE"], K:["K"], DEF:["DEF"],
+  FLEX:["RB","WR","TE"],
+  WRRB_FLEX:["RB","WR"],
+  REC_FLEX:["WR","TE"],
+  WRRB_WRT:["RB","WR","TE"],
+  SUPER_FLEX:["QB","RB","WR","TE"],
+  IDP_FLEX:["DL","LB","DB"],
+  DL:["DL"], LB:["LB"], DB:["DB"]
+};
+var BENCH_SLOTS = {BN:1, IR:1, TAXI:1};
+
+function positionsOf(pid, players){
+  var p = players && players[pid];
+  if(p){
+    if(p.fantasy_positions && p.fantasy_positions.length) return p.fantasy_positions;
+    if(p.position) return [p.position];
+  }
+  if(/^[A-Z]{2,4}$/.test(pid)) return ["DEF"];
+  return [];
+}
+
+/* Best score obtainable from these players under these slot rules. */
+function optimalLineup(playerIds, pointsMap, rosterPositions, players){
+  var slots = (rosterPositions||[]).filter(function(s){ return !BENCH_SLOTS[s]; });
+  if(!slots.length) return null;
+
+  var pool = playerIds.map(function(pid){
+    return { pid:pid, pts:Number(pointsMap[pid])||0, pos:positionsOf(pid, players) };
+  });
+
+  var order = slots.map(function(s,i){
+    var elig = SLOT_ELIGIBILITY[s] || [s];
+    return { slot:s, elig:elig, i:i };
+  }).sort(function(a,b){ return a.elig.length - b.elig.length; });
+
+  function eligible(cand, slot){
+    for(var i=0;i<slot.elig.length;i++){
+      if(cand.pos.indexOf(slot.elig[i])>=0) return true;
+    }
+    return false;
+  }
+
+  // Most-constrained slot first, take the best available body.
+  var used = {}, assign = [];
+  order.forEach(function(slot){
+    var best=null;
+    pool.forEach(function(c){
+      if(used[c.pid]) return;
+      if(!eligible(c,slot)) return;
+      if(!best||c.pts>best.pts) best=c;
+    });
+    if(best){ used[best.pid]=1; assign.push({slot:slot, cand:best}); }
+    else assign.push({slot:slot, cand:null});
+  });
+
+  // Greedy can leave points on the table. Try swaps until nothing improves.
+  var improved = true, guard = 0;
+  while(improved && guard++ < 40){
+    improved = false;
+    for(var a=0;a<assign.length;a++){
+      for(var b=a+1;b<assign.length;b++){
+        var A=assign[a], B=assign[b];
+        if(A.cand && B.cand){
+          if(eligible(A.cand,B.slot) && eligible(B.cand,A.slot)){
+            // swapping two filled slots never changes the total, skip
+          }
+        }
+        // try moving an unused player into a slot, replacing its occupant
+      }
+      // replacement pass: is there a bench player who beats this slot's pick?
+      var slotA = assign[a];
+      var bestAlt = null;
+      pool.forEach(function(c){
+        if(used[c.pid]) return;
+        if(!eligible(c, slotA.slot)) return;
+        if(!bestAlt || c.pts > bestAlt.pts) bestAlt = c;
+      });
+      if(bestAlt && (!slotA.cand || bestAlt.pts > slotA.cand.pts)){
+        if(slotA.cand) delete used[slotA.cand.pid];
+        used[bestAlt.pid]=1;
+        slotA.cand = bestAlt;
+        improved = true;
+      }
+    }
+  }
+
+  var total = 0, lineup = [];
+  assign.forEach(function(x){
+    if(x.cand){ total += x.cand.pts; lineup.push({slot:x.slot.slot, pid:x.cand.pid, pts:x.cand.pts}); }
+  });
+  return { points: total, lineup: lineup };
+}
+
+/* Standard normal, Box-Muller. */
+function gauss(){
+  var u=0,v=0;
+  while(u===0) u=Math.random();
+  while(v===0) v=Math.random();
+  return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);
+}
+
+function meanSd(list){
+  if(!list.length) return {mean:0, sd:0, n:0};
+  var m = list.reduce(function(t,v){return t+v;},0)/list.length;
+  if(list.length<2) return {mean:m, sd:0, n:1};
+  var varc = list.reduce(function(t,v){return t+(v-m)*(v-m);},0)/(list.length-1);
+  return {mean:m, sd:Math.sqrt(varc), n:list.length};
+}
+
+/* Monte Carlo the rest of the regular season. */
+function simulateSeason(opts){
+  var teams = opts.teams;            // [{rid, wins, pts, mean, sd}]
+  var schedule = opts.schedule;      // [{week, pairs:[[ridA,ridB],...]}]
+  var spots = opts.playoffSpots || 6;
+  var runs = opts.runs || 5000;
+
+  var made={}, top={}, idx={};
+  teams.forEach(function(t,i){ made[t.rid]=0; top[t.rid]=0; idx[t.rid]=i; });
+
+  var n = teams.length;
+  for(var r=0;r<runs;r++){
+    var wins=new Array(n), pts=new Array(n);
+    for(var i=0;i<n;i++){ wins[i]=teams[i].wins; pts[i]=teams[i].pts; }
+
+    for(var w=0;w<schedule.length;w++){
+      var pairs=schedule[w].pairs;
+      for(var p=0;p<pairs.length;p++){
+        var ia=idx[pairs[p][0]], ib=idx[pairs[p][1]];
+        if(ia===undefined||ib===undefined) continue;
+        var sa=teams[ia].mean+teams[ia].sd*gauss();
+        var sb=teams[ib].mean+teams[ib].sd*gauss();
+        if(sa<0) sa=0; if(sb<0) sb=0;
+        pts[ia]+=sa; pts[ib]+=sb;
+        if(sa>sb) wins[ia]++; else if(sb>sa) wins[ib]++;
+        else { wins[ia]+=0.5; wins[ib]+=0.5; }
+      }
+    }
+
+    var order=[];
+    for(var k=0;k<n;k++) order.push({i:k, w:wins[k], p:pts[k]});
+    order.sort(function(a,b){ return b.w-a.w || b.p-a.p; });
+    for(var s=0;s<n && s<spots;s++) made[teams[order[s].i].rid]++;
+    if(order.length) top[teams[order[0].i].rid]++;
+  }
+
+  return teams.map(function(t){
+    return { rid:t.rid, playoffs:made[t.rid]/runs, topSeed:top[t.rid]/runs };
+  });
+}
+
+/* Replay every team's scores against every other team's slate. */
+function scheduleSwap(scoresByWeek, schedules){
+  // scoresByWeek: {week: {rid: points}}
+  // schedules:    {week: {rid: opponentRid}}
+  var weeks = Object.keys(schedules).filter(function(w){ return scoresByWeek[w]; });
+  var rids = [];
+  weeks.forEach(function(w){
+    Object.keys(schedules[w]).forEach(function(r){
+      if(rids.indexOf(Number(r))<0) rids.push(Number(r));
+    });
+  });
+
+  var out = {};
+  rids.forEach(function(me){
+    out[me] = {};
+    rids.forEach(function(owner){
+      var w=0,l=0,t=0;
+      weeks.forEach(function(wk){
+        var myScore = scoresByWeek[wk][me];
+        if(myScore==null) return;
+        var opp = schedules[wk][owner];
+        if(opp==null) return;
+        if(opp===me) opp = owner;          // would have played yourself, use them
+        if(opp===me) return;
+        var oppScore = scoresByWeek[wk][opp];
+        if(oppScore==null) return;
+        if(myScore>oppScore) w++; else if(myScore<oppScore) l++; else t++;
+      });
+      out[me][owner]={w:w,l:l,t:t};
+    });
+  });
+  return out;
+}
+
+/* Draft value: where a player went versus how highly they are regarded. */
+function gradeDraft(picks, players, teamsCount){
+  /* Sleeper's search_rank is a global ranking over every player in the
+     database, so comparing it straight to a pick number is meaningless.
+     Instead, rank only the players who were actually drafted against each
+     other. That gives a consensus order for this exact pool, and the gap
+     between where a player sat in that order and where he actually went
+     is the value. League-wide it sums to zero, so the table is purely
+     relative and nobody can be dragged down by the size of the pool. */
+  var withRank = [];
+  picks.forEach(function(p){
+    var pl = players && players[p.player_id];
+    var r = pl && pl.search_rank!=null ? Number(pl.search_rank) : null;
+    if(r!=null && isFinite(r)) withRank.push({pick:p.pick_no, rank:r});
+  });
+  var slotsUsed = withRank.map(function(x){ return x.pick; }).sort(function(a,b){ return a-b; });
+  withRank.sort(function(a,b){ return a.rank-b.rank; });
+  var consensus = {};
+  withRank.forEach(function(x,i){ consensus[x.pick] = slotsUsed[i]; });
+
+  var byRoster = {};
+  picks.forEach(function(p){
+    var rid = p.roster_id;
+    if(rid==null) return;
+    if(!byRoster[rid]) byRoster[rid]={rid:rid, picks:[], value:0, counted:0, ages:[], positions:{}};
+    var slot = byRoster[rid];
+    var pl = players && players[p.player_id];
+    var rank = pl && pl.search_rank!=null ? Number(pl.search_rank) : null;
+    var pos = (pl && pl.position) || (p.metadata && p.metadata.position) || "?";
+    slot.positions[pos] = (slot.positions[pos]||0)+1;
+    if(pl && pl.age) slot.ages.push(Number(pl.age));
+
+    var value = null;
+    var seat = consensus[p.pick_no];
+    if(seat!=null){
+      value = p.pick_no - seat;                 // positive = fell to you
+      if(value >  75) value =  75;              // one pick shouldn't decide it
+      if(value < -75) value = -75;
+      slot.value += value;
+      slot.counted++;
+    }
+    slot.picks.push({pid:p.player_id, pick:p.pick_no, round:p.round, pos:pos, rank:rank, value:value});
+  });
+
+  var rows = Object.keys(byRoster).map(function(k){
+    var s = byRoster[k];
+    s.avgValue = s.counted ? s.value/s.counted : 0;
+    s.avgAge = s.ages.length ? s.ages.reduce(function(t,v){return t+v;},0)/s.ages.length : null;
+    s.picks.sort(function(a,b){ return a.pick-b.pick; });
+    s.best = s.picks.filter(function(p){return p.value!=null;})
+      .sort(function(a,b){ return b.value-a.value; })[0] || null;
+    s.worst = s.picks.filter(function(p){return p.value!=null;})
+      .sort(function(a,b){ return a.value-b.value; })[0] || null;
+    return s;
+  });
+  rows.sort(function(a,b){ return b.avgValue-a.avgValue; });
+  return rows;
+}
+
+/* ============================================================
    BOOT
    ============================================================ */
 function boot(){
@@ -299,22 +552,40 @@ function boot(){
 
       paintMasthead();
 
-      var weeks=[],w;
-      for(w=1;w<=S.lastWeek;w++) weeks.push(w);
+      // Pull the whole regular season, not just weeks played. Future weeks
+      // come back with the schedule set and zero points, which is exactly
+      // what the playoff simulation needs.
+      var ps=(S.league.settings&&S.league.settings.playoff_week_start)||15;
+      S.regWeeks=Math.max(1,Math.min(ps-1,18));
+
+      var allWeeks=[],txWeeks=[],w;
+      for(w=1;w<=S.regWeeks;w++) allWeeks.push(w);
+      for(w=1;w<=S.lastWeek;w++) txWeeks.push(w);
+
       return Promise.all([
-        Promise.all(weeks.map(function(w){ return get("/league/"+LEAGUE_ID+"/matchups/"+w).catch(function(){return [];}); })),
-        Promise.all(weeks.map(function(w){ return get("/league/"+LEAGUE_ID+"/transactions/"+w).catch(function(){return [];}); }))
+        Promise.all(allWeeks.map(function(w){ return get("/league/"+LEAGUE_ID+"/matchups/"+w).catch(function(){return [];}); })),
+        Promise.all(txWeeks.map(function(w){ return get("/league/"+LEAGUE_ID+"/transactions/"+w).catch(function(){return [];}); })),
+        get("/league/"+LEAGUE_ID+"/drafts").catch(function(){return [];})
       ]).then(function(out){
-        weeks.forEach(function(w,i){ S.matchups[w]=out[0][i]||[]; });
+        allWeeks.forEach(function(w,i){ S.matchups[w]=out[0][i]||[]; });
         var tx=[];
-        weeks.forEach(function(w,i){ (out[1][i]||[]).forEach(function(t){ t._week=w; tx.push(t); }); });
+        txWeeks.forEach(function(w,i){ (out[1][i]||[]).forEach(function(t){ t._week=w; tx.push(t); }); });
         tx.sort(function(a,b){ return (b.status_updated||0)-(a.status_updated||0); });
         S.transactions=tx;
         S.claims=buildClaims();
+
+        var drafts=out[2]||[];
+        if(drafts.length && drafts[0].draft_id){
+          return get("/draft/"+drafts[0].draft_id+"/picks")
+            .then(function(p){ S.draftPicks=p||[]; })
+            .catch(function(){ S.draftPicks=[]; });
+        }
+        S.draftPicks=[];
       });
     })
     .then(function(){
-      renderNews(); renderWeek(); renderStandings(); renderPower(); renderMoves();
+      renderNews(); renderWeek(); renderStandings(); renderPower();
+      renderDraft(); renderMoves();
       loadPlayers();
     })
     .catch(function(e){ fail(e.message||String(e)); });
@@ -547,6 +818,21 @@ function buildWire(){
     }
   }
 
+  // 6b. Worst lineup management
+  if(S.eff){
+    var effRows=S.rosters.map(function(r){
+      var e=S.eff[r.roster_id];
+      return e&&e.pct!=null?{rid:r.roster_id,pct:e.pct,lost:e.lost}:null;
+    }).filter(Boolean).sort(function(a,b){ return a.pct-b.pct; });
+    if(effRows.length && effRows[0].pct<0.92){
+      items.push({
+        tag:"Mismanagement",
+        hl:esc(teamName(effRows[0].rid))+" is starting only "+Math.round(effRows[0].pct*100)+"% of the points they roster",
+        dt:num(effRows[0].lost,1)+" points have been left unstarted this season. The players were right there."
+      });
+    }
+  }
+
   // 7. Broke
   var budget=(S.league.settings&&S.league.settings.waiver_budget)||100;
   var broke=S.rosters.map(function(r){
@@ -692,6 +978,40 @@ function briefingText(){
   });
   L.push("");
 
+  if(S.eff){
+    L.push("LINEUP EFFICIENCY (actual points as a share of the best lineup available)");
+    S.rosters.map(function(r){
+      var e=S.eff[r.roster_id];
+      return e&&e.pct!=null?{rid:r.roster_id,pct:e.pct,lost:e.lost}:null;
+    }).filter(Boolean).sort(function(a,b){ return b.pct-a.pct; }).forEach(function(r){
+      L.push(teamName(r.rid)+": "+Math.round(r.pct*100)+"%, "+num(r.lost,1)+" points left unstarted");
+    });
+    L.push("");
+  }
+
+  var odds=playoffOdds();
+  if(odds){
+    L.push("PLAYOFF ODDS (5000 simulations, top "+odds.spots+" advance, "+odds.weeksLeft+" weeks left)");
+    odds.rows.slice().sort(function(a,b){ return b.playoffs-a.playoffs; }).forEach(function(r){
+      L.push(teamName(r.rid)+": "+Math.round(r.playoffs*100)+"% playoffs, "+Math.round(r.topSeed*100)+"% top seed");
+    });
+    L.push("");
+  }
+
+  if(S.draftPicks&&S.draftPicks.length&&S.players){
+    var dr=gradeDraft(S.draftPicks,S.players,S.rosters.length);
+    if(dr.length){
+      L.push("DRAFT VALUE (positive means players fell to them, negative means they reached)");
+      dr.forEach(function(r,i){
+        L.push((i+1)+". "+teamName(r.rid)+": "+(r.avgValue>0?"+":"")+num(r.avgValue,1)+" per pick"
+          +(r.best?", best "+playerName(r.best.pid)+" at pick "+r.best.pick:"")
+          +(r.worst?", worst "+playerName(r.worst.pid)+" at pick "+r.worst.pick:"")
+          +(r.avgAge?", average age "+num(r.avgAge,1):""));
+      });
+      L.push("");
+    }
+  }
+
   L.push("WAIVER CLAIMS, NEWEST FIRST (winning bid first, then losing bids)");
   S.claims.slice(0,25).forEach(function(c){
     var parts=c.bids.map(function(b){
@@ -791,6 +1111,14 @@ function sideHTML(m,leading){
 /* ============================================================
    STANDINGS
    ============================================================ */
+function effCell(rid){
+  if(!S.eff||!S.eff[rid]||S.eff[rid].pct==null) return '<span class="mgr">--</span>';
+  var e=S.eff[rid];
+  var cls=e.pct>=0.95?"pos":(e.pct<0.85?"neg":"");
+  return '<span class="'+cls+'">'+Math.round(e.pct*100)+'%</span>'
+    +'<div class="mgr">'+num(e.lost,1)+' lost</div>';
+}
+
 function renderStandings(){
   var ap=allPlay();
   var rows=S.rosters.map(function(r){
@@ -804,52 +1132,17 @@ function renderStandings(){
   }).sort(function(a,b){ return b.w-a.w||b.pf-a.pf||a.l-b.l; });
 
   var html='<h2>Standings</h2>'
-    +'<p class="note">Expected wins is what your scores were worth against the whole league each week. Luck is the gap between that and your actual record.</p>'
-    +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Record</th><th>Points for</th><th>Points against</th><th>Expected wins</th><th>Luck</th></tr></thead><tbody>';
+    +'<p class="note">Expected wins is what your scores were worth against the whole league each week. Luck is the gap between that and your actual record. '
+    +'Lineup efficiency is your actual score divided by the most you could have scored from the players you rostered.</p>'
+    +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Record</th><th>Points for</th><th>Points against</th><th>Expected wins</th><th>Luck</th><th>Lineup efficiency</th></tr></thead><tbody>';
   rows.forEach(function(r,i){
     var cls=r.luck>0.75?"pos":(r.luck<-0.75?"neg":"");
     html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.id)+'</td>'
       +'<td>'+r.w+'-'+r.l+(r.t?'-'+r.t:'')+'</td><td>'+num(r.pf)+'</td><td>'+num(r.pa)+'</td>'
-      +'<td>'+num(r.expected,1)+'</td><td class="'+cls+'">'+(r.luck>0?'+':'')+num(r.luck,1)+'</td></tr>';
+      +'<td>'+num(r.expected,1)+'</td><td class="'+cls+'">'+(r.luck>0?'+':'')+num(r.luck,1)+'</td>'
+      +'<td>'+effCell(r.id)+'</td></tr>';
   });
   $("tab-standings").innerHTML=html+'</tbody></table></div>';
-}
-
-/* ============================================================
-   POWER
-   ============================================================ */
-function renderPower(){
-  var scores=weeklyScores(), ap=allPlay();
-  var rows=S.rosters.map(function(r){
-    var list=scores[r.roster_id]||[];
-    var avg=list.length?list.reduce(function(t,s){return t+s.points;},0)/list.length:0;
-    var rl=list.slice(-3);
-    var recent=rl.length?rl.reduce(function(t,s){return t+s.points;},0)/rl.length:0;
-    var a=ap[r.roster_id]||{w:0,games:0};
-    return {id:r.roster_id, apPct:a.games?a.w/a.games:0, avg:avg, recent:recent, played:list.length};
-  });
-  if(!rows.some(function(r){return r.played;})){
-    $("tab-power").innerHTML='<h2>Power rankings</h2><div class="msg">Nothing to rank yet. This fills in once week 1 goes final.</div>';
-    return;
-  }
-  function norm(key){
-    var vals=rows.map(function(r){return r[key];});
-    var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),span=hi-lo;
-    rows.forEach(function(r){ r["n_"+key]=span?(r[key]-lo)/span:0.5; });
-  }
-  norm("apPct");norm("avg");norm("recent");
-  rows.forEach(function(r){ r.score=100*(0.50*r.n_apPct+0.30*r.n_avg+0.20*r.n_recent); });
-  rows.sort(function(a,b){ return b.score-a.score; });
-
-  var html='<h2>Power rankings</h2>'
-    +'<p class="note">Half all-play record, three tenths season scoring, two tenths the last three weeks. Ignores who you happened to be scheduled against.</p>'
-    +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Rating</th><th>All-play</th><th>Points per week</th><th>Last 3 weeks</th></tr></thead><tbody>';
-  rows.forEach(function(r,i){
-    var a=ap[r.id]||{w:0,l:0};
-    html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.id)+'</td>'
-      +'<td>'+num(r.score,1)+'</td><td>'+a.w+'-'+a.l+'</td><td>'+num(r.avg,1)+'</td><td>'+num(r.recent,1)+'</td></tr>';
-  });
-  $("tab-power").innerHTML=html+'</tbody></table></div>';
 }
 
 /* ============================================================
@@ -879,7 +1172,8 @@ function renderMoves(){
 
   $("tab-moves").innerHTML='<h2>FAAB</h2><p class="note">Budget is $'+budget+' per team, ranked by who has spent the most.</p>'
     +faab+'<h2 style="margin-top:34px">Recent moves</h2>'
-    +'<p class="note">Losing bids appear when Sleeper reports them, so you can see who got outbid and by how much.</p>'+feed;
+    +'<p class="note">Losing bids appear when Sleeper reports them, so you can see who got outbid and by how much.</p>'+feed
+    +gotAwayHTML();
 }
 
 function claimHTML(c){
@@ -945,63 +1239,540 @@ function loadPlayers(){
       return get("/players/nfl").then(function(all){ S.players=all; repaint(); }).catch(function(){});
     });
 }
-function repaint(){ renderMoves(); renderNews(); }
+function repaint(){
+  computeEfficiency();
+  renderStandings(); renderPower(); renderDraft(); renderMoves(); renderNews();
+}
 
 /* ============================================================
    HISTORY
    ============================================================ */
 function renderHistory(){
-  if(S.historyLoaded) return;
-  S.historyLoaded=true;
   var box=$("tab-history");
+  if(S.history){ paintHistory(box,S.history); return; }
   box.innerHTML='<h2>League history</h2><div class="msg">Walking back through past seasons.</div>';
+  loadHistory().then(function(seasons){ paintHistory(box,seasons); });
+}
+
+function paintHistory(box,seasons){
+  if(!seasons||!seasons.length){
+    box.innerHTML='<h2>League history</h2><div class="msg">No past seasons are linked to this league yet.</div>';
+    return;
+  }
+  var html='<h2>League history</h2><p class="note">Every season Sleeper still has on file, newest first.</p>';
+  seasons.forEach(function(s){
+    var uMap={};
+    (s.users||[]).forEach(function(u){ uMap[u.user_id]=u; });
+    function nm(rid){
+      var r=(s.rosters||[]).filter(function(x){return x.roster_id===rid;})[0];
+      var u=r&&uMap[r.owner_id];
+      if(!u) return "Roster "+rid;
+      return (u.metadata&&u.metadata.team_name)||u.display_name||("Roster "+rid);
+    }
+    var champ="";
+    (s.bracket||[]).forEach(function(m){ if(m&&m.p===1&&m.w) champ=nm(m.w); });
+    var rows=(s.rosters||[]).map(function(r){
+      var st=r.settings||{};
+      return {id:r.roster_id,w:Number(st.wins)||0,l:Number(st.losses)||0,t:Number(st.ties)||0,
+        pf:pts(st.fpts,st.fpts_decimal), pa:pts(st.fpts_against,st.fpts_against_decimal)};
+    }).sort(function(a,b){ return b.w-a.w||b.pf-a.pf; });
+    html+='<div class="season-block"><div class="season-head"><h3>'+esc(s.league.season||"")+'</h3>'
+      +'<span class="champ">'+(champ?'Champion: '+esc(champ):'No champion recorded')+'</span></div>'
+      +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Record</th><th>Points for</th><th>Points against</th></tr></thead><tbody>';
+    rows.forEach(function(r,i){
+      html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td>'
+        +'<td><div class="team-cell"><div class="tname">'+esc(nm(r.id))+'</div></div></td>'
+        +'<td>'+r.w+'-'+r.l+(r.t?'-'+r.t:'')+'</td><td>'+num(r.pf)+'</td><td>'+num(r.pa)+'</td></tr>';
+    });
+    html+='</tbody></table></div></div>';
+  });
+  box.innerHTML=html;
+}
+
+
+/* ============================================================
+   SCHEDULE + EFFICIENCY
+   ============================================================ */
+function schedulesByWeek(){
+  var out={};
+  Object.keys(S.matchups).forEach(function(w){
+    var g={};
+    (S.matchups[w]||[]).forEach(function(m){
+      if(m.matchup_id==null) return;
+      (g[m.matchup_id]=g[m.matchup_id]||[]).push(m.roster_id);
+    });
+    var map={};
+    Object.keys(g).forEach(function(k){
+      var p=g[k];
+      if(p.length===2){ map[p[0]]=p[1]; map[p[1]]=p[0]; }
+    });
+    if(Object.keys(map).length) out[w]=map;
+  });
+  return out;
+}
+
+function scoresByWeek(){
+  var out={};
+  Object.keys(S.matchups).forEach(function(w){
+    if(Number(w)>S.finalWeek) return;
+    var any=false, map={};
+    (S.matchups[w]||[]).forEach(function(m){
+      var p=Number(m.points)||0;
+      map[m.roster_id]=p;
+      if(p>0) any=true;
+    });
+    if(any) out[w]=map;
+  });
+  return out;
+}
+
+/* What each team actually scored versus the most they could have. */
+function computeEfficiency(){
+  if(!S.players){ S.eff=null; return; }
+  var slots=(S.league&&S.league.roster_positions)||[];
+  if(!slots.length){ S.eff=null; return; }
+
+  var eff={};
+  S.rosters.forEach(function(r){ eff[r.roster_id]={actual:0,optimal:0,weeks:[]}; });
+
+  Object.keys(S.matchups).forEach(function(w){
+    if(Number(w)>S.finalWeek) return;
+    (S.matchups[w]||[]).forEach(function(m){
+      var e=eff[m.roster_id];
+      if(!e) return;
+      var pp=m.players_points||{};
+      var ids=(m.players&&m.players.length)?m.players:Object.keys(pp);
+      if(!ids.length) return;
+      var best=optimalLineup(ids,pp,slots,S.players);
+      if(!best||!best.points) return;
+      var actual=Number(m.points)||0;
+      e.actual+=actual;
+      e.optimal+=best.points;
+      e.weeks.push({week:Number(w),actual:actual,optimal:best.points,lineup:best.lineup});
+    });
+  });
+
+  Object.keys(eff).forEach(function(k){
+    var e=eff[k];
+    e.pct=e.optimal?e.actual/e.optimal:null;
+    e.lost=e.optimal-e.actual;
+  });
+  S.eff=eff;
+}
+
+/* ============================================================
+   PLAYOFF ODDS
+   ============================================================ */
+function playoffOdds(){
+  var scores=scoresByWeek(), sched=schedulesByWeek();
+  var perTeam={};
+  S.rosters.forEach(function(r){ perTeam[r.roster_id]=[]; });
+  Object.keys(scores).forEach(function(w){
+    Object.keys(scores[w]).forEach(function(rid){
+      if(perTeam[rid]) perTeam[rid].push(scores[w][rid]);
+    });
+  });
+
+  var enough=0;
+  S.rosters.forEach(function(r){ if((perTeam[r.roster_id]||[]).length>=2) enough++; });
+  if(enough<S.rosters.length) return null;
+
+  var all=[];
+  Object.keys(perTeam).forEach(function(k){ all=all.concat(perTeam[k]); });
+  var leagueSd=meanSd(all).sd||15;
+
+  var teams=S.rosters.map(function(r){
+    var st=r.settings||{};
+    var ms=meanSd(perTeam[r.roster_id]||[]);
+    return {
+      rid:r.roster_id,
+      wins:(Number(st.wins)||0)+(Number(st.ties)||0)*0.5,
+      pts:pts(st.fpts,st.fpts_decimal),
+      mean:ms.mean,
+      sd:ms.sd>0?ms.sd:leagueSd
+    };
+  });
+
+  var remaining=[];
+  for(var w=S.finalWeek+1; w<=S.regWeeks; w++){
+    if(!sched[w]) continue;
+    var seen={}, pairs=[];
+    Object.keys(sched[w]).forEach(function(a){
+      var b=sched[w][a];
+      var key=Math.min(a,b)+"-"+Math.max(a,b);
+      if(seen[key]) return;
+      seen[key]=1;
+      pairs.push([Number(a),Number(b)]);
+    });
+    if(pairs.length) remaining.push({week:w,pairs:pairs});
+  }
+
+  var spots=(S.league.settings&&S.league.settings.playoff_teams)||6;
+  var res=simulateSeason({teams:teams,schedule:remaining,playoffSpots:spots,runs:5000});
+  return {rows:res, weeksLeft:remaining.length, spots:spots};
+}
+
+/* ============================================================
+   POWER TAB
+   ============================================================ */
+function renderPower(){
+  var scores=weeklyScores(), ap=allPlay();
+  var rows=S.rosters.map(function(r){
+    var list=scores[r.roster_id]||[];
+    var avg=list.length?list.reduce(function(t,s){return t+s.points;},0)/list.length:0;
+    var rl=list.slice(-3);
+    var recent=rl.length?rl.reduce(function(t,s){return t+s.points;},0)/rl.length:0;
+    var a=ap[r.roster_id]||{w:0,games:0};
+    return {id:r.roster_id, apPct:a.games?a.w/a.games:0, avg:avg, recent:recent, played:list.length};
+  });
+
+  if(!rows.some(function(r){return r.played;})){
+    $("tab-power").innerHTML='<h2>Power rankings</h2><div class="msg">Nothing to rank yet. This fills in once week 1 goes final.</div>';
+    return;
+  }
+
+  function norm(key){
+    var vals=rows.map(function(r){return r[key];});
+    var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),span=hi-lo;
+    rows.forEach(function(r){ r["n_"+key]=span?(r[key]-lo)/span:0.5; });
+  }
+  norm("apPct");norm("avg");norm("recent");
+  rows.forEach(function(r){ r.score=100*(0.50*r.n_apPct+0.30*r.n_avg+0.20*r.n_recent); });
+  rows.sort(function(a,b){ return b.score-a.score; });
+
+  var html='<h2>Power rankings</h2>'
+    +'<p class="note">Half all-play record, three tenths season scoring, two tenths the last three weeks. Ignores who you happened to be scheduled against.</p>'
+    +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Rating</th><th>All-play</th><th>Points per week</th><th>Last 3 weeks</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    var a=ap[r.id]||{w:0,l:0};
+    html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.id)+'</td>'
+      +'<td>'+num(r.score,1)+'</td><td>'+a.w+'-'+a.l+'</td><td>'+num(r.avg,1)+'</td><td>'+num(r.recent,1)+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+
+  html+=oddsHTML()+swapHTML();
+  $("tab-power").innerHTML=html;
+}
+
+function oddsHTML(){
+  var h='<h2 style="margin-top:34px">Playoff odds</h2>';
+  var o=playoffOdds();
+  if(!o){
+    return h+'<p class="note">Needs at least two completed weeks of scoring for every team.</p>'
+      +'<div class="msg">Not enough games yet to simulate.</div>';
+  }
+  h+='<p class="note">Five thousand simulations of the '+o.weeksLeft+' week'+(o.weeksLeft===1?'':'s')
+    +' left, drawing each team&rsquo;s weekly score from their own average and volatility. Top '+o.spots+' make it.</p>';
+  var rows=o.rows.slice().sort(function(a,b){ return b.playoffs-a.playoffs||b.topSeed-a.topSeed; });
+  h+='<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Playoff odds</th><th>Top seed</th></tr></thead><tbody>';
+  rows.forEach(function(r,i){
+    var pctCls=r.playoffs>=0.75?"pos":(r.playoffs<=0.15?"neg":"");
+    h+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.rid)+'</td>'
+      +'<td class="'+pctCls+'">'+pct(r.playoffs)+'</td><td>'+pct(r.topSeed)+'</td></tr>';
+  });
+  return h+'</tbody></table></div>';
+}
+function pct(x){
+  if(x>=0.999) return ">99%";
+  if(x<=0.001&&x>0) return "<1%";
+  return Math.round(x*100)+"%";
+}
+
+function swapHTML(){
+  var scores=scoresByWeek(), sched=schedulesByWeek();
+  var weeks=Object.keys(scores).length;
+  var h='<h2 style="margin-top:34px">Schedule swap</h2>';
+  if(weeks<2){
+    return h+'<div class="msg">Needs a couple of completed weeks before swapping schedules means anything.</div>';
+  }
+  var swap=scheduleSwap(scores,sched);
+  h+='<p class="note">Your exact scores, replayed against every other team&rsquo;s slate. The best and worst columns name whose schedule would have done it.</p>';
+  h+='<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Actual</th><th>Best case</th><th>Worst case</th><th>Average wins</th></tr></thead><tbody>';
+
+  var rows=S.rosters.map(function(r){
+    var me=swap[r.roster_id]||{};
+    var own=me[r.roster_id]||{w:0,l:0,t:0};
+    var best=null,worst=null,total=0,n=0;
+    Object.keys(me).forEach(function(owner){
+      var rec=me[owner];
+      total+=rec.w; n++;
+      if(!best||rec.w>best.rec.w) best={owner:Number(owner),rec:rec};
+      if(!worst||rec.w<worst.rec.w) worst={owner:Number(owner),rec:rec};
+    });
+    return {rid:r.roster_id, own:own, best:best, worst:worst, avg:n?total/n:0};
+  }).sort(function(a,b){ return b.avg-a.avg; });
+
+  rows.forEach(function(r,i){
+    function rec(x){ return x?x.rec.w+"-"+x.rec.l+(x.rec.t?"-"+x.rec.t:""):"--"; }
+    var bTag=r.best&&r.best.owner!==r.rid?'<div class="mgr">'+esc(teamName(r.best.owner))+'</div>':'';
+    var wTag=r.worst&&r.worst.owner!==r.rid?'<div class="mgr">'+esc(teamName(r.worst.owner))+'</div>':'';
+    h+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.rid)+'</td>'
+      +'<td>'+r.own.w+'-'+r.own.l+(r.own.t?'-'+r.own.t:'')+'</td>'
+      +'<td>'+rec(r.best)+bTag+'</td>'
+      +'<td>'+rec(r.worst)+wTag+'</td>'
+      +'<td>'+num(r.avg,1)+'</td></tr>';
+  });
+  return h+'</tbody></table></div>';
+}
+
+/* ============================================================
+   DRAFT REPORT CARD
+   ============================================================ */
+function renderDraft(){
+  var box=$("tab-draft");
+  if(!S.draftPicks||!S.draftPicks.length){
+    box.innerHTML='<h2>Draft report card</h2><div class="msg">No draft picks found for this league yet.</div>';
+    return;
+  }
+  if(!S.players){
+    box.innerHTML='<h2>Draft report card</h2><div class="msg">Loading the player database, one moment.</div>';
+    return;
+  }
+
+  var rows=gradeDraft(S.draftPicks,S.players,S.rosters.length);
+  if(!rows.length){
+    box.innerHTML='<h2>Draft report card</h2><div class="msg">Draft picks came back without team assignments, so they cannot be graded.</div>';
+    return;
+  }
+
+  var starters=((S.league&&S.league.roster_positions)||[]).filter(function(s){ return s!=="BN"&&s!=="IR"&&s!=="TAXI"; });
+  var need={};
+  starters.forEach(function(s){ need[s]=(need[s]||0)+1; });
+
+  var html='<h2>Draft report card</h2>'
+    +'<p class="note">Every player taken in this draft, reordered by how highly Sleeper ranks them, then matched back against the picks that were actually used. '
+    +'Positive means players fell to you, negative means you reached. It nets to zero across the league, so this is purely who beat whom. '
+    +'Sleeper&rsquo;s ranking is a popularity proxy rather than a projection, so read it as a strong opinion, not a verdict.</p>'
+    +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Value per pick</th><th>Best pick</th><th>Worst pick</th><th>Average age</th></tr></thead><tbody>';
+
+  rows.forEach(function(r,i){
+    var cls=r.avgValue>3?"pos":(r.avgValue<-3?"neg":"");
+    function pk(p){
+      if(!p) return "--";
+      return '<div>'+esc(playerName(p.pid))+'</div><div class="mgr">pick '+p.pick+', '+(p.value>0?'+':'')+p.value+'</div>';
+    }
+    html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.rid)+'</td>'
+      +'<td class="'+cls+'">'+(r.avgValue>0?'+':'')+num(r.avgValue,1)+'</td>'
+      +'<td>'+pk(r.best)+'</td><td>'+pk(r.worst)+'</td>'
+      +'<td>'+(r.avgAge?num(r.avgAge,1):"--")+'</td></tr>';
+  });
+  html+='</tbody></table></div>';
+
+  // Roster construction oddities, which need no proxy at all.
+  var flags=[];
+  rows.forEach(function(r){
+    Object.keys(r.positions).forEach(function(pos){
+      var have=r.positions[pos], want=need[pos]||0;
+      if(pos==="QB"&&want<=1&&have>=3) flags.push(teamName(r.rid)+" drafted "+have+" quarterbacks in a "+(want||1)+"-QB league.");
+      if(pos==="K"&&have>=2) flags.push(teamName(r.rid)+" drafted "+have+" kickers, on purpose.");
+      if(pos==="DEF"&&have>=3) flags.push(teamName(r.rid)+" drafted "+have+" defenses.");
+      if(pos==="TE"&&have>=4) flags.push(teamName(r.rid)+" drafted "+have+" tight ends.");
+    });
+  });
+  var oldest=rows.filter(function(r){return r.avgAge;}).sort(function(a,b){ return b.avgAge-a.avgAge; })[0];
+  if(oldest) flags.push("Oldest roster in the league: "+teamName(oldest.rid)+", averaging "+num(oldest.avgAge,1)+" years old.");
+
+  if(flags.length){
+    html+='<h2 style="margin-top:34px">Construction notes</h2>'
+      +'<p class="note">Straight from the pick list. No proxy, no ranking, just what people did.</p><div class="wire">';
+    flags.forEach(function(f){ html+='<div class="wire-item"><div class="dt">'+esc(f)+'</div></div>'; });
+    html+='</div>';
+  }
+  box.innerHTML=html;
+}
+
+/* ============================================================
+   THE ONE THAT GOT AWAY
+   ============================================================ */
+function pointsSince(pid, week){
+  var total=0, found=false;
+  Object.keys(S.matchups).forEach(function(w){
+    if(Number(w)<week||Number(w)>S.finalWeek) return;
+    (S.matchups[w]||[]).forEach(function(m){
+      var pp=m.players_points||{};
+      if(pp[pid]!=null){ total+=Number(pp[pid])||0; found=true; }
+    });
+  });
+  return found?total:null;
+}
+
+function gotAwayHTML(){
+  var contested=S.claims.filter(function(c){ return c.bids.length>1&&c.bids[0].won; });
+  if(!contested.length) return "";
+  var items=[];
+  contested.forEach(function(c){
+    var since=pointsSince(c.pid,c.week);
+    if(since==null) return;
+    var winner=c.bids[0];
+    for(var i=1;i<c.bids.length;i++){
+      var loser=c.bids[i];
+      items.push({
+        pid:c.pid, week:c.week, since:since,
+        winner:winner, loser:loser, gap:winner.amount-loser.amount
+      });
+    }
+  });
+  if(!items.length) return "";
+  items.sort(function(a,b){ return b.since-a.since; });
+
+  var h='<h2 style="margin-top:34px">The one that got away</h2>'
+    +'<p class="note">Every losing bid, and what the player has scored since the day you would not pay a few more dollars.</p><div class="feed">';
+  items.slice(0,20).forEach(function(it){
+    h+='<div class="move"><div class="move-top"><span class="kind">Receipt</span>'
+      +'<span class="who">Week '+it.week+'</span></div>'
+      +playerLine(it.pid)
+      +'<div class="bids">'
+      +'<div class="bid win"><b>$'+it.winner.amount+'</b><span>'+esc(teamName(it.winner.roster))+'</span><span class="lbl">paid</span></div>'
+      +'<div class="bid"><b>$'+it.loser.amount+'</b><span>'+esc(teamName(it.loser.roster))+'</span><span class="lbl">would not</span></div>'
+      +'<div class="bid"><span class="lbl" style="margin-left:0">'
+      +num(it.since,1)+' points scored since, over a gap of $'+it.gap+'.</span></div>'
+      +'</div></div>';
+  });
+  return h+'</div>';
+}
+
+/* ============================================================
+   RECORD BOOK
+   ============================================================ */
+function loadHistory(){
+  if(S.historyPromise) return S.historyPromise;
   var seasons=[];
   function step(id){
-    if(!id||seasons.length>=8) return Promise.resolve();
+    if(!id||seasons.length>=4) return Promise.resolve();
     return Promise.all([
       get("/league/"+id),
       get("/league/"+id+"/users").catch(function(){return [];}),
       get("/league/"+id+"/rosters").catch(function(){return [];}),
       get("/league/"+id+"/winners_bracket").catch(function(){return [];})
     ]).then(function(r){
-      seasons.push({league:r[0],users:r[1],rosters:r[2],bracket:r[3]});
-      return step(r[0]&&r[0].previous_league_id);
+      var season={league:r[0],users:r[1],rosters:r[2],bracket:r[3],matchups:{}};
+      var weeks=[],w;
+      for(w=1;w<=17;w++) weeks.push(w);
+      return Promise.all(weeks.map(function(w){
+        return get("/league/"+id+"/matchups/"+w).catch(function(){return [];});
+      })).then(function(ms){
+        weeks.forEach(function(w,i){
+          var arr=ms[i]||[];
+          if(arr.some(function(m){ return (Number(m.points)||0)>0; })) season.matchups[w]=arr;
+        });
+        seasons.push(season);
+        return step(r[0]&&r[0].previous_league_id);
+      });
     }).catch(function(){});
   }
-  step(LEAGUE_ID).then(function(){
-    if(!seasons.length){
-      box.innerHTML='<h2>League history</h2><div class="msg">No past seasons are linked to this league yet.</div>';
-      return;
+  S.historyPromise=step(LEAGUE_ID).then(function(){ S.history=seasons; return seasons; });
+  return S.historyPromise;
+}
+
+function renderRecords(){
+  var box=$("tab-records");
+  if(S.history){ paintRecords(box,S.history); return; }
+  box.innerHTML='<h2>Record book</h2><div class="msg">Reading every season Sleeper still has. This one takes a few seconds.</div>';
+  loadHistory().then(function(seasons){ paintRecords(box,seasons); });
+}
+
+function paintRecords(box,seasons){
+  if(!seasons||!seasons.length){
+    box.innerHTML='<h2>Record book</h2><div class="msg">No season data available.</div>';
+    return;
+  }
+
+  var weeks=[], careers={};
+  seasons.forEach(function(s){
+    var uMap={}, rMap={};
+    (s.users||[]).forEach(function(u){ uMap[u.user_id]=u; });
+    (s.rosters||[]).forEach(function(r){ rMap[r.roster_id]=r; });
+    function nm(rid){
+      var r=rMap[rid], u=r&&uMap[r.owner_id];
+      if(!u) return "Roster "+rid;
+      return (u.metadata&&u.metadata.team_name)||u.display_name||("Roster "+rid);
     }
-    var html='<h2>League history</h2><p class="note">Every season Sleeper still has on file, newest first.</p>';
-    seasons.forEach(function(s){
-      var uMap={};
-      (s.users||[]).forEach(function(u){ uMap[u.user_id]=u; });
-      function nm(rid){
-        var r=(s.rosters||[]).filter(function(x){return x.roster_id===rid;})[0];
-        var u=r&&uMap[r.owner_id];
-        if(!u) return "Roster "+rid;
-        return (u.metadata&&u.metadata.team_name)||u.display_name||("Roster "+rid);
-      }
-      var champ="";
-      (s.bracket||[]).forEach(function(m){ if(m&&m.p===1&&m.w) champ=nm(m.w); });
-      var rows=(s.rosters||[]).map(function(r){
-        var st=r.settings||{};
-        return {id:r.roster_id,w:Number(st.wins)||0,l:Number(st.losses)||0,t:Number(st.ties)||0,
-          pf:pts(st.fpts,st.fpts_decimal), pa:pts(st.fpts_against,st.fpts_against_decimal)};
-      }).sort(function(a,b){ return b.w-a.w||b.pf-a.pf; });
-      html+='<div class="season-block"><div class="season-head"><h3>'+esc(s.league.season||"")+'</h3>'
-        +'<span class="champ">'+(champ?'Champion: '+esc(champ):'No champion recorded')+'</span></div>'
-        +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Record</th><th>Points for</th><th>Points against</th></tr></thead><tbody>';
-      rows.forEach(function(r,i){
-        html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td>'
-          +'<td><div class="team-cell"><div class="tname">'+esc(nm(r.id))+'</div></div></td>'
-          +'<td>'+r.w+'-'+r.l+(r.t?'-'+r.t:'')+'</td><td>'+num(r.pf)+'</td><td>'+num(r.pa)+'</td></tr>';
-      });
-      html+='</tbody></table></div></div>';
+    function owner(rid){ var r=rMap[rid]; return r?r.owner_id:null; }
+
+    var champ=null;
+    (s.bracket||[]).forEach(function(m){ if(m&&m.p===1&&m.w) champ=m.w; });
+
+    (s.rosters||[]).forEach(function(r){
+      var st=r.settings||{}, uid=r.owner_id;
+      if(!uid) return;
+      var u=uMap[uid];
+      if(!careers[uid]) careers[uid]={name:(u&&u.display_name)||"Unknown",w:0,l:0,t:0,pf:0,titles:0,seasons:0};
+      var c=careers[uid];
+      c.w+=Number(st.wins)||0; c.l+=Number(st.losses)||0; c.t+=Number(st.ties)||0;
+      c.pf+=pts(st.fpts,st.fpts_decimal);
+      c.seasons++;
+      if(champ===r.roster_id) c.titles++;
     });
-    box.innerHTML=html;
+
+    Object.keys(s.matchups).forEach(function(w){
+      var g={};
+      (s.matchups[w]||[]).forEach(function(m){
+        if(m.matchup_id==null) return;
+        (g[m.matchup_id]=g[m.matchup_id]||[]).push(m);
+      });
+      (s.matchups[w]||[]).forEach(function(m){
+        weeks.push({season:s.league.season, week:Number(w), rid:m.roster_id,
+          name:nm(m.roster_id), points:Number(m.points)||0});
+      });
+      Object.keys(g).forEach(function(k){
+        var p=g[k];
+        if(p.length<2) return;
+        var a=p[0],b=p[1];
+        var pa=Number(a.points)||0, pb=Number(b.points)||0;
+        if(!pa&&!pb) return;
+        var hi=pa>=pb?a:b, lo=pa>=pb?b:a;
+        weeks.push({game:true, season:s.league.season, week:Number(w),
+          winner:nm(hi.roster_id), loser:nm(lo.roster_id),
+          winPts:Math.max(pa,pb), losePts:Math.min(pa,pb), margin:Math.abs(pa-pb)});
+      });
+    });
   });
+
+  var singles=weeks.filter(function(x){ return !x.game&&x.points>0; });
+  var gamesAll=weeks.filter(function(x){ return x.game; });
+
+  function line(label,val,detail){
+    return '<div class="wire-item"><div class="hl"><span class="tag">'+esc(label)+'</span>'+esc(val)+'</div>'
+      +'<div class="dt">'+esc(detail)+'</div></div>';
+  }
+
+  var html='<h2>Record book</h2><p class="note">Every season linked to this league, all-time.</p><div class="wire">';
+  if(singles.length){
+    var hi=singles.slice().sort(function(a,b){ return b.points-a.points; })[0];
+    var lo=singles.slice().sort(function(a,b){ return a.points-b.points; })[0];
+    html+=line("Highest week", hi.name+", "+num(hi.points), hi.season+" week "+hi.week);
+    html+=line("Lowest week", lo.name+", "+num(lo.points), lo.season+" week "+lo.week);
+  }
+  if(gamesAll.length){
+    var blow=gamesAll.slice().sort(function(a,b){ return b.margin-a.margin; })[0];
+    var close=gamesAll.slice().sort(function(a,b){ return a.margin-b.margin; })[0];
+    var painful=gamesAll.slice().sort(function(a,b){ return b.losePts-a.losePts; })[0];
+    html+=line("Biggest blowout", blow.winner+" over "+blow.loser+" by "+num(blow.margin),
+      blow.season+" week "+blow.week+", "+num(blow.winPts)+" to "+num(blow.losePts));
+    html+=line("Closest game", close.winner+" over "+close.loser+" by "+num(close.margin),
+      close.season+" week "+close.week);
+    html+=line("Most points in a loss", painful.loser+", "+num(painful.losePts),
+      painful.season+" week "+painful.week+", beaten by "+painful.winner+"'s "+num(painful.winPts));
+  }
+  html+='</div>';
+
+  var cr=Object.keys(careers).map(function(k){ return careers[k]; })
+    .sort(function(a,b){ return b.titles-a.titles||b.w-a.w||b.pf-a.pf; });
+  if(cr.length){
+    html+='<h2 style="margin-top:34px">Career records</h2>'
+      +'<p class="note">Across every season on file. Managers are matched by account, so a rename does not reset anyone.</p>'
+      +'<div class="scroll"><table><thead><tr><th></th><th>Manager</th><th>Record</th><th>Win rate</th><th>Points</th><th>Seasons</th><th>Titles</th></tr></thead><tbody>';
+    cr.forEach(function(c,i){
+      var g=c.w+c.l+c.t;
+      html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td>'
+        +'<td><div class="team-cell"><div class="tname">'+esc(c.name)+'</div></div></td>'
+        +'<td>'+c.w+'-'+c.l+(c.t?'-'+c.t:'')+'</td>'
+        +'<td>'+(g?Math.round(100*c.w/g)+'%':'--')+'</td>'
+        +'<td>'+num(c.pf,0)+'</td><td>'+c.seasons+'</td><td>'+(c.titles||'')+'</td></tr>';
+    });
+    html+='</tbody></table></div>';
+  }
+  box.innerHTML=html;
 }
 
 /* ---------- tabs ---------- */
@@ -1014,6 +1785,7 @@ tabs.forEach(function(btn){
       $("tab-"+b.dataset.tab).hidden=!on;
     });
     if(btn.dataset.tab==="history") renderHistory();
+    if(btn.dataset.tab==="records") renderRecords();
   });
 });
 
