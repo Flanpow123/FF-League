@@ -1491,6 +1491,55 @@ function editorialContext(){
   return L.join("\n");
 }
 
+/* Every starter, what they were projected for and what they actually did.
+   Works mid-week, because Sleeper updates these while games are running. */
+function currentWeekPlayers(){
+  var rows = S.matchups[S.week] || [];
+  if(!rows.length) return "";
+
+  var L = [];
+  L.push("PLAYER SCORING, WEEK " + S.week + " (" + (S.finalWeek >= S.week ? "final" : "still in progress") + ")");
+  L.push("Starters listed as: player (position, NFL team) projected -> actual. A dash means no projection was published.");
+
+  // Pair teams up so the writer can see both sides of a matchup together.
+  var groups = {};
+  rows.forEach(function(m){
+    var k = m.matchup_id==null ? ("bye"+m.roster_id) : m.matchup_id;
+    (groups[k] = groups[k] || []).push(m);
+  });
+
+  Object.keys(groups).forEach(function(k){
+    var g = groups[k];
+    L.push("");
+    if(g.length === 2){
+      L.push("MATCHUP: " + teamName(g[0].roster_id) + " " + num(g[0].points)
+        + " vs " + teamName(g[1].roster_id) + " " + num(g[1].points));
+    }
+    g.forEach(function(m){
+      var pp = m.players_points || {}, starters = m.starters || [];
+      var projTotal = 0, hasProj = false;
+      starters.forEach(function(pid){
+        if(S.projections && S.projections[pid]!=null){ projTotal += Number(S.projections[pid])||0; hasProj = true; }
+      });
+      L.push(teamName(m.roster_id) + " (" + manager(m.roster_id) + ") scored " + num(m.points)
+        + (hasProj ? ", projected " + num(projTotal,1) : ""));
+      starters.forEach(function(pid){
+        if(!pid || pid==="0"){ L.push("  empty slot"); return; }
+        var proj = (S.projections && S.projections[pid]!=null) ? num(S.projections[pid],1) : "--";
+        var meta = playerMeta(pid);
+        L.push("  " + playerName(pid) + (meta?" ("+meta+")":"") + " " + proj + " -> " + num(pp[pid]||0));
+      });
+      var bench = [];
+      (m.players||[]).forEach(function(pid){
+        if(starters.indexOf(pid) < 0 && pp[pid]!=null) bench.push(playerName(pid)+" "+num(pp[pid]));
+      });
+      if(bench.length) L.push("  bench: " + bench.join(", "));
+    });
+  });
+  L.push("");
+  return L.join("\n");
+}
+
 function briefingText(){
   var L=[], wk=S.finalWeek||S.week;
   var ap=allPlay(), scores=weeklyScores();
@@ -1636,6 +1685,7 @@ function briefingText(){
     });
   }
 
+  L.push(currentWeekPlayers());
   L.push(editorialContext());
 
   L.push("HOW TO USE THIS");
