@@ -1,4 +1,11 @@
 {
-  "note": "Past editions, oldest first. Add one line here each time you archive an edition.",
-  "editions": []
+  "note": "Past editions, oldest first.",
+  "editions": [
+    {
+      "file": "2026-preseason.json",
+      "week": 0,
+      "season": "2026",
+      "generated": "2026-09-08"
+    }
+  ]
 }
