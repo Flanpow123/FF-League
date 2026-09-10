@@ -1,0 +1,75 @@
+{
+  "week": 0,
+  "generated": "2026-09-08",
+  "stories": [
+    {
+      "headline": "Killian has the best roster in the league and the league is nine points wide",
+      "body": "Team Ketchup projects for 128.3 points a week, the highest figure in Sigma Pi B, and carries the best playoff odds in the league at 73 percent with an 18 percent shot at the top seed. On paper it is the best team here.\n\nOn paper is doing heavy lifting. Ten of the twelve teams project within 8.3 points a week of each other, from Killian's 128.3 down to Jake's 120.0. Killian's lead over Kevin in second is 2.5 points a week, which across a full season is somewhere between a real edge and a rounding error, and nobody can tell you which.\n\nThe projections are confident about exactly two things, and both of them are at the bottom of the table.",
+      "takes": [
+        {
+          "analyst": "quant",
+          "text": "A 2.5 point weekly gap between first and second, with ten teams inside 8.3 points. This is not a ranking, it is a list in a plausible order. Anyone presenting the top of it as settled is selling something."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "Best roster in the league according to a computer that has watched zero football. I have watched a great deal of football and I am telling you that a 2.5 point margin in September is worth nothing. Nothing!"
+        },
+        {
+          "analyst": "analyst",
+          "text": "The honest read is that Killian is a fine favourite and a weak one. Seventy-three percent playoff odds in a twelve-team league with six spots means the model likes him and still gives him better than a one in four chance of missing entirely."
+        },
+        {
+          "analyst": "troll",
+          "text": "Congratulations to Killian on winning the preseason. There is a trophy for that and it is invisible and it does not exist."
+        }
+      ],
+      "storyline": "Killian entered week 1 projected first at 128.3 a week with 73 percent playoff odds. Open question: does the best roster on paper convert, given his lead over second was only 2.5 points a week."
+    },
+    {
+      "headline": "Both teams named after a player project in the bottom two",
+      "body": "Jeff runs Let Baker Bake and drafted Baker Mayfield at pick 37. Let Baker Bake projects last in the league at 109.7 a week, with 8 percent playoff odds, the only team in single digits.\n\nAdam runs Coker? I hardly know her! and drafted Jalen Coker at pick 126. Coker? I hardly know her! projects eleventh at 114.9, with 20 percent playoff odds.\n\nThe shape of the table matters here. The top ten are packed inside 8.3 points a week. Then there is a 5.1 point drop to Adam, and another 5.2 point drop to Jeff. These two are not in the traffic jam. They are parked somewhere else entirely.",
+      "takes": [
+        {
+          "analyst": "troll",
+          "text": "You cannot name the team first and draft second. That is not a strategy, it is a commitment ceremony. Meanwhile Kevin named his team #CrookedAdam, built it around a grudge against a man in this league, and projects second."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "Pick thirty-seven! For a quarterback! In a league that starts one of them! Jeff did not draft a player, he drafted a punchline and then had to live in it for five months."
+        },
+        {
+          "analyst": "analyst",
+          "text": "In fairness to Adam, a pick at 126 costs you almost nothing when it misses. Jeff's problem is the round it happened in, not the player. And I would note the gap between them is 5.2 points a week, which is larger than the gap separating the entire top ten."
+        },
+        {
+          "analyst": "quant",
+          "text": "When a distribution has a tail this clean, it is usually real. The model cannot separate the top ten and separates these two easily. That asymmetry is the most informative thing in the whole table."
+        }
+      ],
+      "storyline": "Jeff and Adam entered week 1 projected twelfth and eleventh, the only two teams the projections could separate from the pack. Open question: was the gap real or an artifact of preseason numbers."
+    },
+    {
+      "headline": "Chris drafted Kyler Murray at 178 and cut him before anyone played a down",
+      "body": "I'sah Likely to win Deebo took Kyler Murray with pick 178, one of the last picks of the draft. Murray signed with Minnesota in March after Arizona released him, then beat out J.J. McCarthy in camp and was named the Week 1 starter.\n\nChris dropped him for Tre Tucker before the season began. Murray is currently available to all twelve teams and nobody has claimed him.\n\nI'sah Likely to win Deebo projects eighth at 122.8 a week and sits at exactly 50 percent playoff odds, the only team in the league on a clean coin flip.",
+      "takes": [
+        {
+          "analyst": "firestarter",
+          "text": "A starting quarterback in the fifteenth round is the closest thing to free money this sport offers, and he gave it back. Unprompted. For a receiver. I said this last week and I will say it every week until somebody signs the man."
+        },
+        {
+          "analyst": "analyst",
+          "text": "Fifty percent odds is not a crisis and Tre Tucker is a real player. The issue is sequencing. You do not make that call in September when you have no information. You make it in October when you do."
+        },
+        {
+          "analyst": "quant",
+          "text": "I want to flag something about how this looks in the data rather than pile on. Sleeper ranks quarterbacks by raw talent on one global list that does not know this league starts one of them. Any metric built on that ranking will call every late quarterback a steal, including this one. The move was still strange. The number describing it is less impressive than it appears."
+        },
+        {
+          "analyst": "troll",
+          "text": "Eighteen rounds of drafting and the most interesting player Chris selected is currently on the waiver wire for anyone who wants him. Go on. Somebody take him just to make the point."
+        }
+      ],
+      "storyline": "Chris drafted Kyler Murray at pick 178 and released him before week 1. Open question: what Murray scores, and whether anyone in the league claims him."
+    }
+  ]
+}
