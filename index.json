@@ -1,0 +1,23 @@
+{
+  "note": "Past editions, oldest first.",
+  "editions": [
+    {
+      "file": "2026-preseason.json",
+      "week": 0,
+      "season": "2026",
+      "generated": "2026-09-08"
+    },
+    {
+      "file": "2026-week-01-thu.json",
+      "week": 1,
+      "season": "2026",
+      "generated": "2026-09-10"
+    },
+    {
+      "file": "2026-week-01-fri.json",
+      "week": 1,
+      "season": "2026",
+      "generated": "2026-09-11"
+    }
+  ]
+}
