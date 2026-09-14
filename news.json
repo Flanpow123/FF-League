@@ -81,25 +81,25 @@
   },
   "stories": [
     {
-      "headline": "Five of six games are already over. Jake needs about forty points from Rashee Rice",
-      "body": "No player from Kansas City or Denver has scored anywhere in this league, which means that game is the only football left in week one. Four managers still have a body on the field: Justin has Kenneth Walker, Jake has Rashee Rice, Jack has Jaylen Waddle and Harrison Butker, and Jerey has the Denver defense.\n\nOnly one of those matchups is still a contest. Justin leads Jake 121.26 to 102.46. Jake's 18.80 point deficit has to be made up by Rice alone, against Walker and whatever Justin's Tennessee defense produces. If Justin's remaining pieces hit their projections of roughly 21.7, Rice needs about 40.5 points. He is projected for 12.8. That is a three touchdown night with yardage attached, and it is the only path Jake has.\n\nEverywhere else the arithmetic has closed. Adam, Trevor, Brian, Jeff and Jomi have no starters left to play, and all five trail. Trevor is 56.20 behind Jack with nothing on the field. Jeff is 45.96 behind Jerey with nothing on the field. Those are not comebacks in progress, they are results waiting to be recorded.",
-      "storyline": "Only Justin against Jake remains live into Monday night, with Jake needing roughly 40 points from Rashee Rice against a 12.8 projection. Open question: whether Justin's decision to start the Tennessee defense over Detroit costs him a game he currently leads.",
+      "headline": "Five of six games are over. Jake needs about thirty-two points from Rashee Rice",
+      "body": "Denver at Kansas City is the only game left in week one. It is the last of sixteen, and no player from either team has scored anywhere in this league, which leaves four managers with a body still on the field: Justin has Kenneth Walker, Jake has Rashee Rice, Jack has Jaylen Waddle and Harrison Butker, and Jerey has the Denver defense.\n\nOnly one of those matchups is still a contest. Justin leads Jake 121.26 to 102.46, and Jake's entire comeback rests on Rice outscoring Walker by 18.80. If Walker hits his 13.7 projection, Rice needs roughly 32.5 against a projection of 12.8. If Walker has a quiet night, the bar drops toward the low twenties. Rice is not being asked for a miracle, he is being asked for the best game of his season while a teammate disappears.\n\nEverywhere else the arithmetic has closed. Adam, Trevor, Brian, Jeff and Jomi have no starters left and all five trail. Trevor is 56.20 behind Jack with nothing on the field. Jeff is 45.96 behind Jerey with nothing on the field. Those are not comebacks in progress, they are results waiting to be recorded.",
+      "storyline": "Justin against Jake is the only live matchup into Monday night, with Jake needing roughly 32 points from Rashee Rice. Justin benched the Detroit defense for Tennessee and lost 11.00 points doing it, while leading by 18.80. Open question: whether that decision ends up being the margin.",
       "takes": [
         {
           "analyst": "quant",
-          "text": "Forty and a half from a receiver projected for 12.8 is roughly a three standard deviation outcome. It happens a handful of times a season across the entire NFL. I would put Jake's chances in the low single digits and I would not round them up to be kind."
+          "text": "Thirty-two and a half from a receiver projected for 12.8 is a genuine outlier but not an absurd one. Call it the best week of a good receiver's season. I would put Jake somewhere around one chance in eight, which is far more than he deserves given how he got here."
         },
         {
           "analyst": "analyst",
-          "text": "The detail that decides this is not Rice, it is Justin's defense. He benched Detroit, who scored 11.00, to start Tennessee, who have not played. If Tennessee produce nothing and Walker has a quiet night, the bar for Rice drops toward the mid twenties, and the mid twenties is a real number."
+          "text": "The decision that may settle this has already happened. Justin started the Tennessee defense, who scored nothing, over Detroit, who scored 11.00. He leads by 18.80. If Rice takes this game by anything under eleven points, that single lineup call is the entire result and it was made on Sunday morning."
         },
         {
           "analyst": "firestarter",
-          "text": "Jake needs three touchdowns from one man on Monday night. Three! And he is in this position because he started a Houston defense that scored minus one point. Minus one! You can lose a fantasy game by being outscored. He chose to be outscored by his own defense."
+          "text": "Jake needs the game of Rashee Rice's life on Monday night, and he is in that position because he started a Houston defense that scored minus one point. Minus one! You can lose a fantasy game by being outscored. He arranged to be outscored by his own defense."
         },
         {
           "analyst": "troll",
-          "text": "Five games finished, seven managers with nothing to do but watch, and the entire week now hinges on whether a Kansas City receiver has the night of his life so that Jake can lose by a smaller number. Tune in."
+          "text": "Five games finished, seven managers with nothing left to do, and the whole week now rests on a Kansas City receiver and whether Kenneth Walker can be persuaded to do nothing at all. This is the most attention Kenneth Walker will receive all year."
         }
       ]
     },
@@ -174,7 +174,7 @@
     },
     {
       "headline": "The bench ledger: 117 points that nobody started",
-      "body": "Six managers left double figures on the bench at a position where their starter underperformed. Chris was the worst offender at 27.80 and got away with it. Trevor was second and did not: he benched Dallas Goedert for 23.70 and started Kyle Pitts, who scored nothing, in a game he lost by 56.20.\n\nJeff is the one to sit with. He has made exactly one transaction this season, adding Devaughn Vele. Vele scored 19.90 on Sunday. Jeff started Drake London, who scored 5.50, and lost 118.70 to 72.74. He made one good decision all year and then declined to act on it.\n\nAdam benched Kyle Monangai for 20.40 while starting Kenny Gainwell for 2.80. Jerey benched T.J. Hockenson for 13.60 while starting AJ Barner for 3.30. And Justin, currently leading the only live game in the league, benched the Detroit defense for 11.00 to start a Tennessee defense that has not taken the field.",
+      "body": "Six managers left double figures on the bench at a position where their starter underperformed. Chris was the worst offender at 27.80 and got away with it. Trevor was second and did not: he benched Dallas Goedert for 23.70 and started Kyle Pitts, who scored nothing, in a game he lost by 56.20.\n\nJeff is the one to sit with. He has made exactly one transaction this season, adding Devaughn Vele. Vele scored 19.90 on Sunday. Jeff started Drake London, who scored 5.50, and lost 118.70 to 72.74. He made one good decision all year and then declined to act on it.\n\nAdam benched Kyle Monangai for 20.40 while starting Kenny Gainwell for 2.80. Jerey benched T.J. Hockenson for 13.60 while starting AJ Barner for 3.30. And Justin, who leads the only live game in the league by 18.80, benched the Detroit defense for 11.00 to start a Tennessee defense that scored nothing at all.",
       "storyline": "Six managers left double-digit points on the bench in week 1, led by Chris at 27.80 and Trevor at 23.70. Jeff benched the only player he has added all season. Open question: whether lineup efficiency separates this league more than roster quality does.",
       "takes": [
         {
