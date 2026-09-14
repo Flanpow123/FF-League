@@ -61,6 +61,17 @@
   .wire-item .dt{color:var(--dim);font-size:13.5px;font-variant-numeric:tabular-nums}
   .wire-item .tag{color:var(--gold);font-family:var(--cond);font-size:14px;font-weight:600;margin-right:8px}
 
+  .picks{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+  .pk{
+    font-family:var(--cond);font-size:15px;font-weight:600;
+    background:var(--panel2);color:var(--dim);border:1px solid var(--line);
+    border-radius:3px;padding:5px 10px;cursor:pointer;
+  }
+  .pk:hover{color:var(--text)}
+  .pk.on{background:var(--gold);color:var(--turf);border-color:var(--gold)}
+  .pk:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+  .poll-wrap{border:1px solid var(--line);border-radius:3px;background:var(--panel);padding:14px;margin-bottom:24px}
   .toc{margin-bottom:34px}
   .toc-item{
     display:block;width:100%;text-align:left;border:none;
@@ -167,6 +178,8 @@
   <nav role="tablist">
     <button role="tab" data-tab="news" aria-selected="true">Newsroom</button>
     <button role="tab" data-tab="week" aria-selected="false">Scoreboard</button>
+    <button role="tab" data-tab="book" aria-selected="false">The Book</button>
+    <button role="tab" data-tab="poll" aria-selected="false">Poll</button>
     <button role="tab" data-tab="standings" aria-selected="false">Standings</button>
     <button role="tab" data-tab="power" aria-selected="false">Power</button>
     <button role="tab" data-tab="draft" aria-selected="false">Draft</button>
@@ -177,6 +190,8 @@
 
   <section id="tab-news"><div class="msg">Reading the league.</div></section>
   <section id="tab-week" hidden></section>
+  <section id="tab-book" hidden></section>
+  <section id="tab-poll" hidden></section>
   <section id="tab-standings" hidden></section>
   <section id="tab-power" hidden></section>
   <section id="tab-draft" hidden></section>
@@ -226,6 +241,10 @@ var API = "https://api.sleeper.app/v1";
    if it disappears or refuses cross-origin requests. */
 var PROJ_API = "https://api.sleeper.com";
 
+/* Game status, so the site can tell "has not kicked off" apart from
+   "played and scored nothing". Also unofficial, also degrades quietly. */
+var STATUS_API = "https://site.api.espn.com/apis/site/v2/sports/football/nfl/scoreboard";
+
 /* Add ?desk to the URL to reveal the briefing tools. Without it the
    site is read-only and gives no hint that a human is involved. */
 var DESK = /[?&]desk\b/.test(location.search);
@@ -236,7 +255,8 @@ var S = {
   news:null, historyLoaded:false, finalWeek:0,
   regWeeks:14, draftPicks:null, eff:null, history:null, historyPromise:null,
   projections:null, projError:null, projWeek:null,
-  archive:null, archivePromise:null, archiveError:null
+  archive:null, archivePromise:null, archiveError:null,
+  gameStatus:null, statusError:null, picks:null
 };
 
 /* ---------- helpers ---------- */
@@ -774,7 +794,7 @@ function boot(){
     })
     .then(function(){
       renderNews(); renderWeek(); renderStandings(); renderPower();
-      renderDraft(); renderMoves();
+      renderDraft(); renderMoves(); renderPoll(); renderBook();
       loadPlayers();
     })
     .catch(function(e){ fail(e.message||String(e)); });
@@ -1172,6 +1192,309 @@ function receiptsHTML(){
   return h;
 }
 
+
+/* ============================================================
+   GAME STATUS
+   ============================================================ */
+/* ESPN and Sleeper disagree on a couple of abbreviations. */
+var TEAM_ALIAS = {WSH:"WAS", WAS:"WAS", JAC:"JAX", LA:"LAR"};
+function normTeam(t){
+  t = String(t||"").toUpperCase();
+  return TEAM_ALIAS[t] || t;
+}
+
+function loadGameStatus(){
+  var season = (S.league && S.league.season) || "";
+  var url = STATUS_API + "?week=" + S.week + "&seasontype=2" + (season?"&dates="+season:"");
+  return fetch(url)
+    .then(function(r){
+      if(!r.ok) throw new Error("status feed returned " + r.status);
+      return r.json();
+    })
+    .then(function(data){
+      var events = (data && data.events) || [];
+      if(!events.length) throw new Error("status feed had no games for this week");
+      var map = {}, counts = {pre:0, in:0, post:0};
+      events.forEach(function(ev){
+        var comp = (ev.competitions && ev.competitions[0]) || null;
+        if(!comp) return;
+        var st = (comp.status && comp.status.type && comp.status.type.state)
+              || (ev.status && ev.status.type && ev.status.type.state) || null;
+        if(!st) return;
+        (comp.competitors||[]).forEach(function(c){
+          var abbr = c && c.team && (c.team.abbreviation || c.team.abbrev);
+          if(!abbr) return;
+          map[normTeam(abbr)] = st;
+        });
+        if(counts[st]!=null) counts[st]++;
+      });
+      if(!Object.keys(map).length) throw new Error("status feed had no teams");
+      S.gameStatus = map;
+      S.statusError = null;
+      S.statusCounts = counts;
+    })
+    .catch(function(e){
+      S.gameStatus = null;
+      S.statusError = e.message || String(e);
+    });
+}
+
+/* "pre" not started, "in" playing, "post" finished, null unknown. */
+function playerGameState(pid){
+  if(!S.gameStatus) return null;
+  var p = S.players && S.players[pid];
+  var team = p && p.team ? normTeam(p.team) : (/^[A-Z]{2,4}$/.test(pid) ? normTeam(pid) : null);
+  if(!team) return null;
+  return S.gameStatus[team] || null;
+}
+function stateLabel(st){
+  if(st==="pre") return "yet to play";
+  if(st==="in") return "playing now";
+  if(st==="post") return "final";
+  return "";
+}
+
+/* Who each team still has on the field, and what those players project for. */
+function remainingFor(m){
+  var out = {count:0, proj:0, players:[]};
+  if(!S.gameStatus) return null;
+  (m.starters||[]).forEach(function(pid){
+    if(!pid || pid==="0") return;
+    var st = playerGameState(pid);
+    if(st!=="pre" && st!=="in") return;
+    var pr = (S.projections && S.projections[pid]!=null) ? Number(S.projections[pid]) : 0;
+    out.count++;
+    out.proj += pr;
+    out.players.push({pid:pid, proj:pr, state:st});
+  });
+  return out;
+}
+
+/* ============================================================
+   THE BOOK — lines derived from projections, no money involved
+   ============================================================ */
+function teamSd(rid){
+  var scores = weeklyScores()[rid] || [];
+  var pts = scores.map(function(s){ return s.points; });
+  var ms = meanSd(pts);
+  if(pts.length >= 3 && ms.sd > 0) return ms.sd;
+  return 22;                                   // typical weekly spread
+}
+function roundHalf(x){ return Math.round(x*2)/2; }
+
+function bookLines(week){
+  var strength = projectedStrength();
+  if(!strength) return null;
+  var rows = S.matchups[week] || [];
+  var groups = {};
+  rows.forEach(function(m){
+    if(m.matchup_id==null) return;
+    (groups[m.matchup_id] = groups[m.matchup_id] || []).push(m);
+  });
+  var out = [];
+  Object.keys(groups).forEach(function(k){
+    var g = groups[k];
+    if(g.length !== 2) return;
+    var a = g[0], b = g[1];
+    var pa = strength[a.roster_id], pb = strength[b.roster_id];
+    if(pa==null || pb==null) return;
+    var sdA = teamSd(a.roster_id), sdB = teamSd(b.roster_id);
+    var z = (pa-pb)/Math.sqrt(sdA*sdA + sdB*sdB);
+    var pWin = 0.5*(1+erf(z/Math.SQRT2));
+    out.push({
+      id: Number(k),
+      a: a.roster_id, b: b.roster_id,
+      projA: pa, projB: pb,
+      spread: roundHalf(pa-pb),                // negative for b means a favoured
+      total: roundHalf(pa+pb),
+      pWinA: pWin,
+      scoreA: Number(a.points)||0,
+      scoreB: Number(b.points)||0
+    });
+  });
+  out.sort(function(x,y){ return Math.abs(x.spread)-Math.abs(y.spread); });
+  return out;
+}
+
+function moneyline(p){
+  if(p<=0.001) return "+9999";
+  if(p>=0.999) return "-9999";
+  var ml = p >= 0.5 ? -Math.round(100*p/(1-p)) : Math.round(100*(1-p)/p);
+  return (ml>0?"+":"") + ml;
+}
+
+/* ---------- picks, stored on this device only ---------- */
+function picksStore(){
+  try { return window.localStorage; } catch(e){ return null; }
+}
+function loadPicks(){
+  if(S.picks) return S.picks;
+  var ls = picksStore();
+  if(!ls){ S.picks = {}; return S.picks; }
+  try { S.picks = JSON.parse(ls.getItem("spb:picks") || "{}") || {}; }
+  catch(e){ S.picks = {}; }
+  return S.picks;
+}
+function savePicks(){
+  var ls = picksStore();
+  if(!ls) return false;
+  try { ls.setItem("spb:picks", JSON.stringify(S.picks||{})); return true; }
+  catch(e){ return false; }
+}
+function setPick(week, id, kind, value, line, total){
+  var p = loadPicks();
+  var w = (p[week] = p[week] || {});
+  var slot = (w[id] = w[id] || {});
+  slot[kind] = value;
+  if(line!=null) slot.line = line;
+  if(total!=null) slot.total = total;
+  savePicks();
+}
+
+/* Grade every pick from a week the league has finished. */
+function gradePicks(){
+  var p = loadPicks(), rec = {spread:{w:0,l:0,push:0}, total:{w:0,l:0,push:0}, graded:0};
+  Object.keys(p).forEach(function(week){
+    if(Number(week) > S.finalWeek) return;
+    var rows = S.matchups[week] || [];
+    var groups = {};
+    rows.forEach(function(m){
+      if(m.matchup_id==null) return;
+      (groups[m.matchup_id] = groups[m.matchup_id] || []).push(m);
+    });
+    Object.keys(p[week]).forEach(function(id){
+      var pick = p[week][id], g = groups[id];
+      if(!g || g.length !== 2) return;
+      var a = g[0], b = g[1];
+      var sa = Number(a.points)||0, sb = Number(b.points)||0;
+      if(!sa && !sb) return;
+      rec.graded++;
+      if(pick.spread!=null && pick.line!=null){
+        // pick.line is a's spread: a wins against it if sa - sb > -line... expressed as margin
+        var margin = sa - sb;
+        var covered = margin - pick.line;        // >0 means a covered
+        if(Math.abs(covered) < 1e-9) rec.spread.push++;
+        else if((covered > 0) === (Number(pick.spread) === a.roster_id)) rec.spread.w++;
+        else rec.spread.l++;
+      }
+      if(pick.totalPick && pick.total!=null){
+        var sum = sa + sb;
+        if(Math.abs(sum - pick.total) < 1e-9) rec.total.push++;
+        else if((sum > pick.total) === (pick.totalPick === "over")) rec.total.w++;
+        else rec.total.l++;
+      }
+    });
+  });
+  return rec;
+}
+
+function renderBook(){
+  var box = $("tab-book");
+  var week = S.week;
+  var lines = bookLines(week);
+
+  var html = '<h2>The book, week ' + week + '</h2>';
+  var canPick = !!picksStore();
+
+  if(!lines || !lines.length){
+    html += '<div class="msg">'
+      + (S.projections ? 'No matchups posted for this week yet.'
+                       : 'Lines need projections, which are not available right now.')
+      + '</div>';
+    box.innerHTML = html + cardHTML(gradePicks(), canPick);
+    return;
+  }
+
+  html += '<p class="note">Spreads and totals come straight from projected roster strength, '
+    + 'not from anyone with money at stake. Nothing here is a wager and nothing here is worth trusting '
+    + 'more than the projections underneath it.</p>';
+
+  html += '<div class="feed">';
+  lines.forEach(function(L){
+    var favA = L.spread >= 0;
+    var fav = favA ? L.a : L.b, dog = favA ? L.b : L.a;
+    var pk = Math.abs(L.spread) < 0.25;
+    var num = Math.abs(L.spread).toFixed(1);
+    var favTag = pk ? "PK" : "-" + num;
+    var dogTag = pk ? "PK" : "+" + num;
+    var p = (loadPicks()[week] || {})[L.id] || {};
+    html += '<div class="move"><div class="move-top">'
+      + '<span class="kind">' + (pk ? "Pick'em" : (Math.abs(L.spread) < 3 ? "Toss-up" : "Line")) + '</span>'
+      + '<span class="who">total ' + L.total.toFixed(1) + '</span>'
+      + '<span class="when">' + moneyline(favA?L.pWinA:1-L.pWinA) + ' favourite</span></div>'
+      + '<div class="bids" style="border-top:none;margin-top:0;padding-top:0">'
+      + '<div class="bid win"><b>' + favTag + '</b><span>' + esc(teamName(fav)) + '</span>'
+      + '<span class="lbl">projected ' + num2(favA?L.projA:L.projB) + '</span></div>'
+      + '<div class="bid"><b>' + dogTag + '</b><span>' + esc(teamName(dog)) + '</span>'
+      + '<span class="lbl">projected ' + num2(favA?L.projB:L.projA) + '</span></div>'
+      + '</div>';
+    if(canPick){
+      html += '<div class="picks" data-id="' + L.id + '">'
+        + '<button class="pk' + (p.spread===fav?' on':'') + '" data-kind="spread" data-val="' + fav + '"'
+        + ' data-line="' + (favA?L.spread:-L.spread) + '">' + esc(teamName(fav)) + ' ' + favTag + '</button>'
+        + '<button class="pk' + (p.spread===dog?' on':'') + '" data-kind="spread" data-val="' + dog + '"'
+        + ' data-line="' + (favA?L.spread:-L.spread) + '">' + esc(teamName(dog)) + ' ' + dogTag + '</button>'
+        + '<button class="pk' + (p.totalPick==="over"?' on':'') + '" data-kind="totalPick" data-val="over"'
+        + ' data-total="' + L.total + '">Over ' + L.total.toFixed(1) + '</button>'
+        + '<button class="pk' + (p.totalPick==="under"?' on':'') + '" data-kind="totalPick" data-val="under"'
+        + ' data-total="' + L.total + '">Under ' + L.total.toFixed(1) + '</button>'
+        + '</div>';
+    }
+    html += '</div>';
+  });
+  html += '</div>';
+
+  box.innerHTML = html + cardHTML(gradePicks(), canPick);
+
+  Array.prototype.forEach.call(box.querySelectorAll(".pk"), function(btn){
+    btn.addEventListener("click", function(){
+      var wrap = btn.parentNode, id = wrap.dataset.id;
+      var kind = btn.dataset.kind, val = btn.dataset.val;
+      if(kind === "spread") val = Number(val);
+      setPick(week, id, kind, val,
+        btn.dataset.line!=null ? Number(btn.dataset.line) : null,
+        btn.dataset.total!=null ? Number(btn.dataset.total) : null);
+      renderBook();
+    });
+  });
+}
+function cardHTML(rec, canPick){
+  var h = '<h2 style="margin-top:34px">Your card</h2>';
+  if(!canPick){
+    return h + '<div class="msg">This browser will not let the page remember picks.</div>';
+  }
+  if(!rec.graded){
+    return h + '<div class="msg">Picks are saved on this device only, so this is your card and nobody else '
+      + 'can see it. It gets graded automatically once a week finishes.</div>';
+  }
+  return h + '<div class="scroll"><table><thead><tr><th></th><th>Market</th><th>Record</th><th>Hit rate</th></tr></thead><tbody>'
+    + cardRow(1, "Against the spread", rec.spread)
+    + cardRow(2, "Totals", rec.total)
+    + '</tbody></table></div>'
+    + '<p class="note" style="margin-top:12px">Saved on this device only. Clearing your browser data clears your card.</p>';
+}
+
+function num2(x){ return (Math.round(x*10)/10).toFixed(1); }
+function cardRow(i, label, r){
+  var n = r.w + r.l;
+  return '<tr class="rank-' + i + '"><td>' + i + '</td><td>' + esc(label) + '</td>'
+    + '<td>' + r.w + '-' + r.l + (r.push?'-'+r.push:'') + '</td>'
+    + '<td>' + (n ? Math.round(100*r.w/n) + '%' : '--') + '</td></tr>';
+}
+
+/* ============================================================
+   POLL TAB
+   ============================================================ */
+function renderPoll(){
+  var html = pollHTML();
+  if(!html){
+    $("tab-poll").innerHTML = '<h2>The poll</h2>'
+      + '<div class="msg">No ballots have been filed yet this season.</div>';
+    return;
+  }
+  $("tab-poll").innerHTML = html + receiptsHTML();
+}
+
 /* ============================================================
    NEWSROOM
    ============================================================ */
@@ -1331,8 +1654,6 @@ function renderNews(){
     html+='<div class="msg" style="margin-bottom:34px">Nothing to report yet. The wire fills in as soon as a week goes final.</div>';
   }
 
-  html+=pollHTML();
-  html+=receiptsHTML();
 
   html+='<h2>The desk</h2>'
     +'<p class="note">Analysis, argument, and the occasional grudge.</p>';
@@ -1500,6 +1821,13 @@ function currentWeekPlayers(){
   var L = [];
   L.push("PLAYER SCORING, WEEK " + S.week + " (" + (S.finalWeek >= S.week ? "final" : "still in progress") + ")");
   L.push("Starters listed as: player (position, NFL team) projected -> actual. A dash means no projection was published.");
+  if(S.gameStatus){
+    L.push("Each starter is tagged with his game state: yet to play, playing now, or final.");
+    L.push("A player marked final with 0.00 scored nothing. He is not still to come.");
+  } else {
+    L.push("GAME STATUS UNAVAILABLE" + (S.statusError ? " (" + S.statusError + ")" : "")
+      + ". A 0.00 may mean the player has not kicked off or may mean he scored nothing. Do not guess which.");
+  }
 
   // Pair teams up so the writer can see both sides of a matchup together.
   var groups = {};
@@ -1521,13 +1849,18 @@ function currentWeekPlayers(){
       starters.forEach(function(pid){
         if(S.projections && S.projections[pid]!=null){ projTotal += Number(S.projections[pid])||0; hasProj = true; }
       });
+      var rem = remainingFor(m);
       L.push(teamName(m.roster_id) + " (" + manager(m.roster_id) + ") scored " + num(m.points)
-        + (hasProj ? ", projected " + num(projTotal,1) : ""));
+        + (hasProj ? ", projected " + num(projTotal,1) : "")
+        + (rem ? ", " + rem.count + " starter" + (rem.count===1?"":"s") + " left worth "
+            + num(rem.proj,1) + " projected" : ""));
       starters.forEach(function(pid){
         if(!pid || pid==="0"){ L.push("  empty slot"); return; }
         var proj = (S.projections && S.projections[pid]!=null) ? num(S.projections[pid],1) : "--";
         var meta = playerMeta(pid);
-        L.push("  " + playerName(pid) + (meta?" ("+meta+")":"") + " " + proj + " -> " + num(pp[pid]||0));
+        var gs = stateLabel(playerGameState(pid));
+        L.push("  " + playerName(pid) + (meta?" ("+meta+")":"") + " " + proj + " -> " + num(pp[pid]||0)
+          + (gs ? "  [" + gs + "]" : ""));
       });
       var bench = [];
       (m.players||[]).forEach(function(pid){
@@ -1536,6 +1869,60 @@ function currentWeekPlayers(){
       if(bench.length) L.push("  bench: " + bench.join(", "));
     });
   });
+  L.push("");
+  return L.join("\n");
+}
+
+/* An explicit list of what has not happened yet, so nobody has to infer it. */
+function stillToPlay(){
+  if(!S.gameStatus){
+    return "STILL TO PLAY: unknown, the game status feed is unavailable.\n";
+  }
+  var rows = S.matchups[S.week] || [];
+  if(!rows.length) return "";
+  var groups = {};
+  rows.forEach(function(m){
+    var k = m.matchup_id==null ? ("bye"+m.roster_id) : m.matchup_id;
+    (groups[k] = groups[k] || []).push(m);
+  });
+
+  var L = ["STILL TO PLAY, WEEK " + S.week];
+  var live = 0;
+  Object.keys(groups).forEach(function(k){
+    var g = groups[k];
+    if(g.length !== 2) return;
+    var a = g[0], b = g[1];
+    var sa = Number(a.points)||0, sb = Number(b.points)||0;
+    var ra = remainingFor(a), rb = remainingFor(b);
+    var lead = sa >= sb ? a : b, trail = sa >= sb ? b : a;
+    var margin = Math.abs(sa-sb);
+    var rLead = sa >= sb ? ra : rb, rTrail = sa >= sb ? rb : ra;
+
+    var line = teamName(lead.roster_id) + " " + num(Math.max(sa,sb))
+      + " leads " + teamName(trail.roster_id) + " " + num(Math.min(sa,sb))
+      + " by " + num(margin) + ". "
+      + teamName(trail.roster_id) + " has " + rTrail.count + " left ("
+      + num(rTrail.proj,1) + " projected), "
+      + teamName(lead.roster_id) + " has " + rLead.count + " left ("
+      + num(rLead.proj,1) + " projected).";
+    if(!rTrail.count){
+      line += " DECIDED: the trailing team has nobody left.";
+    } else {
+      live++;
+      line += " LIVE: needs " + num(margin + rLead.proj,1)
+        + " from those players if the leader hits projection.";
+    }
+    L.push(line);
+    rTrail.players.forEach(function(p){
+      L.push("   " + teamName(trail.roster_id) + " still to come: " + playerName(p.pid)
+        + " (" + (playerMeta(p.pid)||"?") + ") projected " + num(p.proj,1));
+    });
+    rLead.players.forEach(function(p){
+      L.push("   " + teamName(lead.roster_id) + " still to come: " + playerName(p.pid)
+        + " (" + (playerMeta(p.pid)||"?") + ") projected " + num(p.proj,1));
+    });
+  });
+  L.push(live ? (live + " matchup" + (live===1?" is":"s are") + " still live.") : "Every matchup is decided.");
   L.push("");
   return L.join("\n");
 }
@@ -1686,6 +2073,7 @@ function briefingText(){
   }
 
   L.push(currentWeekPlayers());
+  L.push(stillToPlay());
   L.push(editorialContext());
 
   L.push("HOW TO USE THIS");
@@ -1914,7 +2302,11 @@ function repaint(){
 
 function afterPlayers(){
   repaint();
-  loadProjections().then(function(){ renderPower(); renderWeek(); renderDraft(); renderNews(); });
+  loadProjections()
+    .then(function(){ return loadGameStatus(); })
+    .then(function(){
+      renderPower(); renderWeek(); renderDraft(); renderNews(); renderBook(); renderPoll();
+    });
 }
 
 /* ============================================================
@@ -2684,6 +3076,7 @@ tabs.forEach(function(btn){
     });
     if(btn.dataset.tab==="history") renderHistory();
     if(btn.dataset.tab==="records") renderRecords();
+    if(btn.dataset.tab==="book") renderBook();
   });
 });
 
