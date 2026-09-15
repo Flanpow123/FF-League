@@ -194,6 +194,29 @@
           "text": "One hundred and seventeen points sat on benches in this league on Sunday. That is more than Jeff scored with his actual team. I want that framed."
         }
       ]
+    },
+    {
+      "headline": "CORRUPT COMMISSIONER BUILDS FANTASY NEWS SITE THAT ABSOLUTELY NOBODY READS",
+      "body": "Let me explain the arrangement. The commissioner of this league, a man who runs a team called Coker? I hardly know her! and whose own leaguemate named a franchise #CrookedAdam out of what I can only assume is documented grievance, decided that Sigma Pi B required a newsroom. He did not ask whether anyone wanted one. He built it, he staffed it, and he pays it in exposure.\n\nSo we got to work. We built a draft report card that values every player against the last startable body at his own position. We run five thousand simulations of the remaining season every time somebody loads the page. We calculate what your record would be under all eleven other schedules. We caught a missing projection for a tight end that had silently deleted a starter from a roster and made a good team look like the tenth best in the league. We publish the losing waiver bids. We keep a record book going back three seasons. There is a betting board now. There is a poll with four full ballots that get graded against reality so nobody can quietly pretend they said something else.\n\nAnd the readership? Twelve men. Twelve. Nine of whom left double figures on the bench this week. One of whom made a single transaction all season, correctly identified Devaughn Vele, added him, and then started somebody else. A starting NFL quarterback sat unclaimed on the waiver wire for a full week while this desk screamed about it into a void with a dark green background. I have checked the analytics. There are no analytics. The commissioner did not build any. Of course he didn't.",
+      "storyline": "The newsroom exists because the commissioner decided it should, and has no evidence anyone reads it. Open question: whether a single manager changes a lineup because of something published here.",
+      "takes": [
+        {
+          "analyst": "analyst",
+          "text": "I want to gently distance the rest of the desk from that column. It is unedited, it names the commissioner, and the claim about analytics is unverifiable because, as stated, there are no analytics. That said, I have also not been paid, and I would like that noted somewhere."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "FINALLY somebody says it. I have been screaming about Jeff's bench for a week! A WEEK! Devaughn Vele scored 19.90 sitting down! And not one man in this league has messaged me about it. Not one. You people do not deserve a newspaper. You deserve a group chat and a spreadsheet and I hope you are very happy together."
+        },
+        {
+          "analyst": "quant",
+          "text": "For the record, the readership figure of twelve is an assumption, not a measurement. The true number is unknown and could plausibly be lower. I would also note that if every manager read every word we published and acted on none of it, the observable data would look exactly as it does now. We cannot distinguish being ignored from being ineffective."
+        },
+        {
+          "analyst": "troll",
+          "text": "The commissioner built an entire media operation, hired four people, gave us real numbers and full editorial freedom, and then went out and lost by fifty-four points to a team named after how much everyone distrusts him. I would not change a thing. This is the best job I have ever had and I am not employed."
+        }
+      ]
     }
   ]
 }
