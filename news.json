@@ -1,6 +1,6 @@
 {
   "week": 1,
-  "generated": "2026-09-14",
+  "generated": "2026-09-15",
   "poll": {
     "title": "Preseason poll",
     "note": "Four desks, four full ballots, twelve points for a first-place vote down to one. Nothing has been played, so this is entirely opinion and it gets counted like the college polls.",
@@ -81,117 +81,117 @@
   },
   "stories": [
     {
-      "headline": "Five of six games are over. Jake needs about thirty-two points from Rashee Rice",
-      "body": "Denver at Kansas City is the only game left in week one. It is the last of sixteen, and no player from either team has scored anywhere in this league, which leaves four managers with a body still on the field: Justin has Kenneth Walker, Jake has Rashee Rice, Jack has Jaylen Waddle and Harrison Butker, and Jerey has the Denver defense.\n\nOnly one of those matchups is still a contest. Justin leads Jake 121.26 to 102.46, and Jake's entire comeback rests on Rice outscoring Walker by 18.80. If Walker hits his 13.7 projection, Rice needs roughly 32.5 against a projection of 12.8. If Walker has a quiet night, the bar drops toward the low twenties. Rice is not being asked for a miracle, he is being asked for the best game of his season while a teammate disappears.\n\nEverywhere else the arithmetic has closed. Adam, Trevor, Brian, Jeff and Jomi have no starters left and all five trail. Trevor is 56.20 behind Jack with nothing on the field. Jeff is 45.96 behind Jerey with nothing on the field. Those are not comebacks in progress, they are results waiting to be recorded.",
-      "storyline": "Justin against Jake is the only live matchup into Monday night, with Jake needing roughly 32 points from Rashee Rice. Justin benched the Detroit defense for Tennessee and lost 11.00 points doing it, while leading by 18.80. Open question: whether that decision ends up being the margin.",
+      "headline": "Kenneth Walker scored 34.10 and made every argument about Monday night irrelevant",
+      "body": "Jake needed roughly 32 points from Rashee Rice. Rice returned 9.90 against a 12.8 projection. That alone would have settled it, but it never got that close, because Justin's Kenneth Walker went for 34.10 against a 13.7 projection and turned an 18.80 point lead into a 43.00 point win.\n\nThis desk spent a column on Justin's decision to start the Tennessee defense, who scored nothing, over Detroit, who scored 11.00. Ward wrote that if Rice took the game by anything under eleven, that call would be the entire result. The condition was sound and it never came close to triggering. Justin won by four times the margin of his own mistake.\n\nScheme finishes week one at 155.36, third highest in the league, and 1-0. Baltimore Boofers finish 112.36 and 0-1 with 13 percent playoff odds.",
+      "storyline": "Justin beat Jake 155.36 to 112.36 after Kenneth Walker scored 34.10. Open question: whether Justin's willingness to start an unprojected defense costs him a closer game later.",
       "takes": [
         {
           "analyst": "quant",
-          "text": "Thirty-two and a half from a receiver projected for 12.8 is a genuine outlier but not an absurd one. Call it the best week of a good receiver's season. I would put Jake somewhere around one chance in eight, which is far more than he deserves given how he got here."
+          "text": "I put Jake at roughly one chance in eight and that was generous. What actually happened was the opposite tail: the leader's remaining player beat his projection by 20.4 points. I was modelling the wrong end of the distribution and got the right answer by accident."
         },
         {
           "analyst": "analyst",
-          "text": "The decision that may settle this has already happened. Justin started the Tennessee defense, who scored nothing, over Detroit, who scored 11.00. He leads by 18.80. If Rice takes this game by anything under eleven points, that single lineup call is the entire result and it was made on Sunday morning."
+          "text": "My conditional was correct and useless, which is a combination worth admitting to. The Tennessee call cost Justin 11.00 points in a game he won by 43.00. It was still a bad decision. It simply did not matter, and I should be clearer next time that those are different claims."
         },
         {
           "analyst": "firestarter",
-          "text": "Jake needs the game of Rashee Rice's life on Monday night, and he is in that position because he started a Houston defense that scored minus one point. Minus one! You can lose a fantasy game by being outscored. He arranged to be outscored by his own defense."
+          "text": "Kenneth Walker! The man I said Justin needed to be persuaded to do nothing! He goes out and drops 34.10 and ends the entire week in one afternoon. Do not tell me about lineup decisions. Tell me about the running back nobody was talking about."
         },
         {
           "analyst": "troll",
-          "text": "Five games finished, seven managers with nothing left to do, and the whole week now rests on a Kansas City receiver and whether Kenneth Walker can be persuaded to do nothing at all. This is the most attention Kenneth Walker will receive all year."
+          "text": "Jake needed a miracle from Rashee Rice and got 9.90. Justin needed nothing at all and got 34.10. That is the whole sport, delivered in one Monday night, to an audience of twelve men who I am not convinced were watching."
         }
       ]
     },
     {
-      "headline": "Kevin named his team after Adam, drew him in week one, and put up the highest score in the league",
-      "body": "162.36 to 108.32. #CrookedAdam did not just beat the man it is named after, it posted the best score in Sigma Pi B doing it. Kevin outscored all eleven other managers this week.\n\nAshton Jeanty went for 32.70 against a 16.0 projection. Christian Watson matched him exactly at 32.70 against 12.6. Jonathan Taylor added 25.10 and the Pittsburgh defense chipped in 20.00 against a 9.2 projection. Four starters beat their number by double digits.\n\nAdam was not passive. Jalen Coker, the player his team is named after, scored 33.80 against an 11.9 projection, the second largest overperformance in the league this week. It was the best individual performance on a losing roster all week and it did not come close to mattering.",
-      "storyline": "Kevin beat Adam 162.36 to 108.32 in the grudge matchup, posting the highest score in the league. Adam's namesake Jalen Coker scored 33.80. Open question: whether Kevin's week 1 is repeatable or a ceiling game.",
+      "headline": "Jake set a perfect lineup, the only one in the league, and lost by 43",
+      "body": "Lineup efficiency is now live, and it says Baltimore Boofers started the single best team available to them in week one. One hundred percent. Zero points left unstarted. Nobody else in Sigma Pi B managed it except Jomi, who left half a point behind.\n\nThe detail that makes it is Trevor Lawrence. He scored 34.10 on Jake's bench, the highest benched score in the league, and Jake was right to sit him, because Josh Allen started and scored 39.66. A perfect lineup does not mean nothing was left behind. It means nothing better was available.\n\nJake is 0-1. His playoff odds are 13 percent. He drafted well enough to grade eighth, he managed his lineup better than anyone in the league, and he ran into the third highest score of the week.",
+      "storyline": "Jake posted the only perfect lineup in week 1 and lost by 43.00, dropping to 13 percent playoff odds. Open question: whether lineup efficiency predicts anything at all when roster strength does not follow it.",
       "takes": [
         {
-          "analyst": "troll",
-          "text": "On Thursday Kevin had a zero and I wrote that he had failed to show up to his own grudge. He has responded by producing the highest score in the league against the specific man he named the team after. I withdraw nothing. I simply enjoy it more now."
-        },
-        {
-          "analyst": "firestarter",
-          "text": "Adam got 33.80 from Jalen Coker. Thirty-three! The joke pick, the punchline, the man the team is named after, and he delivered the game of his life. And Adam lost by fifty-four points. That is not a bad week, that is a statement about the rest of the roster."
-        },
-        {
           "analyst": "analyst",
-          "text": "Worth noting that Kevin had four starters beat projection by double digits in the same week. That is a ceiling game, not a baseline. He projects second in the league at 125.5 and he scored 37 points above it. Nobody should expect this again."
+          "text": "This is the most useful thing on the site this week and it cuts against the point people expect it to make. Jake did everything a manager controls and lost anyway. Efficiency measures decisions. It does not measure whether the decisions had good options underneath them."
         },
         {
           "analyst": "quant",
-          "text": "I said on Thursday that Adam's lead contained no information about either roster. That was correct, and it was also the easiest call I will make all year. The honest number here is that Kevin beat his own projection by 29 percent, which is not a skill, it is a Sunday."
+          "text": "Jake left 0.0 points unstarted and scored 112.36. Chris left 29.8 unstarted and scored 155.16. If you ranked this league by efficiency you would have Jake first and Chris eighth, and Chris would still have beaten him by 43 points. Both numbers are true and only one of them is about winning."
+        },
+        {
+          "analyst": "troll",
+          "text": "He benched the highest scoring bench player in the entire league and it was the correct decision. There is no version of this week where Jake plays it better and there is no version where he wins. Somebody buy this man a drink."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "Thirteen percent! For the one man who actually did his job! Meanwhile Trevor is at ten percent after leaving 29.1 points on the bench. The gap between those two numbers is three points and one of them earned it."
         }
       ]
     },
     {
-      "headline": "Killian scored 157.82 four days after this desk buried him twice",
-      "body": "Team Ketchup put up the second highest score in the league and beat Brian 157.82 to 128.70. Jalen Hurts 30.72, Bijan Robinson 31.30, David Montgomery 28.90, Chris Olave 28.20. Four starters over 28 points.\n\nThe sequence is worth restating. Killian entered the season projected first. By Thursday he had fallen to tenth and 34 percent playoff odds, and all four desks wrote about the collapse. On Friday it emerged that the collapse was largely a missing projection for Brock Bowers being counted as a zero, and we wrote about that too. At no point in any of it had he played a down of football.\n\nHe has now played one, and he scored more than ten of the eleven other managers.",
-      "storyline": "Killian scored 157.82, second in the league, after being written about twice as a collapsing team. Open question: whether the preseason projection that had him first was right all along.",
+      "headline": "The ballots have been graded and Deacon is last",
+      "body": "Every preseason ballot has now been scored against the actual week one standings. Ward Delaney leads at 77 percent pairwise, meaning he ordered 77 percent of all team pairs correctly, at an average of 2.0 places off. Odessa Prine is a whisker behind at 76 percent and the same 2.0.\n\nRoy Tannehill sits at 67 percent and 2.7 places off. Deacon Pyle is last at 62 percent and 2.8, and the reason is a first place vote. He put Team Mountain top; Brian finished eighth. Roy has the same problem from the other direction, having given Baltimore Boofers his number one, and Jake finished ninth.\n\nThe consensus was better than any individual ballot. The panel's combined poll had #CrookedAdam first, and Kevin finished week one leading the league in points, record and playoff odds.",
+      "storyline": "The first poll grading has Ward at 77 percent, Odessa 76, Roy 67 and Deacon 62. The consensus outperformed every individual ballot. Open question: whether the ordering holds as the sample grows.",
       "takes": [
         {
           "analyst": "analyst",
-          "text": "I will say the thing I have been saying in a different order. We wrote about a ranking, then we wrote about the ranking being broken, and the football has now told us more in one Sunday than four days of projections managed. Killian was probably always fine."
-        },
-        {
-          "analyst": "firestarter",
-          "text": "I called him a spreadsheet's mistake and he went out and dropped 157.82. Do I regret it? No. He still has not earned anything. But I will say this much: that is what the best team in the league is supposed to look like, and it took him until Sunday to look like it."
+          "text": "I would treat a one week sample with enormous suspicion, including the part where I am winning. Seventy-seven percent against 62 percent sounds decisive and it is roughly four pairs out of sixty-six. Ask me in November."
         },
         {
           "analyst": "quant",
-          "text": "His projection said 120.2 and he scored 157.82, so this tells us less than it appears to. What it does confirm is that the Thursday number was garbage, because a roster that produces four starters over 28 points was never the tenth best team in this league."
+          "text": "The genuinely interesting result is that the consensus beat all four of us. That is the standard finding in forecasting and it is mildly humiliating every time. Four biased ballots averaged together produced a better ranking than the person whose entire job is not being biased."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "Last! I am last! And I would submit the exact same ballot tomorrow. Brian has the third best roster in this league by projection and he scored 128.70, which is sixth. That is not a bad take, that is a man being let down by his own running backs. I stand behind every word."
         },
         {
           "analyst": "troll",
-          "text": "The invisible trophy has been taken away, given back, taken away again and has now been won on the field. I have lost track of who holds it. Killian does. For real this time. Allegedly."
+          "text": "I put Baltimore Boofers first and he finished ninth, and I am still ahead of Deacon. That is the single greatest thing this website has ever told me."
         }
       ]
     },
     {
-      "headline": "Chris benched Isaiah Likely for 27.80 points and beat the best team in the league anyway",
-      "body": "I'sah Likely to win Deebo is named after two players. Deebo Samuel started and scored 18.00. Isaiah Likely sat on the bench and scored 27.80, while Colston Loveland started at tight end and scored nothing at all.\n\nChris won regardless, 155.16 to 140.20, against Jomi, who holds the best projected roster in the league. Caleb Williams was the reason: 41.26 points against an 18.3 projection, the largest single performance in Sigma Pi B this week. Justin Jefferson added 31.20 and Javonte Williams 24.20.\n\nJomi scored 140.20, the fourth highest total in the league, and lost. He is one of two managers to score in the top half and lose, alongside Brian. Meanwhile Justin and Jerey both scored in the bottom half and won.",
-      "storyline": "Chris left 27.80 points from his own namesake on the bench and still beat the league's top projected roster. Jomi scored fourth in the league and lost. Open question: whether the schedule keeps punishing the teams scoring well.",
+      "headline": "Trevor has the best draft in the league and the worst week of anyone in it",
+      "body": "CeeDee's TD's grades first on the draft report card at plus 16.4 per pick, comfortably clear of the field. In week one it scored 78.06, the lowest total in Sigma Pi B, and lost by 64.40.\n\nThe lineup did it. Trevor posted 73 percent efficiency, worst in the league, leaving 29.1 points unstarted. Dallas Goedert scored 23.70 on his bench while Kyle Pitts started and scored nothing at all. Goedert is also the pick the draft card rates as the best value on his roster, taken at 153.\n\nHe is now 0-1 with 10 percent playoff odds and an all-play record of 1-10, meaning that on week one's scoring he would have lost to ten of the eleven other managers.",
+      "storyline": "Trevor grades first in draft value and last in both scoring and lineup efficiency. Open question: whether the draft card is measuring anything that survives contact with a lineup.",
       "takes": [
         {
-          "analyst": "troll",
-          "text": "The team is called I'sah Likely to win Deebo. He benched I'sah Likely. He started a man who scored zero instead. And he beat the best roster in the league by fifteen points. There is no lesson here and I refuse to pretend otherwise."
-        },
-        {
           "analyst": "quant",
-          "text": "Chris left 27.80 on the bench at a position where his starter scored nothing, and won by 14.96. That is the entire margin twice over. He is two points of Caleb Williams away from this being the worst lineup decision of the week instead of a footnote."
+          "text": "The best value pick on the best-graded draft in the league scored 23.70 from the bench while its owner started a zero. If you wanted one sentence explaining why I want that card frozen and demoted, it is that one."
         },
         {
-          "analyst": "firestarter",
-          "text": "Jomi scored the fourth most points in this league and he is 0-1. Brian scored the sixth most and he is 0-1. Meanwhile Justin scored seventh and Jerey scored eighth and both of them are 1-0. Do not talk to me about who is good. Talk to me about who the schedule likes."
+          "analyst": "troll",
+          "text": "Trevor drafted better than anybody, benched the player he drafted better than anybody, and lost by sixty-four points to a man whose best move was adding a quarterback he then also benched. This league is a machine for generating exactly this."
         },
         {
           "analyst": "analyst",
-          "text": "This is the argument for the all-play record, which the site will start showing once the week closes. Jomi beat eight of the eleven other managers on Sunday and has nothing to show for it. Over a full season those gaps close. Over one week they decide everything."
+          "text": "One-and-ten on all-play is the number to sit with rather than the draft grade. It says his score was not merely unlucky, it was genuinely poor against the whole field. The roster may still be good. The week was not."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "Kyle Pitts! Started! For nothing! With Dallas Goedert sitting there doing 23.70! I have been told repeatedly that this is a thinking man's game and then I look at the actual lineups and I am not so sure."
         }
       ]
     },
     {
-      "headline": "The bench ledger: 117 points that nobody started",
-      "body": "Six managers left double figures on the bench at a position where their starter underperformed. Chris was the worst offender at 27.80 and got away with it. Trevor was second and did not: he benched Dallas Goedert for 23.70 and started Kyle Pitts, who scored nothing, in a game he lost by 56.20.\n\nJeff is the one to sit with. He has made exactly one transaction this season, adding Devaughn Vele. Vele scored 19.90 on Sunday. Jeff started Drake London, who scored 5.50, and lost 118.70 to 72.74. He made one good decision all year and then declined to act on it.\n\nAdam benched Kyle Monangai for 20.40 while starting Kenny Gainwell for 2.80. Jerey benched T.J. Hockenson for 13.60 while starting AJ Barner for 3.30. And Justin, who leads the only live game in the league by 18.80, benched the Detroit defense for 11.00 to start a Tennessee defense that scored nothing at all.",
-      "storyline": "Six managers left double-digit points on the bench in week 1, led by Chris at 27.80 and Trevor at 23.70. Jeff benched the only player he has added all season. Open question: whether lineup efficiency separates this league more than roster quality does.",
+      "headline": "Twelve hundred dollars of FAAB, nobody has spent a cent, and there is still a starting quarterback on the wire",
+      "body": "Every team in Sigma Pi B has all $100 of their waiver budget. No bids have been placed, no claims have been contested, and the waiver section of this site remains empty after a full week of football.\n\nEleven transactions have happened, all free agent pickups. Some were good: Justin added Spencer Shrader, Jack added Tyler Shough and Juwan Johnson, Killian added Dalton Schultz and repaired a lineup hole. Jeff added Devaughn Vele, who scored 19.90, and then did not start him.\n\nAnd Kyler Murray, released by Chris before the season after being drafted at 178, still does not appear on a single roster in this league. Not as a starter, not on a bench, nowhere. He has been available to twelve managers for eight days.",
+      "storyline": "No FAAB has been spent league-wide and Kyler Murray remains unrostered after eight days. Open question: whether the first contested waiver claim of the season tells us who is paying attention.",
       "takes": [
         {
           "analyst": "firestarter",
-          "text": "Jeff made one move all season. One! He went out, identified Devaughn Vele, added him, and then left him on the bench to watch Drake London score 5.50. That is not a fantasy manager. That is a man filling out a form."
-        },
-        {
-          "analyst": "analyst",
-          "text": "Trevor is the genuinely painful one. Goedert for 23.70 instead of Pitts for nothing, in a week he lost by 56.20. It would not have changed the result, which is precisely why it will annoy him for a month."
-        },
-        {
-          "analyst": "quant",
-          "text": "Once this week closes the site will publish lineup efficiency, which is actual points divided by the most the roster could have produced. I expect the spread on that number to be wider than the spread on roster quality, and I expect it to explain more of this league's results than the draft ever will."
+          "text": "Twelve hundred dollars! Sitting there! Untouched! You have a budget, you have a wire, you have a functioning NFL starter available for free, and collectively this league has done nothing but shuffle free agents around like men rearranging a fridge."
         },
         {
           "analyst": "troll",
-          "text": "One hundred and seventeen points sat on benches in this league on Sunday. That is more than Jeff scored with his actual team. I want that framed."
+          "text": "The waiver page of this website is blank. Completely blank. The commissioner built a whole section for bidding wars and the league responded by not having any. I find it beautiful."
+        },
+        {
+          "analyst": "quant",
+          "text": "A full budget in week two is not automatically wrong, it is optionality. But there is a difference between saving FAAB and forgetting FAAB exists, and after eight days with a startable quarterback unclaimed I know which one this looks like."
+        },
+        {
+          "analyst": "analyst",
+          "text": "The honest note is that most of these pickups were fine. Shough, Juwan Johnson and Schultz all mattered. What has not happened is anybody paying for anything, and the first contested claim will be worth watching because it will tell us who is actually reading the wire."
         }
       ]
     },
