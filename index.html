@@ -234,6 +234,13 @@ var NEWS_URL = "news.json";
    static host cannot list a directory for us. */
 var ARCHIVE_URL = "archive/";
 
+/* The draft report card is graded against a fixed set of projections so the
+   grade stops moving every time Sleeper refreshes a number. By default it
+   uses week 1, which never changes again once week 1 is over. Drop a
+   draft-projections.json next to this page to pin it permanently instead. */
+var DRAFT_PROJ_WEEK = 1;
+var DRAFT_FREEZE_URL = "draft-projections.json";
+
 var API = "https://api.sleeper.app/v1";
 
 /* Projections live on Sleeper's internal host, not the documented one.
@@ -256,7 +263,9 @@ var S = {
   regWeeks:14, draftPicks:null, eff:null, history:null, historyPromise:null,
   projections:null, projError:null, projWeek:null,
   archive:null, archivePromise:null, archiveError:null,
-  gameStatus:null, statusError:null, picks:null
+  gameStatus:null, statusError:null, picks:null,
+  bookWeek:null, bookProjections:null,
+  draftProjections:null, draftFrozen:false, projGaps:null
 };
 
 /* ---------- helpers ---------- */
@@ -460,6 +469,48 @@ function scoreRanking(predicted, actualRank){
     top: {id:list[0], actual:actualRank[list[0]]},
     bottom: {id:list[n-1], actual:actualRank[list[n-1]]}
   };
+}
+
+/* When a projection is missing, treating it as zero silently deletes a
+   player from a roster's projected total. That is what made a healthy
+   team look like the tenth best in the league for four days. Substitute a
+   conservative value for his position instead, and report what was filled. */
+function fillProjectionGaps(projMap, players, rosterIds){
+  var out = {}, filled = [], byPos = {};
+  Object.keys(projMap || {}).forEach(function(k){ out[k] = projMap[k]; });
+
+  function posOf(pid){
+    var p = players && players[pid];
+    if(p && p.fantasy_positions && p.fantasy_positions.length) return p.fantasy_positions[0];
+    if(p && p.position) return p.position;
+    if(/^[A-Z]{2,4}$/.test(pid)) return "DEF";
+    return null;
+  }
+
+  // Build the distribution of known projections at each position.
+  (rosterIds || []).forEach(function(pid){
+    var v = out[pid];
+    if(v == null || !isFinite(v)) return;
+    var pos = posOf(pid);
+    if(!pos) return;
+    (byPos[pos] = byPos[pos] || []).push(Number(v));
+  });
+  var floor = {};
+  Object.keys(byPos).forEach(function(pos){
+    var list = byPos[pos].slice().sort(function(a,b){ return a-b; });
+    // 25th percentile: "we do not know, assume replacement level"
+    floor[pos] = list[Math.floor(list.length * 0.25)];
+  });
+
+  (rosterIds || []).forEach(function(pid){
+    if(out[pid] != null && isFinite(out[pid])) return;
+    var pos = posOf(pid);
+    if(!pos || floor[pos] == null) return;
+    out[pid] = floor[pos];
+    filled.push({pid:pid, pos:pos, value:floor[pos]});
+  });
+
+  return {map: out, filled: filled};
 }
 
 /* Blend what a team has actually scored with what their roster projects.
@@ -961,7 +1012,7 @@ function preseasonWire(){
 
   // Cross-reference the draft: did the projections agree with the draft grade?
   if(S.draftPicks&&S.draftPicks.length&&S.players){
-    var dr=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.projections,S.rosters.length);
+    var dr=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.draftProjections||S.projections,S.rosters.length);
     if(dr.length){
       var bestDraft=dr[0];
       var projRank={};
@@ -1270,6 +1321,15 @@ function remainingFor(m){
   return out;
 }
 
+/* The book is about games that have not happened. Once a week is final,
+   roll it forward to the next one. */
+function bookWeekNumber(){
+  var w = S.week;
+  if(S.finalWeek >= w) w = w + 1;
+  if(w > S.regWeeks) w = S.regWeeks;
+  return Math.max(1, w);
+}
+
 /* ============================================================
    THE BOOK — lines derived from projections, no money involved
    ============================================================ */
@@ -1283,7 +1343,7 @@ function teamSd(rid){
 function roundHalf(x){ return Math.round(x*2)/2; }
 
 function bookLines(week){
-  var strength = projectedStrength();
+  var strength = projectedStrength(S.bookProjections || S.projections);
   if(!strength) return null;
   var rows = S.matchups[week] || [];
   var groups = {};
@@ -1390,7 +1450,7 @@ function gradePicks(){
 
 function renderBook(){
   var box = $("tab-book");
-  var week = S.week;
+  var week = S.bookWeek || bookWeekNumber();
   var lines = bookLines(week);
 
   var html = '<h2>The book, week ' + week + '</h2>';
@@ -1398,16 +1458,19 @@ function renderBook(){
 
   if(!lines || !lines.length){
     html += '<div class="msg">'
-      + (S.projections ? 'No matchups posted for this week yet.'
+      + (S.projections ? 'No matchups posted for week ' + week + ' yet.'
                        : 'Lines need projections, which are not available right now.')
       + '</div>';
     box.innerHTML = html + cardHTML(gradePicks(), canPick);
     return;
   }
 
-  html += '<p class="note">Spreads and totals come straight from projected roster strength, '
+  html += '<p class="note">Spreads and totals come straight from projected roster strength for week ' + week + ', '
     + 'not from anyone with money at stake. Nothing here is a wager and nothing here is worth trusting '
-    + 'more than the projections underneath it.</p>';
+    + 'more than the projections underneath it.'
+    + (S.bookProjections===S.projections && S.finalWeek>=S.week
+        ? ' Week ' + week + ' projections are not published yet, so these use the most recent set available.' : '')
+    + '</p>';
 
   html += '<div class="feed">';
   lines.forEach(function(L){
@@ -1668,6 +1731,7 @@ function renderNews(){
   if(DESK){
     html+='<div class="bar">'
       +'<button class="btn" id="copyBriefing">Copy this week&rsquo;s briefing</button>'
+      +'<button class="btn ghost" id="copyFreeze">Copy draft snapshot</button>'
       +'<span class="hint">Only visible because this URL ends in ?desk. Nobody else sees this.</span>'
       +'</div>';
   }
@@ -1686,6 +1750,8 @@ function renderNews(){
 
   var b=$("copyBriefing");
   if(b) b.addEventListener("click",copyBriefing);
+  var f=$("copyFreeze");
+  if(f) f.addEventListener("click",copyFreeze);
 }
 
 /* A wire-style index of what is on the desk, so the front page reads like
@@ -2012,6 +2078,14 @@ function briefingText(){
     L.push("");
   }
 
+  if(S.projGaps && S.projGaps.length){
+    L.push("MISSING PROJECTIONS (substituted with replacement level at that position, not zero)");
+    S.projGaps.slice(0,25).forEach(function(g){
+      L.push("  " + playerName(g.pid) + " (" + g.pos + ") had no published projection, using " + num(g.value,1));
+    });
+    L.push("");
+  }
+
   var odds=playoffOdds();
   if(odds){
     L.push("PLAYOFF ODDS (5000 simulations, top "+odds.spots+" advance, "+odds.weeksLeft+" weeks left)");
@@ -2022,9 +2096,11 @@ function briefingText(){
   }
 
   if(S.draftPicks&&S.draftPicks.length&&S.players){
-    var dr=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.projections,S.rosters.length);
+    var dr=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.draftProjections||S.projections,S.rosters.length);
     if(dr.length){
       L.push("DRAFT VALUE (positive means players fell to them, negative means they reached)");
+      L.push("Graded against " + (S.draftFrozen ? "a pinned projection snapshot"
+        : "week " + DRAFT_PROJ_WEEK + " projections") + ", so this table should not move week to week.");
       dr.forEach(function(r,i){
         L.push((i+1)+". "+teamName(r.rid)+": "+(r.avgValue>0?"+":"")+num(r.avgValue,1)+" per pick"
           +(r.best?", best "+playerName(r.best.pid)+" at pick "+r.best.pick:"")
@@ -2084,6 +2160,33 @@ function briefingText(){
   L.push("they may not invent facts.");
 
   return L.join("\n");
+}
+
+/* Export the exact projections the draft card is using, so they can be
+   committed as draft-projections.json and never change again. */
+function copyFreeze(){
+  var btn = $("copyFreeze");
+  var proj = S.draftProjections || S.projections;
+  if(!proj || !S.draftPicks){ btn.textContent = "Nothing to pin yet"; return; }
+  var map = {};
+  S.draftPicks.forEach(function(p){
+    if(proj[p.player_id] != null) map[p.player_id] = proj[p.player_id];
+  });
+  var doc = {
+    note: "Frozen projections for the draft report card. Do not regenerate.",
+    season: S.league && S.league.season,
+    week: DRAFT_PROJ_WEEK,
+    players: Object.keys(map).length,
+    projections: map
+  };
+  var text = JSON.stringify(doc, null, 2);
+  function done(ok){
+    btn.textContent = ok ? "Copied. Save as draft-projections.json" : "Copy failed";
+    setTimeout(function(){ btn.textContent = "Copy draft snapshot"; }, 4000);
+  }
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(function(){done(true);},function(){done(false);});
+  } else { done(false); }
 }
 
 function copyBriefing(){
@@ -2303,6 +2406,8 @@ function repaint(){
 function afterPlayers(){
   repaint();
   loadProjections()
+    .then(function(){ return loadBookProjections(); })
+    .then(function(){ return loadDraftProjections(); })
     .then(function(){ return loadGameStatus(); })
     .then(function(){
       renderPower(); renderWeek(); renderDraft(); renderNews(); renderBook(); renderPoll();
@@ -2510,6 +2615,61 @@ function scoringKey(){
   return "pts_std";
 }
 
+function projectionsFor(week){
+  var season = S.league && S.league.season;
+  if(!season) return Promise.resolve(null);
+  var url = PROJ_API+"/projections/nfl/"+season+"/"+week+"?season_type=regular&order_by=ppr";
+  return fetch(url)
+    .then(function(r){ if(!r.ok) throw new Error("projections returned "+r.status); return r.json(); })
+    .then(function(list){
+      if(!list||!list.length) throw new Error("projections came back empty");
+      var key=scoringKey(), map={}, n=0;
+      list.forEach(function(row){
+        var pid=row.player_id||(row.player&&row.player.player_id);
+        if(!pid) return;
+        var st=row.stats||{};
+        var v=st[key]; if(v==null) v=st.pts_ppr; if(v==null) v=st.pts_std;
+        if(v==null) return;
+        map[pid]=Number(v)||0; n++;
+      });
+      if(!n) throw new Error("no usable point values in the projection feed");
+      return map;
+    });
+}
+
+function loadDraftProjections(){
+  return fetch(bust(DRAFT_FREEZE_URL),{cache:"no-store"})
+    .then(function(r){ return r.ok ? r.json() : null; })
+    .catch(function(){ return null; })
+    .then(function(doc){
+      var map = doc && (doc.projections || doc.map || doc);
+      if(map && typeof map === "object" && Object.keys(map).length > 20){
+        S.draftProjections = map;
+        S.draftFrozen = true;
+        return;
+      }
+      if(Number(DRAFT_PROJ_WEEK) === Number(S.week) && S.projections){
+        S.draftProjections = S.projections;
+        S.draftFrozen = false;
+        return;
+      }
+      return projectionsFor(DRAFT_PROJ_WEEK)
+        .then(function(m){ S.draftProjections = m; S.draftFrozen = false; })
+        .catch(function(){ S.draftProjections = S.projections; S.draftFrozen = false; });
+    });
+}
+
+function loadBookProjections(){
+  S.bookWeek = bookWeekNumber();
+  if(S.bookWeek === S.week){
+    S.bookProjections = S.projections;
+    return Promise.resolve();
+  }
+  return projectionsFor(S.bookWeek)
+    .then(function(map){ S.bookProjections = map; })
+    .catch(function(){ S.bookProjections = null; });
+}
+
 function loadProjections(){
   var week=S.week, season=S.league&&S.league.season;
   if(!season) return Promise.resolve();
@@ -2544,15 +2704,24 @@ function loadProjections(){
 }
 
 /* What each roster's best lineup projects for, before anything is played. */
-function projectedStrength(){
-  if(!S.projections||!S.players) return null;
+function projectedStrength(projMap){
+  var proj = projMap || S.projections;
+  if(!proj||!S.players) return null;
   var slots=(S.league&&S.league.roster_positions)||[];
   if(!slots.length) return null;
+
+  // A player with no published projection must not be treated as a zero.
+  var all=[];
+  S.rosters.forEach(function(r){ (r.players||[]).forEach(function(p){ all.push(p); }); });
+  var fix = fillProjectionGaps(proj, S.players, all);
+  proj = fix.map;
+  if(proj === (projMap || S.projections) || fix.filled.length) S.projGaps = fix.filled;
+
   var out={};
   S.rosters.forEach(function(r){
     var ids=r.players||[];
     if(!ids.length) return;
-    var best=optimalLineup(ids,S.projections,slots,S.players);
+    var best=optimalLineup(ids,proj,slots,S.players);
     if(best&&best.points) out[r.roster_id]=best.points;
   });
   return Object.keys(out).length?out:null;
@@ -2803,7 +2972,10 @@ function draftBasisNote(){
     return 'Each player is valued by projected points above the last startable body at his own position, so a quarterback is measured against '
       + 'quarterbacks and a kicker is worth close to nothing whenever he went. That board is matched back onto the picks this league actually spent. '
       + 'Positive means value fell to you, negative means you reached. Players who would not crack your starting lineup count for a third as much, '
-      + 'because a steal on your fifth receiver does not win anything.';
+      + 'because a steal on your fifth receiver does not win anything. '
+      + (S.draftFrozen
+          ? 'The projections behind this grade are pinned to a fixed snapshot, so this table no longer moves.'
+          : 'It is graded against week ' + DRAFT_PROJ_WEEK + ' projections rather than this week\u2019s, so it stops drifting once that week is over.');
   }
   return 'Projections are unavailable, so players are ranked against others at their own position using Sleeper\u2019s ranking. That removes the fake '
     + 'bonus every team gets for waiting on quarterback, but it cannot tell you that a kicker went too early.';
@@ -2820,7 +2992,7 @@ function renderDraft(){
     return;
   }
 
-  var rows=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.projections,S.rosters.length);
+  var rows=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.draftProjections||S.projections,S.rosters.length);
   if(!rows.length){
     box.innerHTML='<h2>Draft report card</h2><div class="msg">Draft picks came back without team assignments, so they cannot be graded.</div>';
     return;
