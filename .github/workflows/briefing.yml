@@ -1,1 +1,43 @@
+name: Build league briefing
 
+on:
+  schedule:
+    # Times are UTC. Sunday afternoon and evening US time, plus the Monday
+    # night window, plus a Tuesday sweep once the week has gone final.
+    - cron: '0,30 17-23 * * 0'
+    - cron: '0,30 0-4 * * 1,2'
+    - cron: '0 13 * * 2'
+    - cron: '0 13 * * 4,5'
+  workflow_dispatch:        # lets you run it by hand from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: briefing
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Build briefing.txt
+        run: node tools/build-briefing.js
+
+      - name: Commit if it changed
+        run: |
+          git config user.name  "briefing bot"
+          git config user.email "briefing-bot@users.noreply.github.com"
+          if git diff --quiet -- briefing.txt; then
+            echo "no change, nothing to commit"
+          else
+            git add briefing.txt
+            git commit -m "briefing: $(date -u '+%Y-%m-%d %H:%M UTC')"
+            git push
+          fi
