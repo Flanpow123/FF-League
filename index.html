@@ -94,7 +94,10 @@
 
   .takes{margin-top:16px;border-top:1px solid var(--line);padding-top:14px;display:grid;gap:12px}
   .take{display:flex;gap:11px}
-  .face{width:34px;height:34px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-weight:700;font-size:16px;color:var(--turf)}
+  .face{width:46px;height:46px;border-radius:8px;flex:none;display:flex;align-items:center;justify-content:center;font-family:var(--cond);font-weight:700;font-size:18px;color:var(--turf);overflow:hidden;background:var(--panel2)}
+  .face svg{width:100%;height:100%;display:block}
+  .face.big{width:104px;height:104px;border-radius:10px;font-size:36px}
+  @media(max-width:520px){ .face.big{width:78px;height:78px;font-size:28px} }
   .take .body{flex:1;min-width:0}
   .take .who{font-weight:600;font-size:14.5px}
   .take .role{color:var(--dim);font-weight:400;font-size:13px;margin-left:7px}
@@ -216,30 +219,46 @@ var LEAGUE_ID = "1385278901562929152";   // Sigma Pi B, 2026
    delete the ones you hate. The key on the left is what news.json
    refers to. */
 var ANALYSTS = {
-  analyst:     { name:"Ward Delaney", role:"CBS Sports, senior NFL columnist",
-                 color:"var(--cool)",
-                 brief:"Measured, structural, writes the piece of record. Will say the boring true thing.",
-                 bio:"Twenty-two years on the beat and the only person here who files on time. Delaney writes the piece people quote six weeks later, which he considers the job and everyone else considers a personality defect. He has never raised his voice on air, and it has never once helped him.",
-                 beat:"The long view — roster construction, regression, and what a team actually is underneath its record.",
-                 signature:"Waiting four paragraphs to say the devastating thing, then saying it exactly once." },
-  firestarter: { name:"Deacon Pyle", role:"ESPN, morning debate show",
-                 color:"var(--flag)",
-                 brief:"Picks a fight every week and stays in it. Personal, loud, holds grudges by name.",
-                 bio:"Pyle wakes up angry at a specific manager and stays that way through Sunday. He keeps a list. The list is long, and he has never been talked off a single entry on it, including the ones that turned out to be wrong.",
-                 beat:"Whoever has it coming this week — grudges, betrayals, and lineup decisions he takes personally.",
-                 signature:"Naming a man in the first sentence and refusing to move on." },
-  quant:       { name:"Odessa Prine", role:"The Athletic, numbers desk",
-                 color:"var(--gold)",
-                 brief:"Distrusts every number she did not compute herself, including Sleeper's.",
-                 bio:"Prine does not trust a number she did not compute herself, and that includes the ones on this page. She has been right often enough that the rest of the desk stopped arguing with her and started quietly checking their own work before filing.",
-                 beat:"Everything the box score hides — schedule luck, lineup efficiency, and the gap between what a team scored and what it earned.",
-                 signature:"Producing the single statistic that ends the argument." },
-  troll:       { name:"Roy Tannehill", role:"FS1, afternoon drive",
-                 color:"var(--violet)",
-                 brief:"Here to humiliate somebody. Accurate roughly as often as he needs to be.",
-                 bio:"Tannehill is here to humiliate somebody and is not especially fussy about who. He is accurate about as often as he needs to be, which is less often than you would guess, because nobody remembers the misses when the hits are that funny.",
-                 beat:"Humiliation — bad losses, worse team names, and anyone who has recently described himself as rebuilding.",
-                 signature:"The nickname that sticks for the rest of the season." }
+  analyst: {
+    name:"Bishop Cargill",
+    role:"The Ringer, eleven seasons at tight end",
+    color:"var(--cool)",
+    brief:"Ex-player. Tells a story to get to the point, and the point is usually right.",
+    bio:"Eleven seasons at tight end, two of them good enough that people still bring them up. Cargill does not analyze a game so much as testify about it, and somewhere in the third anecdote about a Thursday night in Cleveland he says the truest sentence anyone says all week. The numbers people have stopped pretending this annoys them.",
+    beat:"What it actually feels like out there — effort, nerve, and the difference between a team that is tired and a team that has quit.",
+    signature:"Starting a sentence with “I have been in those huddles” and somehow earning it.",
+    art:"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Bishop Cargill\"><rect width=\"100\" height=\"100\" fill=\"#6FB3D2\"/><path d=\"M8 100C8 83 26 76 50 76s42 7 42 24z\" fill=\"#1B2A23\"/><path d=\"M41 76l9 13 9-13 6 3-15 21-15-21z\" fill=\"#E9EFEA\"/><rect x=\"43\" y=\"60\" width=\"14\" height=\"18\" rx=\"6\" fill=\"#6B4423\"/><ellipse cx=\"50\" cy=\"44\" rx=\"19\" ry=\"22.5\" fill=\"#8D5524\"/><circle cx=\"30.5\" cy=\"46\" r=\"4.2\" fill=\"#6B4423\"/><circle cx=\"69.5\" cy=\"46\" r=\"4.2\" fill=\"#6B4423\"/><path d=\"M31 40c1-14 10-20 19-20s18 6 19 20c-3-7-10-9-19-9s-16 2-19 9z\" fill=\"#2B2320\"/><path d=\"M31 46c0 14 8 25 19 25s19-11 19-25c0 9-8 12-19 12s-19-3-19-12z\" fill=\"#2B2320\"/><path d=\"M38 58q12 7 24 0\" stroke=\"#2B2320\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\"/><ellipse cx=\"42\" cy=\"44\" rx=\"2.6\" ry=\"3\" fill=\"#20160F\"/><ellipse cx=\"58\" cy=\"44\" rx=\"2.6\" ry=\"3\" fill=\"#20160F\"/><path d=\"M37 37q5-3 10 0M53 37q5-3 10 0\" stroke=\"#2B2320\" stroke-width=\"2.4\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M47 49q3 3 6 0\" stroke=\"#6B4423\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M42 55q8 6 16 0\" stroke=\"#F6E7DA\" stroke-width=\"3.4\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+  },
+  firestarter: {
+    name:"Deacon Pyle",
+    role:"ESPN, morning debate show",
+    color:"var(--flag)",
+    brief:"Maximum volume, minimum subtlety. Turns a waiver claim into a betrayal.",
+    bio:"Pyle does not have opinions, he has performances. Every storyline in this league arrives at his desk and leaves as a three-act tragedy with a finger wagging over it. He has never once said it is still early, and he would like the record to show that.",
+    beat:"Whoever has it coming this week — grudges, betrayals, and lineup decisions he takes personally.",
+    signature:"Saying a man's full name, pausing, and then saying it again louder.",
+    art:"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Deacon Pyle\"><rect width=\"100\" height=\"100\" fill=\"#E2593B\"/><path d=\"M8 100C8 83 26 76 50 76s42 7 42 24z\" fill=\"#141F1A\"/><path d=\"M41 76l9 13 9-13 6 3-15 21-15-21z\" fill=\"#E9EFEA\"/><rect x=\"43\" y=\"60\" width=\"14\" height=\"18\" rx=\"6\" fill=\"#C98A5B\"/><ellipse cx=\"50\" cy=\"44\" rx=\"19\" ry=\"22.5\" fill=\"#E0AC69\"/><circle cx=\"30.5\" cy=\"46\" r=\"4.2\" fill=\"#C98A5B\"/><circle cx=\"69.5\" cy=\"46\" r=\"4.2\" fill=\"#C98A5B\"/><path d=\"M30 40c2-16 11-21 20-21s18 5 20 21c-4-9-8-13-20-13s-16 4-20 13z\" fill=\"#3B2D1E\"/><ellipse cx=\"42\" cy=\"43\" rx=\"3\" ry=\"3.4\" fill=\"#20160F\"/><ellipse cx=\"58\" cy=\"43\" rx=\"3\" ry=\"3.4\" fill=\"#20160F\"/><path d=\"M36 34q6-5 12-1M52 33q6-4 12 1\" stroke=\"#3B2D1E\" stroke-width=\"2.8\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M47 48q3 3 6 0\" stroke=\"#C98A5B\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/><ellipse cx=\"50\" cy=\"58\" rx=\"8\" ry=\"7\" fill=\"#40201C\"/><ellipse cx=\"50\" cy=\"55\" rx=\"6\" ry=\"2.4\" fill=\"#F6E7DA\"/><path d=\"M74 100V74a7 7 0 0114 0v26z\" fill=\"#141F1A\"/><path d=\"M81 76V58\" stroke=\"#E0AC69\" stroke-width=\"7\" fill=\"none\" stroke-linecap=\"round\"/><circle cx=\"81\" cy=\"56\" r=\"4\" fill=\"#E0AC69\"/></svg>"
+  },
+  quant: {
+    name:"Odessa Prine",
+    role:"The Athletic, film and numbers",
+    color:"var(--gold)",
+    brief:"Film study and advanced stats, allergic to empty takes. Dismantles a narrative quietly.",
+    bio:"Prine watches the tape, does the math, and does not raise her voice about either. She will let a bad argument run its full length across the desk before taking it apart in a single sentence. She does not trust a number she did not compute herself, and that includes the ones on this page.",
+    beat:"Everything the box score hides — schedule luck, lineup efficiency, and the gap between what a team scored and what it earned.",
+    signature:"Waiting for the room to finish, then saying that is not what happened.",
+    art:"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Odessa Prine\"><rect width=\"100\" height=\"100\" fill=\"#F0C24B\"/><path d=\"M8 100C8 83 26 76 50 76s42 7 42 24z\" fill=\"#1B2A23\"/><path d=\"M41 76l9 13 9-13 6 3-15 21-15-21z\" fill=\"#C9D6CE\"/><rect x=\"43\" y=\"60\" width=\"14\" height=\"18\" rx=\"6\" fill=\"#C68642\"/><path d=\"M26 44c0-20 10-28 24-28s24 8 24 28c0 12-2 20-5 24V44H31v24c-3-4-5-12-5-24z\" fill=\"#231A14\"/><ellipse cx=\"50\" cy=\"44\" rx=\"19\" ry=\"22.5\" fill=\"#E8B887\"/><circle cx=\"30.5\" cy=\"46\" r=\"4.2\" fill=\"#C68642\"/><circle cx=\"69.5\" cy=\"46\" r=\"4.2\" fill=\"#C68642\"/><path d=\"M29 38c2-16 10-22 21-22s19 6 21 22c-5-10-11-13-21-13s-16 3-21 13z\" fill=\"#231A14\"/><ellipse cx=\"42\" cy=\"44\" rx=\"2.4\" ry=\"2.8\" fill=\"#20160F\"/><ellipse cx=\"58\" cy=\"44\" rx=\"2.4\" ry=\"2.8\" fill=\"#20160F\"/><g fill=\"none\" stroke=\"#2B2320\" stroke-width=\"2.2\"><rect x=\"33\" y=\"38\" width=\"16\" height=\"12\" rx=\"3\"/><rect x=\"51\" y=\"38\" width=\"16\" height=\"12\" rx=\"3\"/><path d=\"M49 44h2\"/><path d=\"M33 43l-4 1M67 43l4 1\"/></g><path d=\"M47 51q3 2.5 6 0\" stroke=\"#C68642\" stroke-width=\"1.8\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M44 59h12\" stroke=\"#A65D57\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+  },
+  troll: {
+    name:"Roy Tannehill",
+    role:"FS1, afternoon drive",
+    color:"var(--violet)",
+    brief:"Professional provocateur. Picks a hill in September and dies on it in December.",
+    bio:"Tannehill decides what he believes before the evidence arrives and has never let the evidence change his mind. He is not trying to be right, he is trying to keep the argument alive, and by that standard he is the best in the business. Ask him about a take from three weeks ago and he will double it.",
+    beat:"The extreme position on everything — rankings, benchings, and anyone who has recently described himself as rebuilding.",
+    signature:"Refusing to concede a point the scoreboard settled an hour ago.",
+    art:"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Roy Tannehill\"><rect width=\"100\" height=\"100\" fill=\"#A98BD6\"/><path d=\"M8 100C8 83 26 76 50 76s42 7 42 24z\" fill=\"#141F1A\"/><path d=\"M41 76l9 13 9-13 6 3-15 21-15-21z\" fill=\"#E9EFEA\"/><rect x=\"43\" y=\"60\" width=\"14\" height=\"18\" rx=\"6\" fill=\"#D9A06B\"/><ellipse cx=\"50\" cy=\"44\" rx=\"19\" ry=\"22.5\" fill=\"#F1C27D\"/><circle cx=\"30.5\" cy=\"46\" r=\"4.2\" fill=\"#D9A06B\"/><circle cx=\"69.5\" cy=\"46\" r=\"4.2\" fill=\"#D9A06B\"/><path d=\"M29 41C30 24 39 18 50 18c12 0 21 7 21 19-6-11-12-6-22-9-6-2-15 1-20 13z\" fill=\"#4A3320\"/><ellipse cx=\"42\" cy=\"44\" rx=\"2.6\" ry=\"3\" fill=\"#20160F\"/><ellipse cx=\"58\" cy=\"44\" rx=\"2.6\" ry=\"3\" fill=\"#20160F\"/><path d=\"M36 35q6-4 12-1\" stroke=\"#4A3320\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M52 31q7-1 12 4\" stroke=\"#4A3320\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M47 50q3 3 6 0\" stroke=\"#D9A06B\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M41 57q9 8 18-2\" stroke=\"#8A4A44\" stroke-width=\"3.2\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+  }
 };
 
 /* Where the written stories come from.
@@ -1537,9 +1556,8 @@ function ballotsHTML(){
     h+='<div class="takes" style="margin-top:18px;border-top:none;padding-top:0">';
     voters.forEach(function(v){
       if(!v.comment) return;
-      var initials=v.meta.name.replace(/^The\s+/i,"").slice(0,2);
       h+='<div class="take">'
-        +'<div class="face" style="background:'+v.meta.color+'">'+esc(initials)+'</div>'
+        +faceHTML(v.meta,false)
         +'<div class="body"><div class="who">'+esc(v.meta.name)
         +(v.meta.role?'<span class="role">'+esc(v.meta.role)+'</span>':'')+'</div>'
         +'<div class="txt">'+esc(v.comment)+'</div></div></div>';
@@ -1631,6 +1649,16 @@ function tocHTML(stories){
   return h+'</div>';
 }
 
+/* An analyst's portrait. Drawn, not photographed -- these are invented people.
+   Any key news.json makes up that the desk does not have falls back to initials. */
+function faceHTML(a, big){
+  var cls = "face" + (big ? " big" : "");
+  if(a && a.art) return '<div class="'+cls+'">'+a.art+'</div>';
+  var nm = (a && a.name) ? a.name : "";
+  var initials = nm ? nm.replace(/^The\s+/i,"").slice(0,2) : "??";
+  return '<div class="'+cls+'" style="background:'+((a&&a.color)||"var(--dim)")+'">'+esc(initials)+'</div>';
+}
+
 function storyHTML(st,i){
   var h='<article class="story" id="story-'+i+'">';
   if(st.sample) h+='<div class="sample">Sample story.</div>';
@@ -1642,9 +1670,8 @@ function storyHTML(st,i){
     h+='<div class="takes">';
     st.takes.forEach(function(t){
       var a=ANALYSTS[t.analyst]||{name:t.analyst||"Anonymous",role:"",color:"var(--dim)"};
-      var initials=a.name.replace(/^The\s+/i,"").slice(0,2);
       h+='<div class="take">'
-        +'<div class="face" style="background:'+a.color+'">'+esc(initials)+'</div>'
+        +faceHTML(a,false)
         +'<div class="body"><div class="who">'+esc(a.name)
         +(a.role?'<span class="role">'+esc(a.role)+'</span>':'')+'</div>'
         +'<div class="txt">'+esc(t.text||"")+'</div></div></div>';
@@ -2031,6 +2058,15 @@ function briefingText(){
     L.push("that analyst genuinely would. A ballot that matches the table exactly is a wasted ballot.");
     L.push("");
   }
+
+  L.push("HOW MANY ANALYSTS PER STORY");
+  L.push("Three is the normal number. Give the lead story all of them, give the small ones two or");
+  L.push("three, and vary who appears where. Across a full edition every analyst has to turn up at");
+  L.push("least once, and nobody should appear in every single story -- a desk where all five react");
+  L.push("to everything reads like a form being filled in rather than a newsroom. Pick the analysts a");
+  L.push("story actually earns: the numbers story wants Prine, the grudge wants Pyle, and a story");
+  L.push("about somebody getting humiliated does not need a measured second opinion.");
+  L.push("");
 
   L.push("THE DESK");
   L.push("These are the only analyst keys news.json may use. Keep the voices apart -- if two");
@@ -2858,10 +2894,9 @@ function renderAnalysts(){
 
   Object.keys(ANALYSTS).forEach(function(k){
     var a=ANALYSTS[k], r=rec[k]||{};
-    var initials=a.name.replace(/^The\s+/i,"").slice(0,2);
     h+='<div class="poll-wrap" style="margin-bottom:14px">'
-      +'<div class="take" style="border:none;padding:0;margin:0">'
-      +'<div class="face" style="background:'+a.color+'">'+esc(initials)+'</div>'
+      +'<div class="take" style="border:none;padding:0;margin:0;gap:16px">'
+      +faceHTML(a,true)
       +'<div class="body"><div class="who">'+esc(a.name)
       +'<span class="role">'+esc(a.role)+'</span></div>'
       +'<div class="txt">'+esc(a.bio||a.brief||"")+'</div></div></div>';
