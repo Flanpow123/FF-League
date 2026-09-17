@@ -112,12 +112,7 @@
   .board{display:grid;gap:10px}
   .game{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:12px 14px;display:grid;gap:8px}
   .side{display:flex;align-items:center;gap:10px}
-  .side .wp{margin-left:auto;font-family:var(--cond);font-weight:600;font-size:16px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
-  .side.lead .wp{color:var(--good)}
-  .livedot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--flag);margin-right:7px;vertical-align:middle}
-  @media (prefers-reduced-motion:no-preference){ .livedot{animation:pulse 2s ease-in-out infinite} }
-  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
-  .side .pts{font-family:var(--cond);font-weight:700;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;color:var(--dim)}
+  .side .pts{margin-left:auto;font-family:var(--cond);font-weight:700;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;color:var(--dim)}
   .side.lead .pts{color:var(--gold)}
   .side.lead .tname{color:var(--text)}
   .tname{font-weight:600;font-size:15px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -149,9 +144,6 @@
   .line{display:flex;align-items:center;gap:9px;padding:3px 0;font-size:14.5px}
   .line .pav{width:26px;height:26px;border-radius:3px;background:var(--panel2);flex:none;object-fit:cover}
   .who{color:var(--dim);font-size:13px}
-  .inj{font-family:var(--cond);font-size:12.5px;font-weight:600;color:var(--gold);
-       border:1px solid var(--line);border-radius:2px;padding:0 5px;margin-left:auto;white-space:nowrap}
-  .inj.bad{color:var(--flag);border-color:var(--flag)}
   .bids{margin-top:9px;border-top:1px dashed var(--line);padding-top:8px}
   .bid{display:flex;gap:10px;font-size:13.5px;color:var(--dim);padding:2px 0}
   .bid b{font-family:var(--cond);font-size:16px;font-weight:700;min-width:44px;color:var(--dim);font-variant-numeric:tabular-nums}
@@ -187,25 +179,23 @@
     <button role="tab" data-tab="news" aria-selected="true">Newsroom</button>
     <button role="tab" data-tab="week" aria-selected="false">Scoreboard</button>
     <button role="tab" data-tab="book" aria-selected="false">The Book</button>
-    <button role="tab" data-tab="poll" aria-selected="false">Poll</button>
     <button role="tab" data-tab="standings" aria-selected="false">Standings</button>
     <button role="tab" data-tab="power" aria-selected="false">Power</button>
-    <button role="tab" data-tab="draft" aria-selected="false">Draft</button>
     <button role="tab" data-tab="moves" aria-selected="false">Moves</button>
     <button role="tab" data-tab="records" aria-selected="false">Records</button>
     <button role="tab" data-tab="history" aria-selected="false">History</button>
+    <button role="tab" data-tab="analysts" aria-selected="false">The Desk</button>
   </nav>
 
   <section id="tab-news"><div class="msg">Reading the league.</div></section>
   <section id="tab-week" hidden></section>
   <section id="tab-book" hidden></section>
-  <section id="tab-poll" hidden></section>
   <section id="tab-standings" hidden></section>
   <section id="tab-power" hidden></section>
-  <section id="tab-draft" hidden></section>
   <section id="tab-moves" hidden></section>
   <section id="tab-records" hidden></section>
   <section id="tab-history" hidden></section>
+  <section id="tab-analysts" hidden></section>
 
   <footer>
     Sigma Pi B. Scores, rosters and transactions come straight from Sleeper and update on their own.
@@ -226,10 +216,30 @@ var LEAGUE_ID = "1385278901562929152";   // Sigma Pi B, 2026
    delete the ones you hate. The key on the left is what news.json
    refers to. */
 var ANALYSTS = {
-  analyst:     { name:"Ward Delaney",  role:"CBS Sports, senior NFL columnist", color:"var(--cool)"   },
-  firestarter: { name:"Deacon Pyle",   role:"ESPN, morning debate show",       color:"var(--flag)"   },
-  quant:       { name:"Odessa Prine",  role:"The Athletic, numbers desk",       color:"var(--gold)"   },
-  troll:       { name:"Roy Tannehill", role:"FS1, afternoon drive",            color:"var(--violet)" }
+  analyst:     { name:"Ward Delaney", role:"CBS Sports, senior NFL columnist",
+                 color:"var(--cool)",
+                 brief:"Measured, structural, writes the piece of record. Will say the boring true thing.",
+                 bio:"Twenty-two years on the beat and the only person here who files on time. Delaney writes the piece people quote six weeks later, which he considers the job and everyone else considers a personality defect. He has never raised his voice on air, and it has never once helped him.",
+                 beat:"The long view — roster construction, regression, and what a team actually is underneath its record.",
+                 signature:"Waiting four paragraphs to say the devastating thing, then saying it exactly once." },
+  firestarter: { name:"Deacon Pyle", role:"ESPN, morning debate show",
+                 color:"var(--flag)",
+                 brief:"Picks a fight every week and stays in it. Personal, loud, holds grudges by name.",
+                 bio:"Pyle wakes up angry at a specific manager and stays that way through Sunday. He keeps a list. The list is long, and he has never been talked off a single entry on it, including the ones that turned out to be wrong.",
+                 beat:"Whoever has it coming this week — grudges, betrayals, and lineup decisions he takes personally.",
+                 signature:"Naming a man in the first sentence and refusing to move on." },
+  quant:       { name:"Odessa Prine", role:"The Athletic, numbers desk",
+                 color:"var(--gold)",
+                 brief:"Distrusts every number she did not compute herself, including Sleeper's.",
+                 bio:"Prine does not trust a number she did not compute herself, and that includes the ones on this page. She has been right often enough that the rest of the desk stopped arguing with her and started quietly checking their own work before filing.",
+                 beat:"Everything the box score hides — schedule luck, lineup efficiency, and the gap between what a team scored and what it earned.",
+                 signature:"Producing the single statistic that ends the argument." },
+  troll:       { name:"Roy Tannehill", role:"FS1, afternoon drive",
+                 color:"var(--violet)",
+                 brief:"Here to humiliate somebody. Accurate roughly as often as he needs to be.",
+                 bio:"Tannehill is here to humiliate somebody and is not especially fussy about who. He is accurate about as often as he needs to be, which is less often than you would guess, because nobody remembers the misses when the hits are that funny.",
+                 beat:"Humiliation — bad losses, worse team names, and anyone who has recently described himself as rebuilding.",
+                 signature:"The nickname that sticks for the rest of the season." }
 };
 
 /* Where the written stories come from.
@@ -241,13 +251,6 @@ var NEWS_URL = "news.json";
 /* Past editions. The folder needs an index.json listing them, because a
    static host cannot list a directory for us. */
 var ARCHIVE_URL = "archive/";
-
-/* The draft report card is graded against a fixed set of projections so the
-   grade stops moving every time Sleeper refreshes a number. By default it
-   uses week 1, which never changes again once week 1 is over. Drop a
-   draft-projections.json next to this page to pin it permanently instead. */
-var DRAFT_PROJ_WEEK = 1;
-var DRAFT_FREEZE_URL = "draft-projections.json";
 
 var API = "https://api.sleeper.app/v1";
 
@@ -273,8 +276,8 @@ var S = {
   archive:null, archivePromise:null, archiveError:null,
   gameStatus:null, statusError:null, picks:null,
   bookWeek:null, bookProjections:null,
-  draftProjections:null, draftFrozen:false, projGaps:null,
-  liveTimer:null, lastLive:null
+  projGaps:null,
+  projFilled:null, projFilledFrom:null, projScored:null
 };
 
 /* ---------- helpers ---------- */
@@ -322,23 +325,6 @@ function playerName(pid){
   if(/^[A-Z]{2,3}$/.test(pid)) return pid+" defense";
   return "Player "+pid;
 }
-/* Sleeper carries an injury designation on the player record itself.
-   It is not the post-game write-up, but it is the part that matters:
-   whether the man is expected to play. */
-function injuryOf(pid){
-  var p = S.players && S.players[pid];
-  if(!p || !p.injury_status) return null;
-  var st = String(p.injury_status);
-  var part = p.injury_body_part ? String(p.injury_body_part) : "";
-  return { status: st, part: part, label: st + (part ? " (" + part + ")" : "") };
-}
-function injuryTag(pid){
-  var inj = injuryOf(pid);
-  if(!inj) return "";
-  var bad = /out|ir|doubtful|suspend|pup|dnr/i.test(inj.status);
-  return '<span class="inj'+(bad?' bad':'')+'">'+esc(inj.label)+'</span>';
-}
-
 function playerMeta(pid){
   var p=S.players&&S.players[pid]; if(!p) return "";
   return [p.position,p.team].filter(Boolean).join(" · ");
@@ -352,8 +338,7 @@ function playerLine(pid){
   return '<div class="line">'
     +'<img class="pav" src="'+esc(playerImg(pid))+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
     +'<span>'+esc(playerName(pid))+'</span>'
-    +(meta?'<span class="who">'+esc(meta)+'</span>':'')
-    +injuryTag(pid)+'</div>';
+    +(meta?'<span class="who">'+esc(meta)+'</span>':'')+'</div>';
 }
 function when(ms){
   if(!ms) return "";
@@ -677,130 +662,6 @@ function positionalDemand(rosterPositions, teams){
    back to ranking players within their own position, which still removes the
    fake bonus every team gets for waiting on quarterback, but cannot tell you
    that a kicker in round two was a crime. */
-function gradeDraft(picks, players, rosterPositions, projections, teams){
-  var demand = positionalDemand(rosterPositions, teams);
-
-  var slots={}, flexSlots=[];
-  (rosterPositions||[]).forEach(function(s){
-    if(BENCH_SLOTS[s]) return;
-    var elig = SLOT_ELIGIBILITY[s] || [s];
-    if(elig.length===1) slots[elig[0]] = (slots[elig[0]]||0)+1;
-    else flexSlots.push(elig);
-  });
-  function depthFor(pos){
-    var d = slots[pos]||0;
-    flexSlots.forEach(function(e){ if(e.indexOf(pos)>=0) d++; });
-    return d||1;
-  }
-
-  function infoFor(p){
-    var pl = players && players[p.player_id];
-    var rank = pl && pl.search_rank!=null ? Number(pl.search_rank) : null;
-    if(rank!=null && !isFinite(rank)) rank = null;
-    var pos = (pl && pl.position) || (p.metadata && p.metadata.position) || "?";
-    var age = pl && pl.age ? Number(pl.age) : null;
-    var proj = projections && projections[p.player_id]!=null ? Number(projections[p.player_id]) : null;
-    if(proj!=null && !isFinite(proj)) proj = null;
-    return {rank:rank, pos:pos, age:age, proj:proj};
-  }
-
-  // Group the drafted pool by position.
-  var byPos={}, haveProj=0, total=0;
-  picks.forEach(function(p){
-    var info = infoFor(p);
-    if(info.pos==="?") return;
-    total++;
-    if(info.proj!=null) haveProj++;
-    (byPos[info.pos] = byPos[info.pos] || []).push({pick:p.pick_no, info:info});
-  });
-  var useProj = total>0 && haveProj/total >= 0.6;
-
-  var expected = {}, vorpOf = {};
-
-  if(useProj){
-    // Replacement level is the last startable body at each position.
-    var board = [];
-    Object.keys(byPos).forEach(function(pos){
-      var list = byPos[pos].filter(function(x){ return x.info.proj!=null; })
-        .sort(function(a,b){ return b.info.proj-a.info.proj; });
-      if(!list.length) return;
-      var idx = Math.max(0, Math.min(list.length-1, Math.round(demand[pos]||list.length)));
-      var repl = list[idx] ? list[idx].info.proj : list[list.length-1].info.proj;
-      list.forEach(function(x){
-        var v = x.info.proj - repl;
-        vorpOf[x.pick] = v;
-        board.push({pick:x.pick, v:v});
-      });
-    });
-    var used = board.map(function(x){ return x.pick; }).sort(function(a,b){ return a-b; });
-    board.sort(function(a,b){ return b.v-a.v; });
-    board.forEach(function(x,i){ expected[x.pick] = used[i]; });
-  } else {
-    Object.keys(byPos).forEach(function(pos){
-      var list = byPos[pos].filter(function(x){ return x.info.rank!=null; });
-      if(!list.length) return;
-      var used = list.map(function(x){ return x.pick; }).sort(function(a,b){ return a-b; });
-      list.slice().sort(function(a,b){ return a.info.rank-b.info.rank; })
-        .forEach(function(x,i){ expected[x.pick] = used[i]; });
-    });
-  }
-
-  var byRoster = {};
-  picks.forEach(function(p){
-    var rid = p.roster_id;
-    if(rid==null) return;
-    if(!byRoster[rid]) byRoster[rid] = {rid:rid, picks:[], ages:[], positions:{}};
-    var slot = byRoster[rid], info = infoFor(p);
-    slot.positions[info.pos] = (slot.positions[info.pos]||0)+1;
-    if(info.age) slot.ages.push(info.age);
-
-    var value = null, exp = expected[p.pick_no];
-    if(exp!=null){
-      value = p.pick_no - exp;
-      if(value >  75) value =  75;
-      if(value < -75) value = -75;
-    }
-    slot.picks.push({pid:p.player_id, pick:p.pick_no, round:p.round, pos:info.pos,
-                     rank:info.rank, proj:info.proj, vorp:vorpOf[p.pick_no]!=null?vorpOf[p.pick_no]:null,
-                     expected:exp, value:value});
-  });
-
-  var rows = Object.keys(byRoster).map(function(k){
-    var s = byRoster[k];
-
-    // Who on this roster is plausibly a starter at their own position.
-    var seen = {};
-    s.picks.slice().sort(function(a,b){
-      if(useProj) return (b.proj==null?-1e9:b.proj) - (a.proj==null?-1e9:a.proj);
-      return (a.rank==null?1e9:a.rank) - (b.rank==null?1e9:b.rank);
-    }).forEach(function(p){
-      var n = (seen[p.pos] = (seen[p.pos]||0)+1);
-      p.starter = n <= depthFor(p.pos);
-      p.weight = p.starter ? 1 : 0.35;
-    });
-
-    var wv=0, wt=0;
-    s.picks.forEach(function(p){
-      if(p.value==null) return;
-      wv += p.value*p.weight;
-      wt += p.weight;
-    });
-    s.value = wv;
-    s.counted = s.picks.filter(function(p){ return p.value!=null; }).length;
-    s.avgValue = wt ? wv/wt : 0;
-    s.avgAge = s.ages.length ? s.ages.reduce(function(t,v){return t+v;},0)/s.ages.length : null;
-    s.basis = useProj ? "projection" : "rank";
-    s.picks.sort(function(a,b){ return a.pick-b.pick; });
-
-    var scored = s.picks.filter(function(p){ return p.value!=null && p.starter; });
-    if(!scored.length) scored = s.picks.filter(function(p){ return p.value!=null; });
-    s.best  = scored.slice().sort(function(a,b){ return b.value-a.value; })[0] || null;
-    s.worst = scored.slice().sort(function(a,b){ return a.value-b.value; })[0] || null;
-    return s;
-  });
-  rows.sort(function(a,b){ return b.avgValue-a.avgValue; });
-  return rows;
-}
 /* ============================================================
    BOOT
    ============================================================ */
@@ -872,7 +733,7 @@ function boot(){
     })
     .then(function(){
       renderNews(); renderWeek(); renderStandings(); renderPower();
-      renderDraft(); renderMoves(); renderPoll(); renderBook();
+      renderMoves(); renderBook(); renderAnalysts();
       loadPlayers();
     })
     .catch(function(e){ fail(e.message||String(e)); });
@@ -1037,25 +898,6 @@ function preseasonWire(){
     });
   }
 
-  // Cross-reference the draft: did the projections agree with the draft grade?
-  if(S.draftPicks&&S.draftPicks.length&&S.players){
-    var dr=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.draftProjections||S.projections,S.rosters.length);
-    if(dr.length){
-      var bestDraft=dr[0];
-      var projRank={};
-      rows.forEach(function(r,i){ projRank[r.rid]=i+1; });
-      var pr=projRank[bestDraft.rid];
-      if(pr){
-        items.push({
-          tag:"Draft check",
-          hl:esc(teamName(bestDraft.rid))+" drafted the best value in the league and projects "+ordinal(pr),
-          dt:"Value per pick of "+(bestDraft.avgValue>0?"+":"")+num(bestDraft.avgValue,1)
-            +(pr<=3?". The draft board and the projections agree for once."
-                   :". Getting value and having the best roster are apparently different things.")
-        });
-      }
-    }
-  }
 
   return items;
 }
@@ -1221,15 +1063,15 @@ function receiptsHTML(){
   });
   if(!polls.length) return "";
 
-  var actual = actualRankMap();
+  var actual = powerRankMap();
   if(!actual){
-    return '<h2 style="margin-top:34px">Poll receipts</h2>'
+    return '<h2 style="margin-top:34px">Receipts</h2>'
       + '<div class="msg">Every ballot above is on the record. The moment week 1 goes final, '
-      + 'each one gets scored against the actual standings and nobody gets to quietly revise it.</div>';
+      + 'each one gets scored against the power rankings and nobody gets to quietly revise it.</div>';
   }
 
-  var h = '<h2 style="margin-top:34px">Poll receipts</h2>'
-    + '<p class="note">Each ballot scored against the standings as they stand after week ' + S.finalWeek + '. '
+  var h = '<h2 style="margin-top:34px">Receipts</h2>'
+    + '<p class="note">Each ballot scored against the power rankings as they stand after week ' + S.finalWeek + '. '
     + 'Pairwise accuracy is the share of all team pairs a desk put in the right order. '
     + 'Nobody submits these twice.</p>';
 
@@ -1340,7 +1182,8 @@ function remainingFor(m){
     if(!pid || pid==="0") return;
     var st = playerGameState(pid);
     if(st!=="pre" && st!=="in") return;
-    var pr = (S.projections && S.projections[pid]!=null) ? Number(S.projections[pid]) : 0;
+    var PJ = projections();
+    var pr = (PJ && PJ[pid]!=null) ? Number(PJ[pid]) : 0;
     out.count++;
     out.proj += pr;
     out.players.push({pid:pid, proj:pr, state:st});
@@ -1355,56 +1198,6 @@ function bookWeekNumber(){
   if(S.finalWeek >= w) w = w + 1;
   if(w > S.regWeeks) w = S.regWeeks;
   return Math.max(1, w);
-}
-
-/* ============================================================
-   LIVE MATCHUPS
-   ============================================================ */
-/* A player's week is roughly as volatile as he is valuable, with a floor
-   so a kicker is not treated as a certainty. */
-function playerSd(proj){ return Math.max(4, (Number(proj)||0) * 0.6); }
-
-function liveWinProb(a, b){
-  var ra = remainingFor(a), rb = remainingFor(b);
-  var sa = Number(a.points)||0, sb = Number(b.points)||0;
-  if(!ra || !rb){
-    if(sa === sb) return null;
-    return null;                                  // no status feed, do not pretend
-  }
-  var ma = sa + ra.proj, mb = sb + rb.proj, va = 0, vb = 0;
-  ra.players.forEach(function(p){ var s = playerSd(p.proj); va += s*s; });
-  rb.players.forEach(function(p){ var s = playerSd(p.proj); vb += s*s; });
-  if(va + vb === 0) return sa > sb ? 1 : (sa < sb ? 0 : 0.5);
-  var z = (ma - mb) / Math.sqrt(va + vb);
-  return 0.5 * (1 + erf(z/Math.SQRT2));
-}
-
-function anyGameLive(){
-  if(!S.gameStatus) return false;
-  var live = false;
-  Object.keys(S.gameStatus).forEach(function(t){ if(S.gameStatus[t] === "in") live = true; });
-  return live;
-}
-
-function refreshLive(){
-  return Promise.all([
-    get("/league/"+LEAGUE_ID+"/matchups/"+S.week).catch(function(){ return null; }),
-    loadGameStatus()
-  ]).then(function(r){
-    if(r[0] && r[0].length) S.matchups[S.week] = r[0];
-    S.lastLive = new Date();
-    renderWeek();
-    renderNews();
-  });
-}
-
-function startLiveRefresh(){
-  if(S.liveTimer) return;
-  S.liveTimer = setInterval(function(){
-    if(document.hidden) return;
-    if(!anyGameLive()) return;
-    refreshLive();
-  }, 60000);
 }
 
 /* ============================================================
@@ -1625,16 +1418,6 @@ function cardRow(i, label, r){
 /* ============================================================
    POLL TAB
    ============================================================ */
-function renderPoll(){
-  var html = pollHTML();
-  if(!html){
-    $("tab-poll").innerHTML = '<h2>The poll</h2>'
-      + '<div class="msg">No ballots have been filed yet this season.</div>';
-    return;
-  }
-  $("tab-poll").innerHTML = html + receiptsHTML();
-}
-
 /* ============================================================
    NEWSROOM
    ============================================================ */
@@ -1680,7 +1463,7 @@ function normKey(s){
   return String(s==null?"":s).toLowerCase().replace(/[^a-z0-9]/g,"");
 }
 
-function pollHTML(){
+function ballotsHTML(){
   var poll=S.news&&S.news.poll;
   if(!poll||!poll.ballots||!poll.ballots.length) return "";
 
@@ -1705,9 +1488,9 @@ function pollHTML(){
     .sort(function(a,b){ return b.points-a.points||b.firsts-a.firsts; });
   if(!rows.length) return "";
 
-  var h='<h2>'+esc(poll.title||"The poll")+'</h2>'
+  var h='<h2 style="margin-top:34px">'+esc(poll.title||"The desk ballots")+'</h2>'
     +'<p class="note">'
-    +esc(poll.note||("Each desk submits a full ballot. First place is worth "+S.rosters.length+" points down to 1, exactly like the college football polls. The page counts the votes."))
+    +esc(poll.note||("Each analyst files a full ranking. First place is worth "+S.rosters.length+" points down to 1, exactly like the college football polls. The page counts the votes; the table above is the arithmetic they are arguing with."))
     +'</p>';
 
   h+='<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Points</th><th>First</th>';
@@ -1808,7 +1591,6 @@ function renderNews(){
   if(DESK){
     html+='<div class="bar">'
       +'<button class="btn" id="copyBriefing">Copy this week&rsquo;s briefing</button>'
-      +'<button class="btn ghost" id="copyFreeze">Copy draft snapshot</button>'
       +'<span class="hint">Only visible because this URL ends in ?desk. Nobody else sees this.</span>'
       +'</div>';
   }
@@ -1827,8 +1609,6 @@ function renderNews(){
 
   var b=$("copyBriefing");
   if(b) b.addEventListener("click",copyBriefing);
-  var f=$("copyFreeze");
-  if(f) f.addEventListener("click",copyFreeze);
 }
 
 /* A wire-style index of what is on the desk, so the front page reads like
@@ -1916,7 +1696,7 @@ function editorialContext(){
   }
 
   // Ballots, plus how they are holding up. Capped so the briefing stays pasteable.
-  var actual = actualRankMap();
+  var actual = powerRankMap();
   var polled = eds.filter(function(ed){ return ed.poll && ed.poll.ballots && ed.poll.ballots.length; });
   polled.slice(-2).forEach(function(ed){
     L.push("");
@@ -1990,7 +1770,8 @@ function currentWeekPlayers(){
       var pp = m.players_points || {}, starters = m.starters || [];
       var projTotal = 0, hasProj = false;
       starters.forEach(function(pid){
-        if(S.projections && S.projections[pid]!=null){ projTotal += Number(S.projections[pid])||0; hasProj = true; }
+        var PJs = projections();
+        if(PJs && PJs[pid]!=null){ projTotal += Number(PJs[pid])||0; hasProj = true; }
       });
       var rem = remainingFor(m);
       L.push(teamName(m.roster_id) + " (" + manager(m.roster_id) + ") scored " + num(m.points)
@@ -1999,13 +1780,12 @@ function currentWeekPlayers(){
             + num(rem.proj,1) + " projected" : ""));
       starters.forEach(function(pid){
         if(!pid || pid==="0"){ L.push("  empty slot"); return; }
-        var proj = (S.projections && S.projections[pid]!=null) ? num(S.projections[pid],1) : "--";
+        var PJl = projections();
+        var proj = (PJl && PJl[pid]!=null) ? num(PJl[pid],1) : "--";
         var meta = playerMeta(pid);
         var gs = stateLabel(playerGameState(pid));
-        var inj = injuryOf(pid);
         L.push("  " + playerName(pid) + (meta?" ("+meta+")":"") + " " + proj + " -> " + num(pp[pid]||0)
-          + (gs ? "  [" + gs + "]" : "")
-          + (inj ? "  INJURY: " + inj.label : ""));
+          + (gs ? "  [" + gs + "]" : ""));
       });
       var bench = [];
       (m.players||[]).forEach(function(pid){
@@ -2019,38 +1799,6 @@ function currentWeekPlayers(){
 }
 
 /* An explicit list of what has not happened yet, so nobody has to infer it. */
-/* Everyone on a roster carrying an injury designation, so a missing
-   projection has an explanation attached to it. */
-function injuryReport(){
-  if(!S.players) return "";
-  var rows = [];
-  S.rosters.forEach(function(r){
-    var starters = {};
-    (S.matchups[S.week]||[]).forEach(function(m){
-      if(m.roster_id===r.roster_id) (m.starters||[]).forEach(function(p){ starters[p]=1; });
-    });
-    (r.players||[]).forEach(function(pid){
-      var inj = injuryOf(pid);
-      if(!inj) return;
-      rows.push({rid:r.roster_id, pid:pid, inj:inj, starting:!!starters[pid]});
-    });
-  });
-  if(!rows.length) return "";
-  var rank = {out:0, ir:0, doubtful:1, questionable:2};
-  rows.sort(function(a,b){
-    var ra = rank[a.inj.status.toLowerCase()], rb = rank[b.inj.status.toLowerCase()];
-    ra = ra==null?3:ra; rb = rb==null?3:rb;
-    return ra-rb || (b.starting?1:0)-(a.starting?1:0);
-  });
-  var L = ["INJURY REPORT (designation from Sleeper, not a post-game write-up)"];
-  rows.slice(0,40).forEach(function(x){
-    L.push("  " + playerName(x.pid) + " (" + (playerMeta(x.pid)||"?") + ") " + x.inj.label
-      + " -- " + teamName(x.rid) + (x.starting ? ", IN THE LINEUP this week" : ", on the bench"));
-  });
-  L.push("");
-  return L.join("\n");
-}
-
 function stillToPlay(){
   if(!S.gameStatus){
     return "STILL TO PLAY: unknown, the game status feed is unavailable.\n";
@@ -2206,21 +1954,6 @@ function briefingText(){
     L.push("");
   }
 
-  if(S.draftPicks&&S.draftPicks.length&&S.players){
-    var dr=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.draftProjections||S.projections,S.rosters.length);
-    if(dr.length){
-      L.push("DRAFT VALUE (positive means players fell to them, negative means they reached)");
-      L.push("Graded against " + (S.draftFrozen ? "a pinned projection snapshot"
-        : "week " + DRAFT_PROJ_WEEK + " projections") + ", so this table should not move week to week.");
-      dr.forEach(function(r,i){
-        L.push((i+1)+". "+teamName(r.rid)+": "+(r.avgValue>0?"+":"")+num(r.avgValue,1)+" per pick"
-          +(r.best?", best "+playerName(r.best.pid)+" at pick "+r.best.pick:"")
-          +(r.worst?", worst "+playerName(r.worst.pid)+" at pick "+r.worst.pick:"")
-          +(r.avgAge?", average age "+num(r.avgAge,1):""));
-      });
-      L.push("");
-    }
-  }
 
   L.push("WAIVER CLAIMS, NEWEST FIRST (winning bid first, then losing bids)");
   S.claims.slice(0,25).forEach(function(c){
@@ -2260,9 +1993,63 @@ function briefingText(){
   }
 
   L.push(currentWeekPlayers());
-  L.push(injuryReport());
   L.push(stillToPlay());
   L.push(editorialContext());
+
+  var pr = powerRows();
+  if(pr){
+    var apb = allPlay();
+    L.push("POWER RANKINGS");
+    L.push("Rating is 45% all-play record, 25% season scoring, 15% the last three weeks, 15% strength");
+    L.push("of schedule. Schedule faced is the average season scoring of the opponents that team drew,");
+    L.push("so a hard slate earns credit instead of just being bad luck. Start/sit is shown but is NOT");
+    L.push("in the rating, because points scored already counts what a bad lineup cost.");
+    L.push("(rank, team, rating, all-play, points per week, last 3, schedule faced, start/sit)");
+    pr.forEach(function(r,i){
+      var a = apb[r.id]||{w:0,l:0};
+      L.push((i+1)+". "+teamName(r.id)+" -- "+num(r.score,1)
+        +", all-play "+a.w+"-"+a.l
+        +", "+num(r.avg,1)+" per week"
+        +", last 3 "+num(r.recent,1)
+        +", faced "+num(r.sos,1)
+        +", start/sit "+(r.eff==null?"n/a":Math.round(r.eff*100)+"%"));
+    });
+    L.push("");
+    L.push("USING THE RANKINGS");
+    L.push("The rankings are the desk's shared read on who is real and who is not. Use them as a frame");
+    L.push("-- contenders, pretenders, live underdogs -- rather than something to quote back at the");
+    L.push("reader. \"Nobody in the top three wants to draw them in December\" is the register.");
+    L.push("\"The first-ranked team will beat the twelfth\" is not: that is the table read aloud.");
+    L.push("An analyst who disagrees with the rankings should say so and say why. The disagreement is");
+    L.push("the interesting part, and it goes on their record either way.");
+    L.push("");
+    L.push("BALLOTS");
+    L.push("Every analyst files a full ranking of all "+S.rosters.length+" teams in news.json under");
+    L.push("poll.ballots, each entry {analyst, ranking:[team names, best first], comment}. The page");
+    L.push("scores them automatically against the power rankings above and keeps them permanently.");
+    L.push("Ballots are opinions: they should disagree with the table, and with each other, wherever");
+    L.push("that analyst genuinely would. A ballot that matches the table exactly is a wasted ballot.");
+    L.push("");
+  }
+
+  L.push("THE DESK");
+  L.push("These are the only analyst keys news.json may use. Keep the voices apart -- if two");
+  L.push("takes could swap bylines without anyone noticing, they are not doing their job.");
+  Object.keys(ANALYSTS).forEach(function(k){
+    var a=ANALYSTS[k];
+    L.push("  "+k+" -- "+a.name+" ("+a.role+")");
+    if(a.brief) L.push("      "+a.brief);
+  });
+  L.push("");
+  L.push("Not every analyst has to appear in every story, but across an edition each of them");
+  L.push("should turn up somewhere.");
+  if(ANALYSTS.wildcard){
+    L.push(ANALYSTS.wildcard.name + " is the exception that proves the format: he gets the same");
+    L.push("ballot and the same column inches as everyone else, and the ballot scoring is what");
+    L.push("settles whether he deserved them. Do not soften him into a merely contrarian take,");
+    L.push("and never have the others stop to explain the joke.");
+  }
+  L.push("");
 
   L.push("HOW TO USE THIS");
   L.push("Work out what actually changed since the previous edition first, then continue existing");
@@ -2276,31 +2063,6 @@ function briefingText(){
 
 /* Export the exact projections the draft card is using, so they can be
    committed as draft-projections.json and never change again. */
-function copyFreeze(){
-  var btn = $("copyFreeze");
-  var proj = S.draftProjections || S.projections;
-  if(!proj || !S.draftPicks){ btn.textContent = "Nothing to pin yet"; return; }
-  var map = {};
-  S.draftPicks.forEach(function(p){
-    if(proj[p.player_id] != null) map[p.player_id] = proj[p.player_id];
-  });
-  var doc = {
-    note: "Frozen projections for the draft report card. Do not regenerate.",
-    season: S.league && S.league.season,
-    week: DRAFT_PROJ_WEEK,
-    players: Object.keys(map).length,
-    projections: map
-  };
-  var text = JSON.stringify(doc, null, 2);
-  function done(ok){
-    btn.textContent = ok ? "Copied. Save as draft-projections.json" : "Copy failed";
-    setTimeout(function(){ btn.textContent = "Copy draft snapshot"; }, 4000);
-  }
-  if(navigator.clipboard && navigator.clipboard.writeText){
-    navigator.clipboard.writeText(text).then(function(){done(true);},function(){done(false);});
-  } else { done(false); }
-}
-
 function copyBriefing(){
   var btn=$("copyBriefing"), text=briefingText();
   function done(ok){
@@ -2338,41 +2100,28 @@ function renderWeek(){
     var sb=groups[b].reduce(function(t,m){return t+(Number(m.points)||0);},0);
     return sb-sa;
   });
-  var liveNow = anyGameLive();
-  var stamp = S.lastLive ? S.lastLive.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : null;
-  var html='<h2>Week '+S.week+'</h2>'
-    + '<p class="note">'
-    + (liveNow
-        ? '<span class="livedot"></span>Games in progress. This page refreshes itself every minute.'
-        : (S.gameStatus ? 'No games in progress right now.' : 'Scores update live during games.'))
-    + (stamp ? ' Updated ' + stamp + '.' : '')
-    + '</p><div class="board">';
-  if(liveNow) startLiveRefresh();
+  var html='<h2>Week '+S.week+'</h2><p class="note">Scores update live during games.</p><div class="board">';
   keys.forEach(function(k){
     var g=groups[k];
     if(g.length===1){ html+='<div class="game">'+sideHTML(g[0],true)+'<div class="gap">No opponent this week.</div></div>'; return; }
     var a=g[0],b=g[1],pa=Number(a.points)||0,pb=Number(b.points)||0;
     var lead=pa===pb?"Tied":teamName(pa>pb?a.roster_id:b.roster_id)+" by "+num(Math.abs(pa-pb));
     var pr=projLine(a,b);
-    var wp=liveWinProb(a,b);
-    html+='<div class="game">'
-      +sideHTML(a,pa>=pb,wp==null?null:wp)
-      +sideHTML(b,pb>=pa,wp==null?null:1-wp)
-      +'<div class="gap">'+esc(lead)+(pr?' &nbsp;&middot;&nbsp; '+esc(pr):'')+'</div>'
-      +liveFooter(a,b)
-      +'</div>';
+    html+='<div class="game">'+sideHTML(a,pa>=pb)+sideHTML(b,pb>=pa)
+      +'<div class="gap">'+esc(lead)+(pr?' &nbsp;&middot;&nbsp; '+esc(pr):'')+'</div></div>';
   });
   $("tab-week").innerHTML=html+'</div>';
 }
 /* Projected total for a side, using whoever is actually in the lineup. */
 function projFor(m){
-  if(!S.projections) return null;
+  var PJ = projections();
+  if(!PJ) return null;
   var ids=m.starters&&m.starters.length?m.starters:(m.players||[]);
   if(!ids.length) return null;
   var t=0,n=0;
   ids.forEach(function(pid){
     if(!pid||pid==="0") return;
-    var v=S.projections[pid];
+    var v=PJ[pid];
     if(v!=null){ t+=v; n++; }
   });
   return n?t:null;
@@ -2384,39 +2133,13 @@ function projLine(a,b){
   return "Projected " + num(pa,1) + " to " + num(pb,1);
 }
 
-function sideHTML(m,leading,wp){
+function sideHTML(m,leading){
   var av=avatar(m.roster_id);
-  var rem=remainingFor(m);
-  var sub=manager(m.roster_id);
-  if(rem) sub += rem.count
-    ? "  \u00b7  " + rem.count + " left, " + num(rem.proj,1) + " projected"
-    : "  \u00b7  done";
   return '<div class="side'+(leading?' lead':'')+'">'
     +(av?'<img class="av" src="'+esc(av)+'" alt="" loading="lazy">':'<div class="av"></div>')
     +'<div><div class="tname">'+esc(teamName(m.roster_id))+'</div>'
-    +'<div class="mgr">'+esc(sub)+'</div></div>'
-    +(wp==null?'':'<div class="wp">'+Math.round(wp*100)+'%</div>')
+    +'<div class="mgr">'+esc(manager(m.roster_id))+'</div></div>'
     +'<div class="pts">'+num(m.points)+'</div></div>';
-}
-
-/* What the trailing side still needs, and who is left to provide it. */
-function liveFooter(a,b){
-  var ra=remainingFor(a), rb=remainingFor(b);
-  if(!ra||!rb) return '';
-  var sa=Number(a.points)||0, sb=Number(b.points)||0;
-  var lead = sa>=sb ? a : b, trail = sa>=sb ? b : a;
-  var rLead = sa>=sb ? ra : rb, rTrail = sa>=sb ? rb : ra;
-  var margin = Math.abs(sa-sb);
-
-  if(!rTrail.count && !rLead.count) return '';
-  if(!rTrail.count){
-    return '<div class="gap">'+esc(teamName(trail.roster_id))+' has nobody left. This one is over.</div>';
-  }
-  var need = margin + rLead.proj;
-  var names = rTrail.players.slice(0,4).map(function(p){ return playerName(p.pid); }).join(", ");
-  return '<div class="gap">'+esc(teamName(trail.roster_id))+' needs about '+num(need,1)
-    +' from '+rTrail.count+' player'+(rTrail.count===1?'':'s')
-    +(names?' ('+esc(names)+')':'')+'.</div>';
 }
 
 /* ============================================================
@@ -2552,17 +2275,16 @@ function loadPlayers(){
 }
 function repaint(){
   computeEfficiency();
-  renderStandings(); renderPower(); renderDraft(); renderMoves(); renderNews(); renderWeek();
+  renderStandings(); renderPower(); renderMoves(); renderNews(); renderWeek(); renderAnalysts();
 }
 
 function afterPlayers(){
   repaint();
   loadProjections()
     .then(function(){ return loadBookProjections(); })
-    .then(function(){ return loadDraftProjections(); })
     .then(function(){ return loadGameStatus(); })
     .then(function(){
-      renderPower(); renderWeek(); renderDraft(); renderNews(); renderBook(); renderPoll();
+      renderPower(); renderWeek(); renderNews(); renderBook(); renderAnalysts();
     });
 }
 
@@ -2767,6 +2489,88 @@ function scoringKey(){
   return "pts_std";
 }
 
+/* Sleeper's pts_ppr has standard four-point passing touchdowns baked into it.
+   This league pays six, so leaning on pts_ppr quietly understates every
+   quarterback by three or four points a week -- which then leaks into optimal
+   lineups, playoff odds and the draft report card. Score the raw projected
+   stat line against the league's own scoring_settings instead.
+
+   Two positions opt out. Defensive scoring is bucketed (pts_allow_0,
+   yds_allow_350_399 and friends are flags, not counting stats, so multiplying
+   them is meaningless) and kicker scoring here is close enough to standard
+   that the feed's own number is the safer bet. Both keep pts_ppr. */
+var PROJ_BUCKET = /^(pts_allow|yds_allow)_/;
+var PROJ_SANITY_MAX = 80;   // nobody projects for 80; if we get there, we are wrong
+
+function projPositionOf(row, pid){
+  var p = row.player || (S.players && S.players[pid]);
+  if(!p) return null;
+  if(p.position) return p.position;
+  if(p.fantasy_positions && p.fantasy_positions.length) return p.fantasy_positions[0];
+  return null;
+}
+
+function customProjection(st, pos){
+  var ss = (S.league && S.league.scoring_settings) || null;
+  if(!ss || !pos || pos === "DEF" || pos === "K") return null;
+  var total = 0, matched = 0;
+  for(var k in ss){
+    if(!Object.prototype.hasOwnProperty.call(ss, k)) continue;
+    if(PROJ_BUCKET.test(k)) continue;
+    var w = Number(ss[k]);
+    if(!w) continue;                       // not scored in this league
+    if(st[k] == null) continue;            // not projected for this player
+    var v = Number(st[k]);
+    if(!isFinite(v)) continue;
+    total += v * w; matched++;
+  }
+  if(!matched) return null;
+  if(!isFinite(total) || total < 0 || total > PROJ_SANITY_MAX) return null;
+  return total;
+}
+
+/* Turn a raw projection feed into {player_id: points}. Every player that can
+   be scored from the league's settings is; the rest fall back to the feed's
+   own number, so a change in Sleeper's stat keys degrades to today's
+   behaviour instead of emptying the page. */
+function projMapFrom(list){
+  var key = scoringKey(), map = {}, n = 0, custom = 0;
+  list.forEach(function(row){
+    var pid = row.player_id || (row.player && row.player.player_id);
+    if(!pid) return;
+    var st = row.stats || {};
+    var v = customProjection(st, projPositionOf(row, pid));
+    if(v != null){ custom++; }
+    else {
+      v = st[key];
+      if(v == null) v = st.pts_ppr;
+      if(v == null) v = st.pts_std;
+    }
+    if(v == null) return;
+    map[pid] = Number(v) || 0; n++;
+  });
+  if(!n) throw new Error("no usable point values in the projection feed");
+  S.projScored = custom + " of " + n + " scored from league settings";
+  return map;
+}
+
+/* A player with no published projection at all is an unknown, not a zero.
+   fillProjectionGaps substitutes a replacement-level number at his position;
+   this shares one filled map across every caller instead of each one deciding
+   for itself. */
+function projections(){
+  if(!S.projections) return null;
+  if(S.projFilledFrom === S.projections) return S.projFilled;
+  if(!S.players || !S.rosters || !S.rosters.length) return S.projections;
+  var all = [];
+  S.rosters.forEach(function(r){ (r.players||[]).forEach(function(pid){ all.push(pid); }); });
+  var fix = fillProjectionGaps(S.projections, S.players, all);
+  S.projFilled = fix.map;
+  S.projFilledFrom = S.projections;
+  S.projGaps = fix.filled;
+  return S.projFilled;
+}
+
 function projectionsFor(week){
   var season = S.league && S.league.season;
   if(!season) return Promise.resolve(null);
@@ -2775,39 +2579,7 @@ function projectionsFor(week){
     .then(function(r){ if(!r.ok) throw new Error("projections returned "+r.status); return r.json(); })
     .then(function(list){
       if(!list||!list.length) throw new Error("projections came back empty");
-      var key=scoringKey(), map={}, n=0;
-      list.forEach(function(row){
-        var pid=row.player_id||(row.player&&row.player.player_id);
-        if(!pid) return;
-        var st=row.stats||{};
-        var v=st[key]; if(v==null) v=st.pts_ppr; if(v==null) v=st.pts_std;
-        if(v==null) return;
-        map[pid]=Number(v)||0; n++;
-      });
-      if(!n) throw new Error("no usable point values in the projection feed");
-      return map;
-    });
-}
-
-function loadDraftProjections(){
-  return fetch(bust(DRAFT_FREEZE_URL),{cache:"no-store"})
-    .then(function(r){ return r.ok ? r.json() : null; })
-    .catch(function(){ return null; })
-    .then(function(doc){
-      var map = doc && (doc.projections || doc.map || doc);
-      if(map && typeof map === "object" && Object.keys(map).length > 20){
-        S.draftProjections = map;
-        S.draftFrozen = true;
-        return;
-      }
-      if(Number(DRAFT_PROJ_WEEK) === Number(S.week) && S.projections){
-        S.draftProjections = S.projections;
-        S.draftFrozen = false;
-        return;
-      }
-      return projectionsFor(DRAFT_PROJ_WEEK)
-        .then(function(m){ S.draftProjections = m; S.draftFrozen = false; })
-        .catch(function(){ S.draftProjections = S.projections; S.draftFrozen = false; });
+      return projMapFrom(list);
     });
 }
 
@@ -2834,19 +2606,8 @@ function loadProjections(){
     })
     .then(function(list){
       if(!list||!list.length) throw new Error("projections came back empty");
-      var key=scoringKey(), map={}, n=0;
-      list.forEach(function(row){
-        var pid=row.player_id||(row.player&&row.player.player_id);
-        if(!pid) return;
-        var st=row.stats||{};
-        var v=st[key];
-        if(v==null) v=st.pts_ppr;
-        if(v==null) v=st.pts_std;
-        if(v==null) return;
-        map[pid]=Number(v)||0; n++;
-      });
-      if(!n) throw new Error("no usable point values in the projection feed");
-      S.projections=map;
+      S.projections=projMapFrom(list);
+      S.projFilled=null; S.projFilledFrom=null;
       S.projError=null;
     })
     .catch(function(e){
@@ -2863,11 +2624,13 @@ function projectedStrength(projMap){
   if(!slots.length) return null;
 
   // A player with no published projection must not be treated as a zero.
-  var all=[];
-  S.rosters.forEach(function(r){ (r.players||[]).forEach(function(p){ all.push(p); }); });
-  var fix = fillProjectionGaps(proj, S.players, all);
-  proj = fix.map;
-  if(proj === (projMap || S.projections) || fix.filled.length) S.projGaps = fix.filled;
+  if(projMap){
+    var all=[];
+    S.rosters.forEach(function(r){ (r.players||[]).forEach(function(p){ all.push(p); }); });
+    proj = fillProjectionGaps(proj, S.players, all).map;
+  } else {
+    proj = projections() || proj;
+  }
 
   var out={};
   S.rosters.forEach(function(r){
@@ -2946,46 +2709,180 @@ function playoffOdds(){
 /* ============================================================
    POWER TAB
    ============================================================ */
-function renderPower(){
-  var scores=weeklyScores(), ap=allPlay();
+
+/* Season scoring average per roster. */
+function seasonAverages(scores){
+  var avg={};
+  Object.keys(scores).forEach(function(rid){
+    var l=scores[rid]||[];
+    avg[rid]= l.length ? l.reduce(function(t,s){ return t+s.points; },0)/l.length : 0;
+  });
+  return avg;
+}
+
+/* How hard a slate each team has actually faced: the average season scoring of
+   the opponents they were scheduled against, over the weeks they have played.
+
+   All-play already ignores the schedule. This does something different -- it
+   pays a team back for having drawn the hard weeks. Losing by five to the
+   highest scorer in the league is not the same week as losing by five to the
+   worst, and a win-loss record cannot tell those two apart. */
+function strengthOfSchedule(scores, sched){
+  var avg=seasonAverages(scores), out={};
+  S.rosters.forEach(function(r){
+    var rid=r.roster_id, faced=[];
+    (scores[rid]||[]).forEach(function(s){
+      var opp = sched[s.week] && sched[s.week][rid];
+      if(opp!=null && avg[opp]) faced.push(avg[opp]);
+    });
+    out[rid] = faced.length ? faced.reduce(function(t,v){ return t+v; },0)/faced.length : null;
+  });
+  return out;
+}
+
+var POWER_WEIGHTS = { allPlay:0.45, scoring:0.25, recent:0.15, sos:0.15 };
+
+/* The ranking itself, best first. Shared by the tab, the ballot scoring and
+   the briefing, so all three can never drift out of agreement. */
+function powerRows(){
+  var scores=weeklyScores(), ap=allPlay(), sos=strengthOfSchedule(scores, schedulesByWeek());
   var rows=S.rosters.map(function(r){
     var list=scores[r.roster_id]||[];
     var avg=list.length?list.reduce(function(t,s){return t+s.points;},0)/list.length:0;
     var rl=list.slice(-3);
     var recent=rl.length?rl.reduce(function(t,s){return t+s.points;},0)/rl.length:0;
     var a=ap[r.roster_id]||{w:0,games:0};
-    return {id:r.roster_id, apPct:a.games?a.w/a.games:0, avg:avg, recent:recent, played:list.length};
+    var e=S.eff&&S.eff[r.roster_id];
+    return {id:r.roster_id, apPct:a.games?a.w/a.games:0, avg:avg, recent:recent,
+            sos:sos[r.roster_id], eff:(e&&e.pct!=null)?e.pct:null, played:list.length};
   });
+  if(!rows.some(function(r){ return r.played; })) return null;
 
-  var ranked = rows.some(function(r){return r.played;});
-  var html;
+  // A team with no resolvable opponents yet sits at the league average rather
+  // than at zero, which would otherwise read as the easiest schedule alive.
+  var sosVals=rows.map(function(r){ return r.sos; }).filter(function(v){ return v!=null; });
+  var sosAvg=sosVals.length?sosVals.reduce(function(t,v){return t+v;},0)/sosVals.length:0;
+  rows.forEach(function(r){ if(r.sos==null) r.sos=sosAvg; });
 
-  if(!ranked){
+  function norm(key){
+    var vals=rows.map(function(r){ return r[key]; });
+    var lo=Math.min.apply(null,vals), hi=Math.max.apply(null,vals), span=hi-lo;
+    rows.forEach(function(r){ r["n_"+key]=span?(r[key]-lo)/span:0.5; });
+  }
+  norm("apPct"); norm("avg"); norm("recent"); norm("sos");
+  rows.forEach(function(r){
+    r.score=100*(POWER_WEIGHTS.allPlay*r.n_apPct + POWER_WEIGHTS.scoring*r.n_avg
+               + POWER_WEIGHTS.recent*r.n_recent + POWER_WEIGHTS.sos*r.n_sos);
+  });
+  rows.sort(function(a,b){ return b.score-a.score; });
+  return rows;
+}
+
+/* {roster_id: rank} off the power rankings. This is what analyst ballots are
+   graded against -- they are predicting the rankings, not the standings, and
+   the standings are half schedule luck anyway. */
+function powerRankMap(){
+  var rows=powerRows();
+  if(!rows) return null;
+  var map={};
+  rows.forEach(function(r,i){ map[r.id]=i+1; });
+  return map;
+}
+
+function renderPower(){
+  var rows=powerRows(), ap=allPlay(), html;
+
+  if(!rows){
     html='<h2>In-season power rankings</h2><div class="msg">These need games. '
       +'Until week 1 goes final, the preseason rankings below are the ones that count.</div>';
   } else {
-    function norm(key){
-      var vals=rows.map(function(r){return r[key];});
-      var lo=Math.min.apply(null,vals),hi=Math.max.apply(null,vals),span=hi-lo;
-      rows.forEach(function(r){ r["n_"+key]=span?(r[key]-lo)/span:0.5; });
-    }
-    norm("apPct");norm("avg");norm("recent");
-    rows.forEach(function(r){ r.score=100*(0.50*r.n_apPct+0.30*r.n_avg+0.20*r.n_recent); });
-    rows.sort(function(a,b){ return b.score-a.score; });
-
     html='<h2>Power rankings</h2>'
-    +'<p class="note">Half all-play record, three tenths season scoring, two tenths the last three weeks. Ignores who you happened to be scheduled against.</p>'
-    +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Rating</th><th>All-play</th><th>Points per week</th><th>Last 3 weeks</th></tr></thead><tbody>';
-  rows.forEach(function(r,i){
-    var a=ap[r.id]||{w:0,l:0};
-    html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.id)+'</td>'
-      +'<td>'+num(r.score,1)+'</td><td>'+a.w+'-'+a.l+'</td><td>'+num(r.avg,1)+'</td><td>'+num(r.recent,1)+'</td></tr>';
-  });
-  html+='</tbody></table></div>';
+    +'<p class="note">Forty-five percent all-play record, twenty-five percent season scoring, '
+    +'fifteen percent the last three weeks, fifteen percent strength of schedule. '
+    +'Schedule faced is the average scoring of the opponents a team has actually drawn, so pulling '
+    +'the hard weeks is worth something instead of just being bad luck. '
+    +'Start/sit is shown but deliberately kept out of the rating: points scored already counts what '
+    +'a bad lineup cost you, and charging for it twice would be double jeopardy.</p>'
+    +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Rating</th><th>All-play</th>'
+    +'<th>Points per week</th><th>Last 3 weeks</th><th>Schedule faced</th><th>Start/sit</th>'
+    +'</tr></thead><tbody>';
+    rows.forEach(function(r,i){
+      var a=ap[r.id]||{w:0,l:0};
+      html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.id)+'</td>'
+        +'<td>'+num(r.score,1)+'</td><td>'+a.w+'-'+a.l+'</td>'
+        +'<td>'+num(r.avg,1)+'</td><td>'+num(r.recent,1)+'</td>'
+        +'<td>'+num(r.sos,1)+'</td>'
+        +'<td>'+(r.eff==null?"--":Math.round(r.eff*100)+"%")+'</td></tr>';
+    });
+    html+='</tbody></table></div>';
   }
 
-  html+=projectedHTML()+oddsHTML()+swapHTML();
+  html+=ballotsHTML()+receiptsHTML()+projectedHTML()+oddsHTML()+swapHTML();
   $("tab-power").innerHTML=html;
+}
+
+/* ============================================================
+   THE DESK -- who these people are, and how often they are right
+   ============================================================ */
+function analystRecord(){
+  var actual=powerRankMap(), out={};
+  Object.keys(ANALYSTS).forEach(function(k){
+    out[k]={ballots:0, sum:0, pairwise:null, best:null, worst:null};
+  });
+  if(!actual) return out;
+  allEditions().forEach(function(ed){
+    if(!ed||!ed.poll||!ed.poll.ballots) return;
+    ed.poll.ballots.forEach(function(b){
+      var rec=out[b.analyst];
+      if(!rec||!b.ranking||!b.ranking.length) return;
+      var ids=b.ranking.map(function(nm){ return resolveTeam(nm); }).filter(function(x){ return x!=null; });
+      var sc=scoreRanking(ids, actual);
+      if(!sc) return;
+      rec.ballots++; rec.sum+=sc.pairwise;
+      if(!rec.best ||sc.pairwise>rec.best.pairwise)  rec.best=sc;
+      if(!rec.worst||sc.pairwise<rec.worst.pairwise) rec.worst=sc;
+    });
+  });
+  Object.keys(out).forEach(function(k){
+    var r=out[k]; r.pairwise = r.ballots ? r.sum/r.ballots : null;
+  });
+  return out;
+}
+
+function renderAnalysts(){
+  var rec=analystRecord();
+  var h='<h2>Meet the desk</h2>'
+    +'<p class="note">The people who cover this league, for reasons none of them will explain. '
+    +'Accuracy is pairwise: of every pair of teams, how often they put the two in the right order, '
+    +'measured against the power rankings across every ballot they have ever filed.</p>';
+
+  Object.keys(ANALYSTS).forEach(function(k){
+    var a=ANALYSTS[k], r=rec[k]||{};
+    var initials=a.name.replace(/^The\s+/i,"").slice(0,2);
+    h+='<div class="poll-wrap" style="margin-bottom:14px">'
+      +'<div class="take" style="border:none;padding:0;margin:0">'
+      +'<div class="face" style="background:'+a.color+'">'+esc(initials)+'</div>'
+      +'<div class="body"><div class="who">'+esc(a.name)
+      +'<span class="role">'+esc(a.role)+'</span></div>'
+      +'<div class="txt">'+esc(a.bio||a.brief||"")+'</div></div></div>';
+    if(a.beat||a.signature){
+      h+='<p class="note" style="margin-top:10px">'
+        +(a.beat?'<b>Beat:</b> '+esc(a.beat)+(a.signature?'<br>':''):'')
+        +(a.signature?'<b>Signature move:</b> '+esc(a.signature):'')
+        +'</p>';
+    }
+    if(r.ballots){
+      h+='<p class="note" style="margin-top:8px">'+r.ballots+' ballot'+(r.ballots===1?'':'s')
+        +' on the record, '+Math.round(r.pairwise*100)+'% pairwise accuracy'
+        +(r.best&&r.ballots>1?', best week '+Math.round(r.best.pairwise*100)+'%':'')
+        +(r.worst&&r.ballots>1?', worst '+Math.round(r.worst.pairwise*100)+'%':'')
+        +'.</p>';
+    } else {
+      h+='<p class="note" style="margin-top:8px">No ballots scored yet.</p>';
+    }
+    h+='</div>';
+  });
+  $("tab-analysts").innerHTML=h;
 }
 
 function projectedHTML(){
@@ -3114,85 +3011,6 @@ function swapHTML(){
       +'<td>'+num(r.avg,1)+'</td></tr>';
   });
   return h+'</tbody></table></div>';
-}
-
-/* ============================================================
-   DRAFT REPORT CARD
-   ============================================================ */
-function draftBasisNote(){
-  if(S.projections){
-    return 'Each player is valued by projected points above the last startable body at his own position, so a quarterback is measured against '
-      + 'quarterbacks and a kicker is worth close to nothing whenever he went. That board is matched back onto the picks this league actually spent. '
-      + 'Positive means value fell to you, negative means you reached. Players who would not crack your starting lineup count for a third as much, '
-      + 'because a steal on your fifth receiver does not win anything. '
-      + (S.draftFrozen
-          ? 'The projections behind this grade are pinned to a fixed snapshot, so this table no longer moves.'
-          : 'It is graded against week ' + DRAFT_PROJ_WEEK + ' projections rather than this week\u2019s, so it stops drifting once that week is over.');
-  }
-  return 'Projections are unavailable, so players are ranked against others at their own position using Sleeper\u2019s ranking. That removes the fake '
-    + 'bonus every team gets for waiting on quarterback, but it cannot tell you that a kicker went too early.';
-}
-
-function renderDraft(){
-  var box=$("tab-draft");
-  if(!S.draftPicks||!S.draftPicks.length){
-    box.innerHTML='<h2>Draft report card</h2><div class="msg">No draft picks found for this league yet.</div>';
-    return;
-  }
-  if(!S.players){
-    box.innerHTML='<h2>Draft report card</h2><div class="msg">Loading the player database, one moment.</div>';
-    return;
-  }
-
-  var rows=gradeDraft(S.draftPicks,S.players,(S.league&&S.league.roster_positions)||[],S.draftProjections||S.projections,S.rosters.length);
-  if(!rows.length){
-    box.innerHTML='<h2>Draft report card</h2><div class="msg">Draft picks came back without team assignments, so they cannot be graded.</div>';
-    return;
-  }
-
-  var starters=((S.league&&S.league.roster_positions)||[]).filter(function(s){ return s!=="BN"&&s!=="IR"&&s!=="TAXI"; });
-  var need={};
-  starters.forEach(function(s){ need[s]=(need[s]||0)+1; });
-
-  var html='<h2>Draft report card</h2>'
-    +'<p class="note">'+draftBasisNote()+'</p>'
-    +'<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Value per pick</th><th>Best pick</th><th>Worst pick</th><th>Average age</th></tr></thead><tbody>';
-
-  rows.forEach(function(r,i){
-    var cls=r.avgValue>3?"pos":(r.avgValue<-3?"neg":"");
-    function pk(p){
-      if(!p) return "--";
-      return '<div>'+esc(playerName(p.pid))+'</div><div class="mgr">'+esc(p.pos)+', pick '+p.pick
-        +(p.expected!=null&&p.expected!==p.pick?' vs '+p.expected:'')+', '+(p.value>0?'+':'')+p.value+'</div>';
-    }
-    html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.rid)+'</td>'
-      +'<td class="'+cls+'">'+(r.avgValue>0?'+':'')+num(r.avgValue,1)+'</td>'
-      +'<td>'+pk(r.best)+'</td><td>'+pk(r.worst)+'</td>'
-      +'<td>'+(r.avgAge?num(r.avgAge,1):"--")+'</td></tr>';
-  });
-  html+='</tbody></table></div>';
-
-  // Roster construction oddities, which need no proxy at all.
-  var flags=[];
-  rows.forEach(function(r){
-    Object.keys(r.positions).forEach(function(pos){
-      var have=r.positions[pos], want=need[pos]||0;
-      if(pos==="QB"&&want<=1&&have>=3) flags.push(teamName(r.rid)+" drafted "+have+" quarterbacks in a "+(want||1)+"-QB league.");
-      if(pos==="K"&&have>=2) flags.push(teamName(r.rid)+" drafted "+have+" kickers, on purpose.");
-      if(pos==="DEF"&&have>=3) flags.push(teamName(r.rid)+" drafted "+have+" defenses.");
-      if(pos==="TE"&&have>=4) flags.push(teamName(r.rid)+" drafted "+have+" tight ends.");
-    });
-  });
-  var oldest=rows.filter(function(r){return r.avgAge;}).sort(function(a,b){ return b.avgAge-a.avgAge; })[0];
-  if(oldest) flags.push("Oldest roster in the league: "+teamName(oldest.rid)+", averaging "+num(oldest.avgAge,1)+" years old.");
-
-  if(flags.length){
-    html+='<h2 style="margin-top:34px">Construction notes</h2>'
-      +'<p class="note">Straight from the pick list. No proxy, no ranking, just what people did.</p><div class="wire">';
-    flags.forEach(function(f){ html+='<div class="wire-item"><div class="dt">'+esc(f)+'</div></div>'; });
-    html+='</div>';
-  }
-  box.innerHTML=html;
 }
 
 /* ============================================================
