@@ -112,7 +112,12 @@
   .board{display:grid;gap:10px}
   .game{background:var(--panel);border:1px solid var(--line);border-radius:3px;padding:12px 14px;display:grid;gap:8px}
   .side{display:flex;align-items:center;gap:10px}
-  .side .pts{margin-left:auto;font-family:var(--cond);font-weight:700;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;color:var(--dim)}
+  .side .wp{margin-left:auto;font-family:var(--cond);font-weight:600;font-size:16px;color:var(--dim);font-variant-numeric:tabular-nums;min-width:44px;text-align:right}
+  .side.lead .wp{color:var(--good)}
+  .livedot{display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--flag);margin-right:7px;vertical-align:middle}
+  @media (prefers-reduced-motion:no-preference){ .livedot{animation:pulse 2s ease-in-out infinite} }
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+  .side .pts{font-family:var(--cond);font-weight:700;font-size:30px;line-height:1;font-variant-numeric:tabular-nums;color:var(--dim)}
   .side.lead .pts{color:var(--gold)}
   .side.lead .tname{color:var(--text)}
   .tname{font-weight:600;font-size:15px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
@@ -144,6 +149,9 @@
   .line{display:flex;align-items:center;gap:9px;padding:3px 0;font-size:14.5px}
   .line .pav{width:26px;height:26px;border-radius:3px;background:var(--panel2);flex:none;object-fit:cover}
   .who{color:var(--dim);font-size:13px}
+  .inj{font-family:var(--cond);font-size:12.5px;font-weight:600;color:var(--gold);
+       border:1px solid var(--line);border-radius:2px;padding:0 5px;margin-left:auto;white-space:nowrap}
+  .inj.bad{color:var(--flag);border-color:var(--flag)}
   .bids{margin-top:9px;border-top:1px dashed var(--line);padding-top:8px}
   .bid{display:flex;gap:10px;font-size:13.5px;color:var(--dim);padding:2px 0}
   .bid b{font-family:var(--cond);font-size:16px;font-weight:700;min-width:44px;color:var(--dim);font-variant-numeric:tabular-nums}
@@ -265,7 +273,8 @@ var S = {
   archive:null, archivePromise:null, archiveError:null,
   gameStatus:null, statusError:null, picks:null,
   bookWeek:null, bookProjections:null,
-  draftProjections:null, draftFrozen:false, projGaps:null
+  draftProjections:null, draftFrozen:false, projGaps:null,
+  liveTimer:null, lastLive:null
 };
 
 /* ---------- helpers ---------- */
@@ -313,6 +322,23 @@ function playerName(pid){
   if(/^[A-Z]{2,3}$/.test(pid)) return pid+" defense";
   return "Player "+pid;
 }
+/* Sleeper carries an injury designation on the player record itself.
+   It is not the post-game write-up, but it is the part that matters:
+   whether the man is expected to play. */
+function injuryOf(pid){
+  var p = S.players && S.players[pid];
+  if(!p || !p.injury_status) return null;
+  var st = String(p.injury_status);
+  var part = p.injury_body_part ? String(p.injury_body_part) : "";
+  return { status: st, part: part, label: st + (part ? " (" + part + ")" : "") };
+}
+function injuryTag(pid){
+  var inj = injuryOf(pid);
+  if(!inj) return "";
+  var bad = /out|ir|doubtful|suspend|pup|dnr/i.test(inj.status);
+  return '<span class="inj'+(bad?' bad':'')+'">'+esc(inj.label)+'</span>';
+}
+
 function playerMeta(pid){
   var p=S.players&&S.players[pid]; if(!p) return "";
   return [p.position,p.team].filter(Boolean).join(" · ");
@@ -326,7 +352,8 @@ function playerLine(pid){
   return '<div class="line">'
     +'<img class="pav" src="'+esc(playerImg(pid))+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
     +'<span>'+esc(playerName(pid))+'</span>'
-    +(meta?'<span class="who">'+esc(meta)+'</span>':'')+'</div>';
+    +(meta?'<span class="who">'+esc(meta)+'</span>':'')
+    +injuryTag(pid)+'</div>';
 }
 function when(ms){
   if(!ms) return "";
@@ -1331,6 +1358,56 @@ function bookWeekNumber(){
 }
 
 /* ============================================================
+   LIVE MATCHUPS
+   ============================================================ */
+/* A player's week is roughly as volatile as he is valuable, with a floor
+   so a kicker is not treated as a certainty. */
+function playerSd(proj){ return Math.max(4, (Number(proj)||0) * 0.6); }
+
+function liveWinProb(a, b){
+  var ra = remainingFor(a), rb = remainingFor(b);
+  var sa = Number(a.points)||0, sb = Number(b.points)||0;
+  if(!ra || !rb){
+    if(sa === sb) return null;
+    return null;                                  // no status feed, do not pretend
+  }
+  var ma = sa + ra.proj, mb = sb + rb.proj, va = 0, vb = 0;
+  ra.players.forEach(function(p){ var s = playerSd(p.proj); va += s*s; });
+  rb.players.forEach(function(p){ var s = playerSd(p.proj); vb += s*s; });
+  if(va + vb === 0) return sa > sb ? 1 : (sa < sb ? 0 : 0.5);
+  var z = (ma - mb) / Math.sqrt(va + vb);
+  return 0.5 * (1 + erf(z/Math.SQRT2));
+}
+
+function anyGameLive(){
+  if(!S.gameStatus) return false;
+  var live = false;
+  Object.keys(S.gameStatus).forEach(function(t){ if(S.gameStatus[t] === "in") live = true; });
+  return live;
+}
+
+function refreshLive(){
+  return Promise.all([
+    get("/league/"+LEAGUE_ID+"/matchups/"+S.week).catch(function(){ return null; }),
+    loadGameStatus()
+  ]).then(function(r){
+    if(r[0] && r[0].length) S.matchups[S.week] = r[0];
+    S.lastLive = new Date();
+    renderWeek();
+    renderNews();
+  });
+}
+
+function startLiveRefresh(){
+  if(S.liveTimer) return;
+  S.liveTimer = setInterval(function(){
+    if(document.hidden) return;
+    if(!anyGameLive()) return;
+    refreshLive();
+  }, 60000);
+}
+
+/* ============================================================
    THE BOOK — lines derived from projections, no money involved
    ============================================================ */
 function teamSd(rid){
@@ -1925,8 +2002,10 @@ function currentWeekPlayers(){
         var proj = (S.projections && S.projections[pid]!=null) ? num(S.projections[pid],1) : "--";
         var meta = playerMeta(pid);
         var gs = stateLabel(playerGameState(pid));
+        var inj = injuryOf(pid);
         L.push("  " + playerName(pid) + (meta?" ("+meta+")":"") + " " + proj + " -> " + num(pp[pid]||0)
-          + (gs ? "  [" + gs + "]" : ""));
+          + (gs ? "  [" + gs + "]" : "")
+          + (inj ? "  INJURY: " + inj.label : ""));
       });
       var bench = [];
       (m.players||[]).forEach(function(pid){
@@ -1940,6 +2019,38 @@ function currentWeekPlayers(){
 }
 
 /* An explicit list of what has not happened yet, so nobody has to infer it. */
+/* Everyone on a roster carrying an injury designation, so a missing
+   projection has an explanation attached to it. */
+function injuryReport(){
+  if(!S.players) return "";
+  var rows = [];
+  S.rosters.forEach(function(r){
+    var starters = {};
+    (S.matchups[S.week]||[]).forEach(function(m){
+      if(m.roster_id===r.roster_id) (m.starters||[]).forEach(function(p){ starters[p]=1; });
+    });
+    (r.players||[]).forEach(function(pid){
+      var inj = injuryOf(pid);
+      if(!inj) return;
+      rows.push({rid:r.roster_id, pid:pid, inj:inj, starting:!!starters[pid]});
+    });
+  });
+  if(!rows.length) return "";
+  var rank = {out:0, ir:0, doubtful:1, questionable:2};
+  rows.sort(function(a,b){
+    var ra = rank[a.inj.status.toLowerCase()], rb = rank[b.inj.status.toLowerCase()];
+    ra = ra==null?3:ra; rb = rb==null?3:rb;
+    return ra-rb || (b.starting?1:0)-(a.starting?1:0);
+  });
+  var L = ["INJURY REPORT (designation from Sleeper, not a post-game write-up)"];
+  rows.slice(0,40).forEach(function(x){
+    L.push("  " + playerName(x.pid) + " (" + (playerMeta(x.pid)||"?") + ") " + x.inj.label
+      + " -- " + teamName(x.rid) + (x.starting ? ", IN THE LINEUP this week" : ", on the bench"));
+  });
+  L.push("");
+  return L.join("\n");
+}
+
 function stillToPlay(){
   if(!S.gameStatus){
     return "STILL TO PLAY: unknown, the game status feed is unavailable.\n";
@@ -2149,6 +2260,7 @@ function briefingText(){
   }
 
   L.push(currentWeekPlayers());
+  L.push(injuryReport());
   L.push(stillToPlay());
   L.push(editorialContext());
 
@@ -2226,15 +2338,29 @@ function renderWeek(){
     var sb=groups[b].reduce(function(t,m){return t+(Number(m.points)||0);},0);
     return sb-sa;
   });
-  var html='<h2>Week '+S.week+'</h2><p class="note">Scores update live during games.</p><div class="board">';
+  var liveNow = anyGameLive();
+  var stamp = S.lastLive ? S.lastLive.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'}) : null;
+  var html='<h2>Week '+S.week+'</h2>'
+    + '<p class="note">'
+    + (liveNow
+        ? '<span class="livedot"></span>Games in progress. This page refreshes itself every minute.'
+        : (S.gameStatus ? 'No games in progress right now.' : 'Scores update live during games.'))
+    + (stamp ? ' Updated ' + stamp + '.' : '')
+    + '</p><div class="board">';
+  if(liveNow) startLiveRefresh();
   keys.forEach(function(k){
     var g=groups[k];
     if(g.length===1){ html+='<div class="game">'+sideHTML(g[0],true)+'<div class="gap">No opponent this week.</div></div>'; return; }
     var a=g[0],b=g[1],pa=Number(a.points)||0,pb=Number(b.points)||0;
     var lead=pa===pb?"Tied":teamName(pa>pb?a.roster_id:b.roster_id)+" by "+num(Math.abs(pa-pb));
     var pr=projLine(a,b);
-    html+='<div class="game">'+sideHTML(a,pa>=pb)+sideHTML(b,pb>=pa)
-      +'<div class="gap">'+esc(lead)+(pr?' &nbsp;&middot;&nbsp; '+esc(pr):'')+'</div></div>';
+    var wp=liveWinProb(a,b);
+    html+='<div class="game">'
+      +sideHTML(a,pa>=pb,wp==null?null:wp)
+      +sideHTML(b,pb>=pa,wp==null?null:1-wp)
+      +'<div class="gap">'+esc(lead)+(pr?' &nbsp;&middot;&nbsp; '+esc(pr):'')+'</div>'
+      +liveFooter(a,b)
+      +'</div>';
   });
   $("tab-week").innerHTML=html+'</div>';
 }
@@ -2258,13 +2384,39 @@ function projLine(a,b){
   return "Projected " + num(pa,1) + " to " + num(pb,1);
 }
 
-function sideHTML(m,leading){
+function sideHTML(m,leading,wp){
   var av=avatar(m.roster_id);
+  var rem=remainingFor(m);
+  var sub=manager(m.roster_id);
+  if(rem) sub += rem.count
+    ? "  \u00b7  " + rem.count + " left, " + num(rem.proj,1) + " projected"
+    : "  \u00b7  done";
   return '<div class="side'+(leading?' lead':'')+'">'
     +(av?'<img class="av" src="'+esc(av)+'" alt="" loading="lazy">':'<div class="av"></div>')
     +'<div><div class="tname">'+esc(teamName(m.roster_id))+'</div>'
-    +'<div class="mgr">'+esc(manager(m.roster_id))+'</div></div>'
+    +'<div class="mgr">'+esc(sub)+'</div></div>'
+    +(wp==null?'':'<div class="wp">'+Math.round(wp*100)+'%</div>')
     +'<div class="pts">'+num(m.points)+'</div></div>';
+}
+
+/* What the trailing side still needs, and who is left to provide it. */
+function liveFooter(a,b){
+  var ra=remainingFor(a), rb=remainingFor(b);
+  if(!ra||!rb) return '';
+  var sa=Number(a.points)||0, sb=Number(b.points)||0;
+  var lead = sa>=sb ? a : b, trail = sa>=sb ? b : a;
+  var rLead = sa>=sb ? ra : rb, rTrail = sa>=sb ? rb : ra;
+  var margin = Math.abs(sa-sb);
+
+  if(!rTrail.count && !rLead.count) return '';
+  if(!rTrail.count){
+    return '<div class="gap">'+esc(teamName(trail.roster_id))+' has nobody left. This one is over.</div>';
+  }
+  var need = margin + rLead.proj;
+  var names = rTrail.players.slice(0,4).map(function(p){ return playerName(p.pid); }).join(", ");
+  return '<div class="gap">'+esc(teamName(trail.roster_id))+' needs about '+num(need,1)
+    +' from '+rTrail.count+' player'+(rTrail.count===1?'':'s')
+    +(names?' ('+esc(names)+')':'')+'.</div>';
 }
 
 /* ============================================================
