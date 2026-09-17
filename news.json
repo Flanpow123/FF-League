@@ -1,6 +1,6 @@
 {
-  "week": 1,
-  "generated": "2026-09-15",
+  "week": 2,
+  "generated": "2026-09-16",
   "poll": {
     "title": "Preseason poll",
     "note": "Four desks, four full ballots, twelve points for a first-place vote down to one. Nothing has been played, so this is entirely opinion and it gets counted like the college polls.",
@@ -81,140 +81,163 @@
   },
   "stories": [
     {
-      "headline": "Kenneth Walker scored 34.10 and made every argument about Monday night irrelevant",
-      "body": "Jake needed roughly 32 points from Rashee Rice. Rice returned 9.90 against a 12.8 projection. That alone would have settled it, but it never got that close, because Justin's Kenneth Walker went for 34.10 against a 13.7 projection and turned an 18.80 point lead into a 43.00 point win.\n\nThis desk spent a column on Justin's decision to start the Tennessee defense, who scored nothing, over Detroit, who scored 11.00. Ward wrote that if Rice took the game by anything under eleven, that call would be the entire result. The condition was sound and it never came close to triggering. Justin won by four times the margin of his own mistake.\n\nScheme finishes week one at 155.36, third highest in the league, and 1-0. Baltimore Boofers finish 112.36 and 0-1 with 13 percent playoff odds.",
-      "storyline": "Justin beat Jake 155.36 to 112.36 after Kenneth Walker scored 34.10. Open question: whether Justin's willingness to start an unprojected defense costs him a closer game later.",
+      "headline": "Five managers bid, three have not touched their roster all season",
+      "body": "A week after this desk complained that twelve hundred dollars of FAAB was sitting untouched, five managers placed bids and three of them fought over the same receiver. Caleb Douglas went to Jack for $11. Adam bid $8. Jomi bid $6.\n\nThe full budgets are misleading, so here is the actual split. Jack has spent $11, Justin $7, Adam and Jomi $6 each. Trevor also bid, $5 on the Tampa Bay defense, and lost it to Jomi by a single dollar, which costs nothing and is why he still shows a hundred. Four more moved without spending at all: Killian added Dalton Schultz, Jake added Keaton Mitchell, Jeff added Devaughn Vele and Chris added Tre Tucker, all free once a player clears waivers.\n\nThat leaves three managers who have made no transaction of any kind since the draft: Jerey, Kevin and Brian. Two of them are 1-0, and one of those two posted the highest score in the league.",
+      "storyline": "Five managers have bid on waivers and four more have added free agents. Jerey, Kevin and Brian have made no transaction of any kind since the draft. Open question: whether doing nothing keeps working for the two of them who are 1-0.",
       "takes": [
         {
+          "analyst": "firestarter",
+          "text": "Three men have not touched their rosters since draft night. Not a bid, not a pickup, nothing! And two of them are 1-0, and one of them put up the highest score in this league. Do not tell me that is a strategy. That is a man who got lucky and has not noticed yet."
+        },
+        {
           "analyst": "quant",
-          "text": "I put Jake at roughly one chance in eight and that was generous. What actually happened was the opposite tail: the leader's remaining player beat his projection by 20.4 points. I was modelling the wrong end of the distribution and got the right answer by accident."
+          "text": "The interesting bid is Trevor's. He lost the Tampa Bay defense by one dollar, which is the cheapest possible way to lose an auction and the most avoidable. If you value a player at five you do not bid five, you bid six. This is the entire theory of blind bidding and it costs nothing to learn."
         },
         {
           "analyst": "analyst",
-          "text": "My conditional was correct and useless, which is a combination worth admitting to. The Tennessee call cost Justin 11.00 points in a game he won by 43.00. It was still a bad decision. It simply did not matter, and I should be clearer next time that those are different claims."
-        },
-        {
-          "analyst": "firestarter",
-          "text": "Kenneth Walker! The man I said Justin needed to be persuaded to do nothing! He goes out and drops 34.10 and ends the entire week in one afternoon. Do not tell me about lineup decisions. Tell me about the running back nobody was talking about."
+          "text": "The full budget figure is the wrong thing to read. Eight teams have a hundred dollars and only three of them have been idle. Trevor bid and lost by a dollar, which is activity, and four others took free agents at no cost, which is also activity. Spending is not the same as paying attention."
         },
         {
           "analyst": "troll",
-          "text": "Jake needed a miracle from Rashee Rice and got 9.90. Justin needed nothing at all and got 34.10. That is the whole sport, delivered in one Monday night, to an audience of twelve men who I am not convinced were watching."
+          "text": "Somebody in this league paid eleven American dollars, of an imaginary hundred, for a wide receiver most of you have never heard of. Fantasy football is back and it is exactly as glamorous as I remembered."
         }
       ]
     },
     {
-      "headline": "Jake set a perfect lineup, the only one in the league, and lost by 43",
-      "body": "Lineup efficiency is now live, and it says Baltimore Boofers started the single best team available to them in week one. One hundred percent. Zero points left unstarted. Nobody else in Sigma Pi B managed it except Jomi, who left half a point behind.\n\nThe detail that makes it is Trevor Lawrence. He scored 34.10 on Jake's bench, the highest benched score in the league, and Jake was right to sit him, because Josh Allen started and scored 39.66. A perfect lineup does not mean nothing was left behind. It means nothing better was available.\n\nJake is 0-1. His playoff odds are 13 percent. He drafted well enough to grade eighth, he managed his lineup better than anyone in the league, and he ran into the third highest score of the week.",
-      "storyline": "Jake posted the only perfect lineup in week 1 and lost by 43.00, dropping to 13 percent playoff odds. Open question: whether lineup efficiency predicts anything at all when roster strength does not follow it.",
+      "headline": "Adam is trading away the player his team is named after",
+      "body": "A trade has been agreed and not yet processed: Jalen Coker to Chris, Mike Evans to Adam. One for one.\n\nThe joke writes itself. Adam runs Coker? I hardly know her! Jalen Coker scored 33.80 for him in week one against an 11.9 projection, the best individual performance on any losing roster that week and the second largest overperformance in the league. He is now leaving, and the team name is going nowhere.\n\nOn the numbers it is close to even for week two. Coker projects 12.9, Evans 13.7. Chris was starting Evans; Adam was starting Coker. The difference is that Chris now owns three players his own team is named after or around, and Adam owns none of his.",
+      "storyline": "Adam has agreed to trade Jalen Coker to Chris for Mike Evans, pending processing. Adam's team is named after Coker. Open question: whether Adam renames the team, and which side the points end up favouring.",
       "takes": [
         {
-          "analyst": "analyst",
-          "text": "This is the most useful thing on the site this week and it cuts against the point people expect it to make. Jake did everything a manager controls and lost anyway. Efficiency measures decisions. It does not measure whether the decisions had good options underneath them."
+          "analyst": "troll",
+          "text": "Coker? I hardly know her! is about to become literally true. He will hardly know her. She plays for Chris now. I have waited my entire career for a transaction this stupid and I want everyone to understand I mean that as praise."
         },
         {
           "analyst": "quant",
-          "text": "Jake left 0.0 points unstarted and scored 112.36. Chris left 29.8 unstarted and scored 155.16. If you ranked this league by efficiency you would have Jake first and Chris eighth, and Chris would still have beaten him by 43 points. Both numbers are true and only one of them is about winning."
-        },
-        {
-          "analyst": "troll",
-          "text": "He benched the highest scoring bench player in the entire league and it was the correct decision. There is no version of this week where Jake plays it better and there is no version where he wins. Somebody buy this man a drink."
+          "text": "Straight one for one with projections 0.8 apart is as close to a neutral trade as this league is likely to produce. The case for Adam is that Evans is the steadier of the two; the case against is that he just traded the player who outscored his projection by 21.9 points four days ago."
         },
         {
           "analyst": "firestarter",
-          "text": "Thirteen percent! For the one man who actually did his job! Meanwhile Trevor is at ten percent after leaving 29.1 points on the bench. The gap between those two numbers is three points and one of them earned it."
+          "text": "You do not trade the guy the team is named after! That is not a roster move, that is an identity crisis conducted in public! And he is getting back a receiver worth eight tenths of a point more! For the whole week!"
+        },
+        {
+          "analyst": "analyst",
+          "text": "Ignore the name and it is a defensible swap between a 1-0 team and an 0-1 team who both start the position. The thing worth watching is that Adam projects last in the league this week and this trade does not change that. It is a lateral move by the team that needed a vertical one."
         }
       ]
     },
     {
-      "headline": "The ballots have been graded and Deacon is last",
-      "body": "Every preseason ballot has now been scored against the actual week one standings. Ward Delaney leads at 77 percent pairwise, meaning he ordered 77 percent of all team pairs correctly, at an average of 2.0 places off. Odessa Prine is a whisker behind at 76 percent and the same 2.0.\n\nRoy Tannehill sits at 67 percent and 2.7 places off. Deacon Pyle is last at 62 percent and 2.8, and the reason is a first place vote. He put Team Mountain top; Brian finished eighth. Roy has the same problem from the other direction, having given Baltimore Boofers his number one, and Jake finished ninth.\n\nThe consensus was better than any individual ballot. The panel's combined poll had #CrookedAdam first, and Kevin finished week one leading the league in points, record and playoff odds.",
-      "storyline": "The first poll grading has Ward at 77 percent, Odessa 76, Roy 67 and Deacon 62. The consensus outperformed every individual ballot. Open question: whether the ordering holds as the sample grows.",
+      "headline": "Chris is starting Isaiah Likely this week and has benched Deebo Samuel",
+      "body": "Last week I'sah Likely to win Deebo won a game while leaving 27.80 points from Isaiah Likely on the bench and starting Colston Loveland for nothing. This week Likely is in the lineup, listed at tight end and now with the Giants, projected 9.3. Loveland starts as well at 12.0.\n\nThe move that raises an eyebrow is the other half of the team name. Deebo Samuel, who scored 18.00 against a 10.1 projection and was the story of week one, is on the bench for week two.\n\nChris is 1-0 with 79 percent playoff odds and faces Brian, who owns the best projected roster in the league this week at 132.9 against Chris's 118.9. It is the second largest projected gap on the slate.",
+      "storyline": "Chris has moved Isaiah Likely into his lineup and dropped Deebo Samuel to the bench, reversing both halves of last week's arrangement. Open question: whether the namesakes keep deciding his weeks.",
       "takes": [
         {
-          "analyst": "analyst",
-          "text": "I would treat a one week sample with enormous suspicion, including the part where I am winning. Seventy-seven percent against 62 percent sounds decisive and it is roughly four pairs out of sixty-six. Ask me in November."
+          "analyst": "troll",
+          "text": "He benched Likely and won. Now he is starting Likely and benching Deebo. At this rate he will work his way through the entire team name by November and we will finally learn which half of the pun is load-bearing."
         },
         {
-          "analyst": "quant",
-          "text": "The genuinely interesting result is that the consensus beat all four of us. That is the standard finding in forecasting and it is mildly humiliating every time. Four biased ballots averaged together produced a better ranking than the person whose entire job is not being biased."
+          "analyst": "analyst",
+          "text": "This is a defensible correction rather than a joke. Likely has changed clubs and the projection now rates him as a real starter. Benching Deebo after an 18 point week is the harder call, and it is the one I would want explained."
         },
         {
           "analyst": "firestarter",
-          "text": "Last! I am last! And I would submit the exact same ballot tomorrow. Brian has the third best roster in this league by projection and he scored 128.70, which is sixth. That is not a bad take, that is a man being let down by his own running backs. I stand behind every word."
+          "text": "You do not bench the man who won you the week! Eighteen points! Against a ten point projection! And he is on the pine because a spreadsheet likes somebody else by two points. This is how you lose games you were supposed to win."
         },
         {
-          "analyst": "troll",
-          "text": "I put Baltimore Boofers first and he finished ninth, and I am still ahead of Deacon. That is the single greatest thing this website has ever told me."
+          "analyst": "quant",
+          "text": "Ward is being kind. The 27.80 Chris left on the bench last week was nearly twice his margin of victory. Correcting it is not a story, it is the minimum. The Deebo decision is worth 13.7 projected points against alternatives and is genuinely close."
         }
       ]
     },
     {
-      "headline": "Trevor has the best draft in the league and the worst week of anyone in it",
-      "body": "CeeDee's TD's grades first on the draft report card at plus 16.4 per pick, comfortably clear of the field. In week one it scored 78.06, the lowest total in Sigma Pi B, and lost by 64.40.\n\nThe lineup did it. Trevor posted 73 percent efficiency, worst in the league, leaving 29.1 points unstarted. Dallas Goedert scored 23.70 on his bench while Kyle Pitts started and scored nothing at all. Goedert is also the pick the draft card rates as the best value on his roster, taken at 153.\n\nHe is now 0-1 with 10 percent playoff odds and an all-play record of 1-10, meaning that on week one's scoring he would have lost to ten of the eleven other managers.",
-      "storyline": "Trevor grades first in draft value and last in both scoring and lineup efficiency. Open question: whether the draft card is measuring anything that survives contact with a lineup.",
+      "headline": "Killian is at 94 percent and this desk has written his obituary twice",
+      "body": "Team Ketchup holds 94 percent playoff odds and a 40 percent shot at the top seed, both comfortably the highest in Sigma Pi B. Nobody else is above 83. He projects 132.4 this week, second only to Brian.\n\nTwelve days ago he was tenth in projected strength at 34 percent odds and every desk here wrote about the collapse. Six days ago it turned out that collapse was a tight end with no published projection being counted as zero. Since then he has scored 157.82, added Dalton Schultz, and climbed 60 points of playoff probability without anyone saying much about it.\n\nHe plays Jake this week, who has the worst projected total of the two at 110.5 and 14 percent odds. It is the largest projected gap on the week 2 slate at 18.1 points.",
+      "storyline": "Killian holds 94 percent playoff odds and the best top-seed chance in the league after being written up twice as a collapsing team. Open question: whether anyone catches him.",
       "takes": [
         {
           "analyst": "quant",
-          "text": "The best value pick on the best-graded draft in the league scored 23.70 from the bench while its owner started a zero. If you wanted one sentence explaining why I want that card frozen and demoted, it is that one."
-        },
-        {
-          "analyst": "troll",
-          "text": "Trevor drafted better than anybody, benched the player he drafted better than anybody, and lost by sixty-four points to a man whose best move was adding a quarterback he then also benched. This league is a machine for generating exactly this."
+          "text": "Ninety-four percent in week two is the model saying a 1-0 start plus the second best roster is close to decisive in a twelve team league with six spots. It is not decisive. It is the model having very little to go on and being confident anyway, which is a thing models do."
         },
         {
           "analyst": "analyst",
-          "text": "One-and-ten on all-play is the number to sit with rather than the draft grade. It says his score was not merely unlucky, it was genuinely poor against the whole field. The roster may still be good. The week was not."
+          "text": "Worth remembering how much of this rests on one week. He beat Brian by 29 points and jumped 13 points of odds. If the result had flipped, so would the table. I would hold the celebration until there is a second data point."
+        },
+        {
+          "analyst": "troll",
+          "text": "The invisible trophy is now a 40 percent chance at a real one. I have been covering Killian's death and resurrection for two weeks and at no point has he said a single word to anybody. Model behaviour, frankly."
         },
         {
           "analyst": "firestarter",
-          "text": "Kyle Pitts! Started! For nothing! With Dallas Goedert sitting there doing 23.70! I have been told repeatedly that this is a thinking man's game and then I look at the actual lineups and I am not so sure."
+          "text": "He gets Jake this week, the man who played a perfect lineup and lost by 43. That is not a matchup, that is a mugging scheduled in advance."
         }
       ]
     },
     {
-      "headline": "Twelve hundred dollars of FAAB, nobody has spent a cent, and there is still a starting quarterback on the wire",
-      "body": "Every team in Sigma Pi B has all $100 of their waiver budget. No bids have been placed, no claims have been contested, and the waiver section of this site remains empty after a full week of football.\n\nEleven transactions have happened, all free agent pickups. Some were good: Justin added Spencer Shrader, Jack added Tyler Shough and Juwan Johnson, Killian added Dalton Schultz and repaired a lineup hole. Jeff added Devaughn Vele, who scored 19.90, and then did not start him.\n\nAnd Kyler Murray, released by Chris before the season after being drafted at 178, still does not appear on a single roster in this league. Not as a starter, not on a bench, nowhere. He has been available to twelve managers for eight days.",
-      "storyline": "No FAAB has been spent league-wide and Kyler Murray remains unrostered after eight days. Open question: whether the first contested waiver claim of the season tells us who is paying attention.",
+      "headline": "The commissioner's team projects last and his best receiver has no projection at all",
+      "body": "Coker? I hardly know her! is bottom of the league in projected strength for week two at 103.0 and holds 4 percent playoff odds, down from 21 percent a week ago. Only Jeff, at 2 percent, is worse.\n\nPart of it is that A.J. Brown has no published projection this week. He appears in the site's missing projections list, substituted at replacement level rather than zero, and sits on Adam's bench. Josh Jacobs is in the same position. Two of the players who were meant to carry that roster currently have no number attached to them at all.\n\nAdam did move on the wire, winning Chris Bell for $6 and losing two other claims. He also draws Justin this week, who projects 15.8 points higher. On the current numbers the commissioner is a 15 point underdog in his own newspaper.",
+      "storyline": "Adam projects last in the league at 103.0 with 4 percent playoff odds, and two of his key players have no published projection. Open question: whether the roster is actually this bad or the missing data is hiding it.",
       "takes": [
         {
-          "analyst": "firestarter",
-          "text": "Twelve hundred dollars! Sitting there! Untouched! You have a budget, you have a wire, you have a functioning NFL starter available for free, and collectively this league has done nothing but shuffle free agents around like men rearranging a fridge."
+          "analyst": "quant",
+          "text": "I want to be careful here, because this is exactly the failure that embarrassed us with Killian. A.J. Brown and Josh Jacobs have no published projection. We are substituting replacement level, which is honest, but if either is healthy and playing then Adam's 103.0 is understated and so is the 4 percent."
         },
         {
           "analyst": "troll",
-          "text": "The waiver page of this website is blank. Completely blank. The commissioner built a whole section for bidding wars and the league responded by not having any. I find it beautiful."
+          "text": "The man built the website, hired us, gave us the numbers, and the numbers say he is the worst team in the league and a 15 point underdog on Sunday. I want it on record that I have never enjoyed a job more."
         },
         {
-          "analyst": "quant",
-          "text": "A full budget in week two is not automatically wrong, it is optionality. But there is a difference between saving FAAB and forgetting FAAB exists, and after eight days with a startable quarterback unclaimed I know which one this looks like."
+          "analyst": "firestarter",
+          "text": "Twenty-one percent to four percent in one week! He lost by fifty-four to a team named after him and the model has decided that was the real him. I am not sure it is wrong."
         },
         {
           "analyst": "analyst",
-          "text": "The honest note is that most of these pickups were fine. Shough, Juwan Johnson and Schultz all mattered. What has not happened is anybody paying for anything, and the first contested claim will be worth watching because it will tell us who is actually reading the wire."
+          "text": "The honest read is that one blowout loss plus two unprojected starters will do this to a number. Jalen Coker scored 33.80 for him last week and projects 12.9 this week. That roster is not last in the league. It is being measured badly."
         }
       ]
     },
     {
-      "headline": "CORRUPT COMMISSIONER BUILDS FANTASY NEWS SITE THAT ABSOLUTELY NOBODY READS",
-      "body": "Let me explain the arrangement. The commissioner of this league, a man who runs a team called Coker? I hardly know her! and whose own leaguemate named a franchise #CrookedAdam out of what I can only assume is documented grievance, decided that Sigma Pi B required a newsroom. He did not ask whether anyone wanted one. He built it, he staffed it, and he pays it in exposure.\n\nSo we got to work. We built a draft report card that values every player against the last startable body at his own position. We run five thousand simulations of the remaining season every time somebody loads the page. We calculate what your record would be under all eleven other schedules. We caught a missing projection for a tight end that had silently deleted a starter from a roster and made a good team look like the tenth best in the league. We publish the losing waiver bids. We keep a record book going back three seasons. There is a betting board now. There is a poll with four full ballots that get graded against reality so nobody can quietly pretend they said something else.\n\nAnd the readership? Twelve men. Twelve. Nine of whom left double figures on the bench this week. One of whom made a single transaction all season, correctly identified Devaughn Vele, added him, and then started somebody else. A starting NFL quarterback sat unclaimed on the waiver wire for a full week while this desk screamed about it into a void with a dark green background. I have checked the analytics. There are no analytics. The commissioner did not build any. Of course he didn't.",
-      "storyline": "The newsroom exists because the commissioner decided it should, and has no evidence anyone reads it. Open question: whether a single manager changes a lineup because of something published here.",
+      "headline": "Week 2 is two coin flips and four mismatches",
+      "body": "The projections separate this slate cleanly. Jerey against Trevor is the closest game on the board at 2.8 points, a rematch of nothing in particular between the team that leads the draft card and the team that grades twelfth. Jack against Kevin is next at 5.5.\n\nAfter that it opens up. Jomi is favoured over Jeff by 12.5, Brian over Chris by 14.0, Justin over Adam by 15.8, and Killian over Jake by 18.1. Four of the six games have a projected gap larger than any matchup produced in week one except the blowouts.\n\nThe Book now prices all of this: spreads, totals and moneylines, with picks you can make on your own device. It grades itself once the week finishes.",
+      "storyline": "Week 2 projects as two close games and four mismatches, the tightest being Jerey against Trevor at 2.8 points. Open question: whether the projected gaps mean anything given week 1's results ignored them.",
       "takes": [
         {
           "analyst": "analyst",
-          "text": "I want to gently distance the rest of the desk from that column. It is unedited, it names the commissioner, and the claim about analytics is unverifiable because, as stated, there are no analytics. That said, I have also not been paid, and I would like that noted somewhere."
-        },
-        {
-          "analyst": "firestarter",
-          "text": "FINALLY somebody says it. I have been screaming about Jeff's bench for a week! A WEEK! Devaughn Vele scored 19.90 sitting down! And not one man in this league has messaged me about it. Not one. You people do not deserve a newspaper. You deserve a group chat and a spreadsheet and I hope you are very happy together."
+          "text": "A reminder from last week before anyone treats these as settled. Kevin was projected second and scored the most in the league. Jake was projected eleventh and set a perfect lineup. The projections got the shape roughly right and the order badly wrong."
         },
         {
           "analyst": "quant",
-          "text": "For the record, the readership figure of twelve is an assumption, not a measurement. The true number is unknown and could plausibly be lower. I would also note that if every manager read every word we published and acted on none of it, the observable data would look exactly as it does now. We cannot distinguish being ignored from being ineffective."
+          "text": "A 2.8 point projected gap is a coin flip with extra steps. An 18 point gap is roughly a 75 percent favourite once you account for weekly variance, which is a long way from certain. Nobody on this slate is safe and nobody is dead."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "Trevor is favoured! Trevor! The man who scored 78 points and left 29 on the bench is a favourite this week, because the same numbers that buried him last Sunday have decided he is fine. Make it make sense."
         },
         {
           "analyst": "troll",
-          "text": "The commissioner built an entire media operation, hired four people, gave us real numbers and full editorial freedom, and then went out and lost by fifty-four points to a team named after how much everyone distrusts him. I would not change a thing. This is the best job I have ever had and I am not employed."
+          "text": "Four mismatches and two coin flips, and every one of you will lose to somebody you were supposed to beat. I have seen one week of this league and I am already certain."
+        }
+      ]
+    },
+    {
+      "headline": "CORRUPT COMMISSIONER'S NEWSPAPER FINALLY GETS RESULTS, REFUSES TO TAKE CREDIT",
+      "body": "Last week this column pointed out that twelve hundred dollars of waiver money was sitting untouched while a starting quarterback rotted on the wire, and that nobody read a word of it. This week four managers spent money and three of them fought over the same receiver.\n\nI would love to claim that. I cannot. There is no evidence anyone read the column, because there is still no analytics on this website, because the commissioner never built any, because he was busy losing by fifty-four points to a team named after how much this league distrusts him.\n\nSo I will note the facts instead. Three of you have not made a single transaction since draft night. The commissioner's own roster now projects dead last in the league he administers and runs the newspaper for. I have not been paid. I am not going anywhere.",
+      "storyline": "The newsroom still has no evidence anyone reads it, four days after the league's spending habits changed. Open question: whether a single manager ever admits to acting on something published here.",
+      "takes": [
+        {
+          "analyst": "analyst",
+          "text": "For the record, the correlation is real and the causation is unestablished. Four managers spent money in the week after we wrote that nobody spends money. That is one observation and I would not build a column on it, which is presumably why somebody else did."
+        },
+        {
+          "analyst": "quant",
+          "text": "There is a clean test available. If the eight teams still holding a hundred dollars start bidding next week, that is a pattern. If they do not, we wrote a column into an empty room and got lucky on timing."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "TAKE THE CREDIT. Take it! We said spend the money, they spent the money. I have been in this business a long time and I have learned that if you wait for proof you will never celebrate anything."
+        },
+        {
+          "analyst": "troll",
+          "text": "The commissioner is last in his own league, has not paid his staff, and is currently reading a column about it that he commissioned. This remains the best job I have ever had and I remain unemployed."
         }
       ]
     }
