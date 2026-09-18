@@ -130,6 +130,7 @@
   .side.lead .pts{color:var(--gold)}
   .side.lead .tname{color:var(--text)}
   .tname{font-weight:600;font-size:15px;color:var(--dim);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .prk{font-family:var(--cond);font-weight:700;font-size:.86em;color:var(--gold);margin-right:5px;font-variant-numeric:tabular-nums}
   .mgr{color:var(--dim);font-size:12.5px;font-weight:400}
   .av{width:30px;height:30px;border-radius:50%;background:var(--panel2);flex:none;object-fit:cover}
   .gap{border-top:1px dashed var(--line);padding-top:7px;font-size:12.5px;color:var(--dim);font-variant-numeric:tabular-nums}
@@ -194,6 +195,7 @@
     <button role="tab" data-tab="analysts" aria-selected="false">The Desk</button>
     <button role="tab" data-tab="power" aria-selected="false">Power</button>
     <button role="tab" data-tab="rivalry" aria-selected="false">Rivalries</button>
+    <button role="tab" data-tab="champs" aria-selected="false">Title Picks</button>
     <button role="tab" data-tab="book" aria-selected="false">The Book</button>
     <button role="tab" data-tab="week" aria-selected="false">Scoreboard</button>
     <button role="tab" data-tab="standings" aria-selected="false">Standings</button>
@@ -210,6 +212,7 @@
   <section id="tab-moves" hidden></section>
   <section id="tab-records" hidden></section>
   <section id="tab-rivalry" hidden></section>
+  <section id="tab-champs" hidden></section>
   <section id="tab-history" hidden></section>
   <section id="tab-analysts" hidden></section>
 
@@ -275,6 +278,17 @@ var ANALYSTS = {
     beat:"The extreme position on everything — rankings, benchings, and anyone who has recently described himself as rebuilding.",
     signature:"Refusing to concede a point the scoreboard settled an hour ago.",
     art:"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Skip Baseless\"><rect x=\"-2\" y=\"-2\" width=\"104\" height=\"104\" fill=\"#A98BD6\"/><path d=\"M10 102C10 82 29 73 50 73s40 9 40 29z\" fill=\"#1E2A44\"/><path d=\"M38 74h24v28H38z\" fill=\"#F2F4F3\"/><path d=\"M38 73l12 17-6 12-8-25z\" fill=\"#2A3757\"/><path d=\"M62 73L50 90l6 12 8-25z\" fill=\"#2A3757\"/><g fill=\"#1E2A44\" font-family=\"Barlow Condensed, sans-serif\" font-weight=\"700\" font-size=\"9\"><text x=\"50\" y=\"90\" text-anchor=\"middle\">FAN</text><text x=\"50\" y=\"99\" text-anchor=\"middle\">CLUB</text></g><rect x=\"42\" y=\"58\" width=\"16\" height=\"18\" rx=\"7\" fill=\"#D9A06B\"/><ellipse cx=\"50\" cy=\"40\" rx=\"20\" ry=\"22.5\" fill=\"#F1C27D\"/><ellipse cx=\"28\" cy=\"43\" rx=\"4\" ry=\"5\" fill=\"#D9A06B\"/><ellipse cx=\"72\" cy=\"43\" rx=\"4\" ry=\"5\" fill=\"#D9A06B\"/><path d=\"M29 40c0-6 1-11 3-15 4 3 10 4 18 4s14-1 18-4c2 4 3 9 3 15-3-8-8-11-21-11s-18 3-21 11z\" fill=\"#C9CDD2\"/><path d=\"M27 30c0-12 10-18 23-18s23 6 23 18z\" fill=\"#1E2A44\"/><path d=\"M73 30c9 0 17 3 20 7H60z\" fill=\"#28365A\"/><path d=\"M50 17l2.2 5h5.3l-4.3 3.3 1.7 5.2-4.9-3.2-4.9 3.2 1.7-5.2L42.5 22h5.3z\" fill=\"#F2F4F3\"/><ellipse cx=\"41\" cy=\"41\" rx=\"2.6\" ry=\"2.8\" fill=\"#140E0A\"/><ellipse cx=\"59\" cy=\"40\" rx=\"2.9\" ry=\"3.2\" fill=\"#140E0A\"/><path d=\"M35 35q7-3 12 0\" stroke=\"#8A8F96\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M53 32q8-2 13 4\" stroke=\"#8A8F96\" stroke-width=\"2.8\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M46 46q4 4 8 0\" stroke=\"#D9A06B\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M40 54q11 10 21-4\" stroke=\"#8A4A44\" stroke-width=\"3.4\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
+  },
+  wildcard: {
+    image:"analysts/wildcard.jpg",
+    name:"Fat McCafferty",
+    role:"AM 1290 The Whistle, overnight",
+    color:"var(--good)",
+    brief:"Total conviction, no supporting logic, and a blazer that lost its argument years ago.",
+    bio:"Eleven years on the overnight shift and relentlessly delighted to be there. McCafferty treats every week like a party and every theory like a revelation, and the theories are assembled from true facts arranged in an order that means nothing. He is wrong at a rate that has become genuinely useful to everybody else.",
+    beat:"Whatever occurred to him between two and four in the morning.",
+    signature:"Ending a completely unsupported prediction with “write it down.”",
+    art:"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Fat McCafferty\"><rect x=\"-2\" y=\"-2\" width=\"104\" height=\"104\" fill=\"#5FCB8B\"/><path d=\"M-6 102C-6 78 18 68 50 68s56 10 56 34z\" fill=\"#2B5FB0\"/><path d=\"M32 70l18 22 18-22 11 6-29 30-29-30z\" fill=\"#DCE6F2\"/><g stroke=\"#A8C0DC\" stroke-width=\"1.8\"><path d=\"M36 76l12 15\"/><path d=\"M40 76l12 15\"/><path d=\"M44 76l12 15\"/><path d=\"M48 76l12 15\"/><path d=\"M52 76l12 15\"/><path d=\"M56 76l12 15\"/><path d=\"M60 76l12 15\"/></g><g fill=\"#1C3A6B\"><circle cx=\"50\" cy=\"92\" r=\"1.6\"/><circle cx=\"50\" cy=\"97\" r=\"1.6\"/></g><path d=\"M26 60q24 16 48 0v10q-24 12-48 0z\" fill=\"#E8B887\"/><ellipse cx=\"50\" cy=\"63\" rx=\"17\" ry=\"9\" fill=\"#F1C27D\"/><ellipse cx=\"50\" cy=\"40\" rx=\"24\" ry=\"23\" fill=\"#F1C27D\"/><ellipse cx=\"25\" cy=\"43\" rx=\"4.2\" ry=\"5\" fill=\"#D9A06B\"/><ellipse cx=\"75\" cy=\"43\" rx=\"4.2\" ry=\"5\" fill=\"#D9A06B\"/><path d=\"M26 33c1-14 11-19 24-19s23 5 24 19c-7-9-14-11-24-11s-17 2-24 11z\" fill=\"#B9B3AB\"/><ellipse cx=\"40\" cy=\"39\" rx=\"3.4\" ry=\"3.6\" fill=\"#140E0A\"/><ellipse cx=\"60\" cy=\"39\" rx=\"3.4\" ry=\"3.6\" fill=\"#140E0A\"/><circle cx=\"41.2\" cy=\"38\" r=\"1.2\" fill=\"#fff\"/><circle cx=\"61.2\" cy=\"38\" r=\"1.2\" fill=\"#fff\"/><path d=\"M32 31q8-4 14 0M54 31q8-4 14 0\" stroke=\"#9A948C\" stroke-width=\"2.8\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M46 45q4 4 8 0\" stroke=\"#D9A06B\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M36 51q14 15 28 0z\" fill=\"#3A1714\"/><path d=\"M38 52q12 3 24 0\" stroke=\"#F6E7DA\" stroke-width=\"4.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M28 44q-2 11 5 16\" stroke=\"#B9B3AB\" stroke-width=\"3\" fill=\"none\"/><path d=\"M24 40a26 22 0 0152 0\" stroke=\"#1F2E26\" stroke-width=\"4.5\" fill=\"none\"/><rect x=\"18\" y=\"36\" width=\"10\" height=\"15\" rx=\"5\" fill=\"#1F2E26\"/><rect x=\"72\" y=\"36\" width=\"10\" height=\"15\" rx=\"5\" fill=\"#1F2E26\"/><path d=\"M28 50q11 5 11 13\" stroke=\"#1F2E26\" stroke-width=\"2.6\" fill=\"none\"/><circle cx=\"39\" cy=\"64\" r=\"3\" fill=\"#1F2E26\"/></svg>"
   }
 };
 
@@ -282,6 +296,43 @@ var ANALYSTS = {
    and the whole site starts using first names instead. Paste
    api.sleeper.app/v1/league/<league id>/users to get the ids. */
 var MANAGERS = {};
+
+/* ============================================================
+   TITLE PICKS
+   One team per analyst to win the whole thing, named out loud in
+   week 2 and locked for the rest of the season. The page tracks
+   how that team is actually doing, forever, which is the entire
+   point. Keys must match ANALYSTS; team names are matched the
+   same way ballots used to be, so a rename on Sleeper is fine as
+   long as the owner does not change.
+   ============================================================ */
+var TITLE_PICKS = {
+  analyst: {
+    team:"#CrookedAdam",
+    locked:2,
+    take:"Eleven and nothing on all-play. I have been in those huddles, and I am telling you nobody wants to see that name on the bracket. This is not a brave pick. It is the right one."
+  },
+  firestarter: {
+    team:"Team Ketchup",
+    locked:2,
+    take:"Killian has the roster. Killian has the number. Killian has everything except the thing you cannot give a man, and we will find out in December whether he has that too. TEAM KETCHUP."
+  },
+  quant: {
+    team:"Scheme",
+    locked:2,
+    take:"Third on my board and nobody is pricing that roster correctly. The gap between what they have scored and what they have earned is the biggest in the league. That gap closes."
+  },
+  troll: {
+    team:"TeenageTutenNinjaTurtles",
+    locked:2,
+    take:"Fifth. Everybody has them fifth. Fifth is the coward's ranking. I am putting my whole season on the team this desk cannot be bothered to have an opinion about."
+  },
+  wildcard: {
+    team:"Baltimore Boofers",
+    locked:2,
+    take:"Boofers. Perfect lineup, forty-six points up on the best team in this league before Friday, and a name that tells you the man is not scared of anything. Write it down."
+  }
+};
 
 /* Give a matchup a name and a backstory and it gets its own panel on the
    Rivalries tab, plus a section in the weekly briefing whenever the two are
@@ -302,7 +353,7 @@ var RIVALRIES = [
 /* Bump this whenever a portrait file is replaced. Same filename means
    browsers and the Pages CDN will happily serve the old image forever. */
 var ASSET_V = "3";
-var DESK_PHOTO = "analysts/desk4.jpg";
+var DESK_PHOTO = "analysts/desk.jpg";
 var DESK_BANNER = "<svg viewBox=\"0 0 960 300\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"The desk: five invented analysts behind a studio table\"><defs><radialGradient id=\"bulb\"><stop offset=\"0\" stop-color=\"#FFF4D0\"/><stop offset=\"0.55\" stop-color=\"#F0C24B\"/><stop offset=\"1\" stop-color=\"#F0C24B\" stop-opacity=\"0\"/></radialGradient><linearGradient id=\"wall\" x1=\"0\" y1=\"0\" x2=\"0\" y2=\"1\"><stop offset=\"0\" stop-color=\"#16231D\"/><stop offset=\"1\" stop-color=\"#0D1411\"/></linearGradient></defs><defs><radialGradient id=\"pool0\"><stop offset=\"0\" stop-color=\"#6FB3D2\" stop-opacity=\"0.34\"/><stop offset=\"1\" stop-color=\"#6FB3D2\" stop-opacity=\"0\"/></radialGradient><radialGradient id=\"pool1\"><stop offset=\"0\" stop-color=\"#E2593B\" stop-opacity=\"0.34\"/><stop offset=\"1\" stop-color=\"#E2593B\" stop-opacity=\"0\"/></radialGradient><radialGradient id=\"pool2\"><stop offset=\"0\" stop-color=\"#F0C24B\" stop-opacity=\"0.34\"/><stop offset=\"1\" stop-color=\"#F0C24B\" stop-opacity=\"0\"/></radialGradient><radialGradient id=\"pool3\"><stop offset=\"0\" stop-color=\"#A98BD6\" stop-opacity=\"0.34\"/><stop offset=\"1\" stop-color=\"#A98BD6\" stop-opacity=\"0\"/></radialGradient></defs><rect width=\"960\" height=\"300\" fill=\"url(#wall)\"/><circle cx=\"34\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"34\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"110\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"110\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"186\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"186\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"262\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"262\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"338\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"338\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"414\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"414\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"490\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"490\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"566\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"566\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"642\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"642\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"718\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"718\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"794\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"794\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"870\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"870\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><circle cx=\"946\" cy=\"34\" r=\"26\" fill=\"url(#bulb)\" opacity=\"0.5\"/><circle cx=\"946\" cy=\"34\" r=\"9\" fill=\"#FFF4D0\"/><rect x=\"0\" y=\"64\" width=\"960\" height=\"2\" fill=\"#25392F\"/><ellipse cx=\"165\" cy=\"200\" rx=\"139\" ry=\"164\" fill=\"url(#pool0)\"/><ellipse cx=\"375\" cy=\"200\" rx=\"126\" ry=\"149\" fill=\"url(#pool1)\"/><ellipse cx=\"584\" cy=\"200\" rx=\"121\" ry=\"143\" fill=\"url(#pool2)\"/><ellipse cx=\"795\" cy=\"200\" rx=\"125\" ry=\"147\" fill=\"url(#pool3)\"/><g transform=\"translate(76,54.0) scale(1.78)\"><path d=\"M16 102C16 84 32 76 50 76s34 8 34 26z\" fill=\"#4A5157\"/><g fill=\"#5C646B\"><circle cx=\"22\" cy=\"82\" r=\"1.7\"/><circle cx=\"29\" cy=\"82\" r=\"1.7\"/><circle cx=\"36\" cy=\"82\" r=\"1.7\"/><circle cx=\"43\" cy=\"82\" r=\"1.7\"/><circle cx=\"50\" cy=\"82\" r=\"1.7\"/><circle cx=\"57\" cy=\"82\" r=\"1.7\"/><circle cx=\"64\" cy=\"82\" r=\"1.7\"/><circle cx=\"71\" cy=\"82\" r=\"1.7\"/><circle cx=\"78\" cy=\"82\" r=\"1.7\"/><circle cx=\"22\" cy=\"89\" r=\"1.7\"/><circle cx=\"29\" cy=\"89\" r=\"1.7\"/><circle cx=\"36\" cy=\"89\" r=\"1.7\"/><circle cx=\"43\" cy=\"89\" r=\"1.7\"/><circle cx=\"50\" cy=\"89\" r=\"1.7\"/><circle cx=\"57\" cy=\"89\" r=\"1.7\"/><circle cx=\"64\" cy=\"89\" r=\"1.7\"/><circle cx=\"71\" cy=\"89\" r=\"1.7\"/><circle cx=\"78\" cy=\"89\" r=\"1.7\"/><circle cx=\"22\" cy=\"96\" r=\"1.7\"/><circle cx=\"29\" cy=\"96\" r=\"1.7\"/><circle cx=\"36\" cy=\"96\" r=\"1.7\"/><circle cx=\"43\" cy=\"96\" r=\"1.7\"/><circle cx=\"50\" cy=\"96\" r=\"1.7\"/><circle cx=\"57\" cy=\"96\" r=\"1.7\"/><circle cx=\"64\" cy=\"96\" r=\"1.7\"/><circle cx=\"71\" cy=\"96\" r=\"1.7\"/><circle cx=\"78\" cy=\"96\" r=\"1.7\"/></g><path d=\"M30 102V88c0-7 9-12 20-12s20 5 20 12v14z\" fill=\"#B9C2C9\"/><path d=\"M50 78l-9 6 9 7 9-7z\" fill=\"#9AA4AC\"/><ellipse cx=\"22\" cy=\"86\" rx=\"13\" ry=\"11\" fill=\"#CBD4DA\"/><ellipse cx=\"78\" cy=\"86\" rx=\"13\" ry=\"11\" fill=\"#CBD4DA\"/><path d=\"M11 84q11-5 22 0M67 84q11-5 22 0\" stroke=\"#8E98A0\" stroke-width=\"2\" fill=\"none\"/><rect x=\"40\" y=\"62\" width=\"20\" height=\"16\" rx=\"7\" fill=\"#9AA4AC\"/><ellipse cx=\"50\" cy=\"42\" rx=\"21\" ry=\"23\" fill=\"#8D5524\"/><ellipse cx=\"28\" cy=\"45\" rx=\"4.2\" ry=\"5\" fill=\"#7A4620\"/><ellipse cx=\"72\" cy=\"45\" rx=\"4.2\" ry=\"5\" fill=\"#7A4620\"/><path d=\"M29 36c2-13 10-18 21-18s19 5 21 18c-6-8-12-10-21-10s-15 2-21 10z\" fill=\"#241C18\"/><path d=\"M29 44c0 17 9 28 21 28s21-11 21-28c0 11-9 15-21 15s-21-4-21-15z\" fill=\"#241C18\"/><ellipse cx=\"41\" cy=\"41\" rx=\"2.8\" ry=\"3.2\" fill=\"#1A120C\"/><ellipse cx=\"59\" cy=\"41\" rx=\"2.8\" ry=\"3.2\" fill=\"#1A120C\"/><circle cx=\"42\" cy=\"40\" r=\"1\" fill=\"#fff\"/><circle cx=\"60\" cy=\"40\" r=\"1\" fill=\"#fff\"/><path d=\"M34 33q7-4 13 0M53 33q7-4 13 0\" stroke=\"#241C18\" stroke-width=\"2.8\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M40 54q10 9 20 0z\" fill=\"#F6E7DA\"/><path d=\"M27 26h46v7H27z\" fill=\"#CBD4DA\"/><path d=\"M29 20h42l3 6H26z\" fill=\"#B9C2C9\"/><g fill=\"#7E878E\"><rect x=\"32\" y=\"27\" width=\"2.4\" height=\"5\"/><rect x=\"38\" y=\"27\" width=\"2.4\" height=\"5\"/><rect x=\"44\" y=\"27\" width=\"2.4\" height=\"5\"/><rect x=\"50\" y=\"27\" width=\"2.4\" height=\"5\"/><rect x=\"56\" y=\"27\" width=\"2.4\" height=\"5\"/><rect x=\"62\" y=\"27\" width=\"2.4\" height=\"5\"/><rect x=\"68\" y=\"27\" width=\"2.4\" height=\"5\"/></g></g><g transform=\"translate(294,70.0) scale(1.62)\"><path d=\"M12 102C12 84 30 76 50 76s38 8 38 26z\" fill=\"#12171B\"/><path d=\"M40 77l10 14 10-14 9 4-19 21-19-21z\" fill=\"#F3F6F4\"/><path d=\"M50 84l5 6-3 14-2 3-2-3-3-14z\" fill=\"#1C2229\"/><path d=\"M62 84l7 3-3 7z\" fill=\"#C9D6CE\"/><rect x=\"42\" y=\"60\" width=\"16\" height=\"19\" rx=\"7\" fill=\"#7A4A2A\"/><ellipse cx=\"50\" cy=\"41\" rx=\"20.5\" ry=\"22.5\" fill=\"#9B6239\"/><ellipse cx=\"28\" cy=\"44\" rx=\"4\" ry=\"5\" fill=\"#845027\"/><ellipse cx=\"72\" cy=\"44\" rx=\"4\" ry=\"5\" fill=\"#845027\"/><path d=\"M30 34c1-12 9-17 20-17s19 5 20 17c-6-7-11-9-20-9s-14 2-20 9z\" fill=\"#241A14\"/><ellipse cx=\"41\" cy=\"40\" rx=\"2.8\" ry=\"3.2\" fill=\"#140E0A\"/><ellipse cx=\"59\" cy=\"40\" rx=\"2.8\" ry=\"3.2\" fill=\"#140E0A\"/><circle cx=\"42\" cy=\"39\" r=\"1\" fill=\"#fff\"/><circle cx=\"60\" cy=\"39\" r=\"1\" fill=\"#fff\"/><path d=\"M34 32q7 0 12 4M54 36q5-4 12-4\" stroke=\"#241A14\" stroke-width=\"3\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M46 46q4 4 8 0\" stroke=\"#7A4A2A\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M40 52q10-4 20 0q-10 3-20 0z\" fill=\"#241A14\"/><path d=\"M44 57h12\" stroke=\"#5C3325\" stroke-width=\"2.6\" stroke-linecap=\"round\"/><path d=\"M47 61h6v4h-6z\" fill=\"#241A14\"/></g><g transform=\"translate(507,77.0) scale(1.55)\"><path d=\"M23 47c0-23 12-31 27-31s27 8 27 31c0 13-2 21-6 26V47H29v26c-4-5-6-13-6-26z\" fill=\"#1F1712\"/><path d=\"M14 102C14 84 31 76 50 76s36 8 36 26z\" fill=\"#EDEFEC\"/><g fill=\"#1B2026\"><rect x=\"10\" y=\"80\" width=\"80\" height=\"4.5\"/><rect x=\"10\" y=\"88\" width=\"80\" height=\"4.5\"/><rect x=\"10\" y=\"96\" width=\"80\" height=\"4.5\"/></g><rect x=\"42\" y=\"60\" width=\"16\" height=\"18\" rx=\"7\" fill=\"#C68642\"/><ellipse cx=\"50\" cy=\"41\" rx=\"20.5\" ry=\"22.5\" fill=\"#E8B887\"/><ellipse cx=\"28\" cy=\"44\" rx=\"4\" ry=\"5\" fill=\"#C68642\"/><ellipse cx=\"72\" cy=\"44\" rx=\"4\" ry=\"5\" fill=\"#C68642\"/><path d=\"M28 33c0-13 9-19 22-19s22 6 22 19z\" fill=\"#1B2026\"/><rect x=\"27\" y=\"30\" width=\"46\" height=\"8\" rx=\"3\" fill=\"#252C33\"/><path d=\"M29 38h42v10a6 6 0 01-6 6H57l-4-4h-6l-4 4H35a6 6 0 01-6-6z\" fill=\"#1B2026\"/><ellipse cx=\"41\" cy=\"44\" rx=\"5\" ry=\"4\" fill=\"#F6E7DA\"/><ellipse cx=\"59\" cy=\"44\" rx=\"5\" ry=\"4\" fill=\"#F6E7DA\"/><circle cx=\"41\" cy=\"44.4\" r=\"2.5\" fill=\"#140E0A\"/><circle cx=\"59\" cy=\"44.4\" r=\"2.5\" fill=\"#140E0A\"/><path d=\"M46 52q4 3 8 0\" stroke=\"#C68642\" stroke-width=\"2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M43 60h14\" stroke=\"#A65D57\" stroke-width=\"3.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M4 102c0-12 4-18 11-18s11 6 11 18z\" fill=\"#C9B79A\"/><path d=\"M9 86q6-4 12 0\" stroke=\"#8A7A62\" stroke-width=\"2.4\" fill=\"none\"/><text x=\"15\" y=\"100\" text-anchor=\"middle\" font-family=\"Barlow Condensed, sans-serif\" font-weight=\"700\" font-size=\"14\" fill=\"#8A7A62\">$</text></g><g transform=\"translate(715,72.0) scale(1.6)\"><path d=\"M10 102C10 82 29 73 50 73s40 9 40 29z\" fill=\"#1E2A44\"/><path d=\"M38 74h24v28H38z\" fill=\"#F2F4F3\"/><path d=\"M38 73l12 17-6 12-8-25z\" fill=\"#2A3757\"/><path d=\"M62 73L50 90l6 12 8-25z\" fill=\"#2A3757\"/><g fill=\"#1E2A44\" font-family=\"Barlow Condensed, sans-serif\" font-weight=\"700\" font-size=\"9\"><text x=\"50\" y=\"90\" text-anchor=\"middle\">FAN</text><text x=\"50\" y=\"99\" text-anchor=\"middle\">CLUB</text></g><rect x=\"42\" y=\"58\" width=\"16\" height=\"18\" rx=\"7\" fill=\"#D9A06B\"/><ellipse cx=\"50\" cy=\"40\" rx=\"20\" ry=\"22.5\" fill=\"#F1C27D\"/><ellipse cx=\"28\" cy=\"43\" rx=\"4\" ry=\"5\" fill=\"#D9A06B\"/><ellipse cx=\"72\" cy=\"43\" rx=\"4\" ry=\"5\" fill=\"#D9A06B\"/><path d=\"M29 40c0-6 1-11 3-15 4 3 10 4 18 4s14-1 18-4c2 4 3 9 3 15-3-8-8-11-21-11s-18 3-21 11z\" fill=\"#C9CDD2\"/><path d=\"M27 30c0-12 10-18 23-18s23 6 23 18z\" fill=\"#1E2A44\"/><path d=\"M73 30c9 0 17 3 20 7H60z\" fill=\"#28365A\"/><path d=\"M50 17l2.2 5h5.3l-4.3 3.3 1.7 5.2-4.9-3.2-4.9 3.2 1.7-5.2L42.5 22h5.3z\" fill=\"#F2F4F3\"/><ellipse cx=\"41\" cy=\"41\" rx=\"2.6\" ry=\"2.8\" fill=\"#140E0A\"/><ellipse cx=\"59\" cy=\"40\" rx=\"2.9\" ry=\"3.2\" fill=\"#140E0A\"/><path d=\"M35 35q7-3 12 0\" stroke=\"#8A8F96\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M53 32q8-2 13 4\" stroke=\"#8A8F96\" stroke-width=\"2.8\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M46 46q4 4 8 0\" stroke=\"#D9A06B\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M40 54q11 10 21-4\" stroke=\"#8A4A44\" stroke-width=\"3.4\" fill=\"none\" stroke-linecap=\"round\"/></g><rect x=\"-10\" y=\"230\" width=\"980\" height=\"70\" rx=\"6\" fill=\"#141F1A\"/><rect x=\"-10\" y=\"230\" width=\"980\" height=\"4\" fill=\"#25392F\"/><rect x=\"-10\" y=\"262\" width=\"980\" height=\"2\" fill=\"#1B2A23\"/><rect x=\"392\" y=\"246\" width=\"176\" height=\"34\" rx=\"3\" fill=\"#0D1411\" stroke=\"#25392F\" stroke-width=\"2\"/><text x=\"480\" y=\"269\" text-anchor=\"middle\" fill=\"#F0C24B\" font-family=\"Barlow Condensed, Barlow, system-ui, sans-serif\" font-weight=\"700\" font-size=\"21\" letter-spacing=\"2.5\">THE DESK</text><rect x=\"137\" y=\"248\" width=\"26\" height=\"26\" rx=\"3\" fill=\"#C4534B\"/><path d=\"M163 254h7a6 6 0 010 12h-7\" fill=\"none\" stroke=\"#C4534B\" stroke-width=\"4\"/><rect x=\"805\" y=\"248\" width=\"26\" height=\"26\" rx=\"3\" fill=\"#6FB3D2\"/><path d=\"M831 254h7a6 6 0 010 12h-7\" fill=\"none\" stroke=\"#6FB3D2\" stroke-width=\"4\"/></svg>";
 
 
@@ -373,11 +424,28 @@ function avatar(rid){
   var r=rosterById(rid),u=r&&S.users[r.owner_id];
   return u&&u.avatar?"https://sleepercdn.com/avatars/thumbs/"+u.avatar:"";
 }
-function teamCell(rid){
+/* Power rank, memoised. teamCell runs dozens of times per render and
+   powerRows walks every week of scoring, so recomputing per row is the
+   kind of thing that makes a phone feel broken. */
+var _rankCache = {key:"", map:null};
+function rankNow(){
+  var key = S.finalWeek + "|" + Object.keys(S.matchups).length + "|" + S.rosters.length;
+  if(_rankCache.key !== key) _rankCache = {key:key, map:powerRankMap()};
+  return _rankCache.map;
+}
+/* College football does this and it reads instantly: the number goes in
+   front of the name, everywhere the name appears. */
+function rankBadge(rid){
+  var m = rankNow();
+  if(!m || m[rid] == null) return "";
+  return '<span class="prk">' + m[rid] + '</span>';
+}
+
+function teamCell(rid, noRank){
   var av=avatar(rid),mg=manager(rid);
   return '<div class="team-cell">'
     +(av?'<img class="av" src="'+esc(av)+'" alt="" loading="lazy">':'<div class="av"></div>')
-    +'<div><div class="tname">'+esc(teamName(rid))+'</div>'
+    +'<div><div class="tname">'+(noRank?"":rankBadge(rid))+esc(teamName(rid))+'</div>'
     +(mg?'<div class="mgr">'+esc(mg)+'</div>':'')+'</div></div>';
 }
 function playerName(pid){
@@ -510,41 +578,6 @@ function optimalLineup(playerIds, pointsMap, rosterPositions, players){
     if(x.cand){ total += x.cand.pts; lineup.push({slot:x.slot.slot, pid:x.cand.pid, pts:x.cand.pts}); }
   });
   return { points: total, lineup: lineup };
-}
-
-/* Score a predicted ordering against how things actually turned out.
-   Pairwise accuracy is the readable one: of every pair of teams, how
-   often did you put them in the right order. */
-function scoreRanking(predicted, actualRank){
-  var list = (predicted||[]).filter(function(id){ return actualRank[id]!=null; });
-  var n = list.length;
-  if(n < 2) return null;
-
-  var sumErr = 0, worst = null, best = null;
-  list.forEach(function(id,i){
-    var pred = i+1, act = actualRank[id], err = Math.abs(pred-act);
-    sumErr += err;
-    if(!worst || err > worst.err) worst = {id:id, err:err, predicted:pred, actual:act};
-    if(!best  || err < best.err)  best  = {id:id, err:err, predicted:pred, actual:act};
-  });
-
-  var pairs = 0, correct = 0;
-  for(var a=0; a<n; a++){
-    for(var b=a+1; b<n; b++){
-      pairs++;
-      if(actualRank[list[a]] < actualRank[list[b]]) correct++;
-    }
-  }
-
-  return {
-    n:n, pairs:pairs, correct:correct,
-    pairwise: pairs ? correct/pairs : 0,
-    mae: sumErr/n,
-    exact: list.filter(function(id,i){ return actualRank[id]===i+1; }).length,
-    worst: worst, best: best,
-    top: {id:list[0], actual:actualRank[list[0]]},
-    bottom: {id:list[n-1], actual:actualRank[list[n-1]]}
-  };
 }
 
 /* When a projection is missing, treating it as zero silently deletes a
@@ -797,7 +830,7 @@ function boot(){
     })
     .then(function(){
       renderNews(); renderWeek(); renderStandings(); renderPower();
-      renderMoves(); renderBook(); renderAnalysts();
+      renderMoves(); renderBook(); renderAnalysts(); renderTitlePicks();
       loadPlayers();
     })
     .catch(function(e){ fail(e.message||String(e)); });
@@ -1114,68 +1147,6 @@ function buildWire(){
 
   return items;
 }
-
-/* ============================================================
-   RECEIPTS — every ballot ever cast, checked against reality
-   ============================================================ */
-function receiptsHTML(){
-  var polls = [];
-  allEditions().forEach(function(ed){
-    if(ed && ed.poll && ed.poll.ballots && ed.poll.ballots.length){
-      polls.push({poll:ed.poll, week:ed.week, generated:ed.generated});
-    }
-  });
-  if(!polls.length) return "";
-
-  var actual = powerRankMap();
-  if(!actual){
-    return '<h2 style="margin-top:34px">Receipts</h2>'
-      + '<div class="msg">Every ballot above is on the record. The moment week 1 goes final, '
-      + 'each one gets scored against the power rankings and nobody gets to quietly revise it.</div>';
-  }
-
-  var h = '<h2 style="margin-top:34px">Receipts</h2>'
-    + '<p class="note">Each ballot scored against the power rankings as they stand after week ' + S.finalWeek + '. '
-    + 'Pairwise accuracy is the share of all team pairs a desk put in the right order. '
-    + 'Nobody submits these twice.</p>';
-
-  polls.slice(-3).reverse().forEach(function(entry){
-    var rows = [];
-    entry.poll.ballots.forEach(function(b){
-      var a = ANALYSTS[b.analyst];
-      if(!a || !b.ranking || !b.ranking.length) return;
-      var ids = b.ranking.map(function(nm){ return resolveTeam(nm); }).filter(function(x){ return x!=null; });
-      var sc = scoreRanking(ids, actual);
-      if(sc) rows.push({key:b.analyst, meta:a, sc:sc});
-    });
-    if(!rows.length) return;
-    rows.sort(function(x,y){ return y.sc.pairwise-x.sc.pairwise || x.sc.mae-y.sc.mae; });
-
-    h += '<div class="poll-wrap"><div class="season-head"><h3>'
-      + esc(entry.poll.title || "Poll") + '</h3>'
-      + '<span class="champ">' + (entry.week!=null ? 'submitted week ' + entry.week : '') + '</span></div>'
-      + '<div class="scroll"><table><thead><tr><th></th><th>Desk</th><th>Pairwise</th>'
-      + '<th>Avg spots off</th><th>Their pick to win</th><th>Biggest miss</th></tr></thead><tbody>';
-
-    rows.forEach(function(r,i){
-      var s = r.sc;
-      var cls = s.pairwise>=0.7?"pos":(s.pairwise<=0.4?"neg":"");
-      var topName = s.top.id!=null ? teamName(s.top.id) : "--";
-      var worstName = s.worst && s.worst.id!=null ? teamName(s.worst.id) : "--";
-      h += '<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td>'
-        + '<td><div class="team-cell"><div class="tname" style="color:'+r.meta.color+'">'+esc(r.meta.name)+'</div>'
-        + '<div class="mgr">'+esc(r.meta.role)+'</div></div></td>'
-        + '<td class="'+cls+'">'+Math.round(s.pairwise*100)+'%</td>'
-        + '<td>'+num(s.mae,1)+'</td>'
-        + '<td>'+esc(topName)+'<div class="mgr">actually '+ordinal(s.top.actual)+'</div></td>'
-        + '<td>'+esc(worstName)+'<div class="mgr">had them '+ordinal(s.worst.predicted)
-        + ', actually '+ordinal(s.worst.actual)+'</div></td></tr>';
-    });
-    h += '</tbody></table></div></div>';
-  });
-  return h;
-}
-
 
 /* ============================================================
    GAME STATUS
@@ -1525,95 +1496,6 @@ function resolveTeam(name){
 }
 function normKey(s){
   return String(s==null?"":s).toLowerCase().replace(/[^a-z0-9]/g,"");
-}
-
-function ballotsHTML(){
-  var poll=S.news&&S.news.poll;
-  if(!poll||!poll.ballots||!poll.ballots.length) return "";
-
-  var voters=[], tally={}, unresolved=[];
-  poll.ballots.forEach(function(b){
-    var order=b.ranking||[];
-    if(!order.length) return;
-    var a=ANALYSTS[b.analyst]||{name:b.analyst||"Anonymous",role:"",color:"var(--dim)"};
-    voters.push({key:b.analyst, meta:a, comment:b.comment||""});
-    order.forEach(function(nm,i){
-      var rid=resolveTeam(nm);
-      if(rid==null){ if(unresolved.indexOf(nm)<0) unresolved.push(nm); return; }
-      if(!tally[rid]) tally[rid]={rid:rid, points:0, firsts:0, ranks:{}};
-      tally[rid].points += (order.length - i);
-      if(i===0) tally[rid].firsts++;
-      tally[rid].ranks[b.analyst] = i+1;
-    });
-  });
-  if(!voters.length) return "";
-
-  var rows=Object.keys(tally).map(function(k){ return tally[k]; })
-    .sort(function(a,b){ return b.points-a.points||b.firsts-a.firsts; });
-  if(!rows.length) return "";
-
-  var h='<h2 style="margin-top:34px">'+esc(poll.title||"The desk ballots")+'</h2>'
-    +'<p class="note">'
-    +esc(poll.note||("Each analyst files a full ranking. First place is worth "+S.rosters.length+" points down to 1, exactly like the college football polls. The page counts the votes; the table above is the arithmetic they are arguing with."))
-    +'</p>';
-
-  h+='<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>Points</th><th>First</th>';
-  voters.forEach(function(v){
-    var short=v.meta.name.split(" ").slice(-1)[0];
-    h+='<th>'+esc(short)+'</th>';
-  });
-  h+='<th>Spread</th></tr></thead><tbody>';
-
-  rows.forEach(function(r,i){
-    h+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.rid)+'</td>'
-      +'<td>'+r.points+'</td><td>'+(r.firsts||'')+'</td>';
-    var vals=[];
-    voters.forEach(function(v){
-      var rk=r.ranks[v.key];
-      if(rk) vals.push(rk);
-      h+='<td>'+(rk||'--')+'</td>';
-    });
-    var spread=vals.length>1?Math.max.apply(null,vals)-Math.min.apply(null,vals):0;
-    h+='<td class="'+(spread>=5?"neg":"")+'">'+(spread||'')+'</td></tr>';
-  });
-  h+='</tbody></table></div>';
-
-  // Where the room disagrees most.
-  var arg=rows.slice().map(function(r){
-    var vals=[];
-    voters.forEach(function(v){ if(r.ranks[v.key]) vals.push({k:v.key,r:r.ranks[v.key]}); });
-    if(vals.length<2) return null;
-    vals.sort(function(a,b){ return a.r-b.r; });
-    return {rid:r.rid, low:vals[0], high:vals[vals.length-1], spread:vals[vals.length-1].r-vals[0].r};
-  }).filter(Boolean).sort(function(a,b){ return b.spread-a.spread; })[0];
-
-  if(arg&&arg.spread>=3){
-    var hiName=(ANALYSTS[arg.low.k]||{}).name||arg.low.k;
-    var loName=(ANALYSTS[arg.high.k]||{}).name||arg.high.k;
-    h+='<div class="wire" style="margin-top:14px"><div class="wire-item">'
-      +'<div class="hl"><span class="tag">Split</span>'+esc(teamName(arg.rid))
-      +' is the biggest argument in the room</div>'
-      +'<div class="dt">'+esc(hiName)+' has them '+ordinal(arg.low.r)+'. '
-      +esc(loName)+' has them '+ordinal(arg.high.r)+'. '+arg.spread+' spots apart.</div></div></div>';
-  }
-
-  if(voters.some(function(v){ return v.comment; })){
-    h+='<div class="takes" style="margin-top:18px;border-top:none;padding-top:0">';
-    voters.forEach(function(v){
-      if(!v.comment) return;
-      h+='<div class="take">'
-        +faceHTML(v.meta,false)
-        +'<div class="body"><div class="who">'+esc(v.meta.name)
-        +(v.meta.role?'<span class="role">'+esc(v.meta.role)+'</span>':'')+'</div>'
-        +'<div class="txt">'+esc(v.comment)+'</div></div></div>';
-    });
-    h+='</div>';
-  }
-
-  if(unresolved.length){
-    h+='<p class="note" style="margin-top:12px">Not matched to a team: '+esc(unresolved.join(", "))+'</p>';
-  }
-  return h+'<div style="height:34px"></div>';
 }
 
 /* ============================================================
@@ -1994,30 +1876,6 @@ function editorialContext(){
     }
   }
 
-  // Ballots, plus how they are holding up. Capped so the briefing stays pasteable.
-  var actual = powerRankMap();
-  var polled = eds.filter(function(ed){ return ed.poll && ed.poll.ballots && ed.poll.ballots.length; });
-  polled.slice(-2).forEach(function(ed){
-    L.push("");
-    L.push("BALLOTS ON THE RECORD: " + (ed.poll.title || "poll")
-      + (ed.week!=null ? " (week " + ed.week + ")" : ""));
-    ed.poll.ballots.forEach(function(b){
-      var a = ANALYSTS[b.analyst];
-      if(!a || !b.ranking) return;
-      L.push(a.name + ": " + b.ranking.join(" > "));
-      if(actual){
-        var ids = b.ranking.map(function(nm){ return resolveTeam(nm); }).filter(function(x){ return x!=null; });
-        var sc = scoreRanking(ids, actual);
-        if(sc){
-          L.push("  scored so far: " + Math.round(sc.pairwise*100) + "% pairwise, "
-            + num(sc.mae,1) + " spots off on average"
-            + (sc.worst ? ", worst call " + teamName(sc.worst.id)
-                + " (had them " + sc.worst.predicted + ", actually " + sc.worst.actual + ")" : ""));
-        }
-      }
-    });
-  });
-
   var open = [];
   eds.forEach(function(ed){
     (ed.stories||[]).forEach(function(s){
@@ -2320,14 +2178,23 @@ function briefingText(){
     L.push("reader. \"Nobody in the top three wants to draw them in December\" is the register.");
     L.push("\"The first-ranked team will beat the twelfth\" is not: that is the table read aloud.");
     L.push("An analyst who disagrees with the rankings should say so and say why. The disagreement is");
-    L.push("the interesting part, and it goes on their record either way.");
+    L.push("the interesting part.");
     L.push("");
-    L.push("BALLOTS");
-    L.push("Every analyst files a full ranking of all "+S.rosters.length+" teams in news.json under");
-    L.push("poll.ballots, each entry {analyst, ranking:[team names, best first], comment}. The page");
-    L.push("scores them automatically against the power rankings above and keeps them permanently.");
-    L.push("Ballots are opinions: they should disagree with the table, and with each other, wherever");
-    L.push("that analyst genuinely would. A ballot that matches the table exactly is a wasted ballot.");
+    L.push("TITLE PICKS");
+    L.push("Each analyst named one team to win the championship and cannot change it. The picks are");
+    L.push("locked in index.html, not in news.json, so do not invent, move or re-rank them:");
+    (function(){
+      var rk = rankNow() || {};
+      Object.keys(ANALYSTS).forEach(function(k){
+        var p = (typeof TITLE_PICKS !== "undefined" && TITLE_PICKS) ? TITLE_PICKS[k] : null;
+        if(!p || !p.team) return;
+        var rid = resolveTeam(p.team);
+        var pos = (rid != null && rk[rid]) ? " (currently " + ordinal(rk[rid]) + ")" : "";
+        L.push("  " + ANALYSTS[k].name + " -- " + p.team + pos);
+      });
+    })();
+    L.push("Reference a pick when the week made it look smart or made it look ridiculous. That is");
+    L.push("what it is for. Do not walk through all five of them every edition.");
     L.push("");
   }
 
@@ -2380,9 +2247,9 @@ function briefingText(){
   L.push("should turn up somewhere.");
   if(ANALYSTS.wildcard){
     L.push(ANALYSTS.wildcard.name + " is the exception that proves the format: he gets the same");
-    L.push("ballot and the same column inches as everyone else, and the ballot scoring is what");
-    L.push("settles whether he deserved them. Do not soften him into a merely contrarian take,");
-    L.push("and never have the others stop to explain the joke.");
+    L.push("column inches as everyone else, and the scoreboard is what settles whether he deserved");
+    L.push("them. Do not soften him into a merely contrarian take, and never have the others stop");
+    L.push("to explain the joke.");
   }
   L.push("");
 
@@ -2472,7 +2339,7 @@ function sideHTML(m,leading){
   var av=avatar(m.roster_id);
   return '<div class="side'+(leading?' lead':'')+'">'
     +(av?'<img class="av" src="'+esc(av)+'" alt="" loading="lazy">':'<div class="av"></div>')
-    +'<div><div class="tname">'+esc(teamName(m.roster_id))+'</div>'
+    +'<div><div class="tname">'+rankBadge(m.roster_id)+esc(teamName(m.roster_id))+'</div>'
     +'<div class="mgr">'+esc(manager(m.roster_id))+'</div></div>'
     +'<div class="pts">'+num(m.points)+'</div></div>';
 }
@@ -2611,6 +2478,7 @@ function loadPlayers(){
 function repaint(){
   computeEfficiency();
   renderStandings(); renderPower(); renderMoves(); renderNews(); renderWeek(); renderAnalysts();
+  renderTitlePicks();
   if($("tab-rivalry") && $("tab-rivalry").innerHTML) renderRivalry();
 }
 
@@ -2620,7 +2488,7 @@ function afterPlayers(){
     .then(function(){ return loadBookProjections(); })
     .then(function(){ return loadGameStatus(); })
     .then(function(){
-      renderPower(); renderWeek(); renderNews(); renderBook(); renderAnalysts();
+      renderPower(); renderWeek(); renderNews(); renderBook(); renderAnalysts(); renderTitlePicks();
     });
 }
 
@@ -3144,7 +3012,7 @@ function renderPower(){
     +'</tr></thead><tbody>';
     rows.forEach(function(r,i){
       var a=ap[r.id]||{w:0,l:0};
-      html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.id)+'</td>'
+      html+='<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td><td>'+teamCell(r.id,true)+'</td>'
         +'<td>'+num(r.score,1)+'</td><td>'+a.w+'-'+a.l+'</td>'
         +'<td>'+num(r.avg,1)+'</td><td>'+num(r.recent,1)+'</td>'
         +'<td>'+num(r.sos,1)+'</td>'
@@ -3153,48 +3021,24 @@ function renderPower(){
     html+='</tbody></table></div>';
   }
 
-  html+=ballotsHTML()+receiptsHTML()+projectedHTML()+oddsHTML()+swapHTML();
+  html+=projectedHTML()+oddsHTML()+swapHTML();
   $("tab-power").innerHTML=html;
 }
 
 /* ============================================================
-   THE DESK -- who these people are, and how often they are right
+   THE DESK -- who these people are, and what they picked
    ============================================================ */
-function analystRecord(){
-  var actual=powerRankMap(), out={};
-  Object.keys(ANALYSTS).forEach(function(k){
-    out[k]={ballots:0, sum:0, pairwise:null, best:null, worst:null};
-  });
-  if(!actual) return out;
-  allEditions().forEach(function(ed){
-    if(!ed||!ed.poll||!ed.poll.ballots) return;
-    ed.poll.ballots.forEach(function(b){
-      var rec=out[b.analyst];
-      if(!rec||!b.ranking||!b.ranking.length) return;
-      var ids=b.ranking.map(function(nm){ return resolveTeam(nm); }).filter(function(x){ return x!=null; });
-      var sc=scoreRanking(ids, actual);
-      if(!sc) return;
-      rec.ballots++; rec.sum+=sc.pairwise;
-      if(!rec.best ||sc.pairwise>rec.best.pairwise)  rec.best=sc;
-      if(!rec.worst||sc.pairwise<rec.worst.pairwise) rec.worst=sc;
-    });
-  });
-  Object.keys(out).forEach(function(k){
-    var r=out[k]; r.pairwise = r.ballots ? r.sum/r.ballots : null;
-  });
-  return out;
-}
-
 function renderAnalysts(){
-  var rec=analystRecord();
+  var picks = {};
+  titlePickRows().forEach(function(r){ picks[r.key] = r; });
+  var n = S.rosters.length || 12;
   var h='<div class="deskshot"><img id="deskshot-img" src="'+DESK_PHOTO+'?v='+ASSET_V+'" alt="The desk"></div>'
     +'<h2>Meet the desk</h2>'
     +'<p class="note">The people who cover this league, for reasons none of them will explain. '
-    +'Accuracy is pairwise: of every pair of teams, how often they put the two in the right order, '
-    +'measured against the power rankings across every ballot they have ever filed.</p>';
+    +'Each one has named a team to win the championship, and that pick follows them around all season.</p>';
 
   Object.keys(ANALYSTS).forEach(function(k){
-    var a=ANALYSTS[k], r=rec[k]||{};
+    var a=ANALYSTS[k], r=picks[k];
     h+='<div class="poll-wrap" style="margin-bottom:14px">'
       +'<div class="take" style="border:none;padding:0;margin:0;gap:16px">'
       +faceHTML(a,true)
@@ -3207,18 +3051,152 @@ function renderAnalysts(){
         +(a.signature?'<b>Signature move:</b> '+esc(a.signature):'')
         +'</p>';
     }
-    if(r.ballots){
-      h+='<p class="note" style="margin-top:8px">'+r.ballots+' ballot'+(r.ballots===1?'':'s')
-        +' on the record, '+Math.round(r.pairwise*100)+'% pairwise accuracy'
-        +(r.best&&r.ballots>1?', best week '+Math.round(r.best.pairwise*100)+'%':'')
-        +(r.worst&&r.ballots>1?', worst '+Math.round(r.worst.pairwise*100)+'%':'')
-        +'.</p>';
+    if(r){
+      var v=pickVerdict(r,n);
+      h+='<p class="note" style="margin-top:8px"><b>Picked to win it all:</b> '+esc(r.name)
+        +(r.found?' &mdash; '+r.w+'-'+r.l+(r.t?'-'+r.t:'')+', '+(r.rank!=null?ordinal(r.rank)+' in power':'unranked'):'')
+        +'. <span class="'+v.cls+'">'+esc(v.long||v.txt)+'</span></p>';
     } else {
-      h+='<p class="note" style="margin-top:8px">No ballots scored yet.</p>';
+      h+='<p class="note" style="margin-top:8px">No championship pick on file.</p>';
     }
     h+='</div>';
   });
   $("tab-analysts").innerHTML=h;
+}
+
+/* ============================================================
+   TITLE PICKS -- one call per analyst, tracked all season
+   ============================================================ */
+function titlePickRows(){
+  var rank = rankNow() || {};
+  var out = [];
+  Object.keys(ANALYSTS).forEach(function(k){
+    var p = (typeof TITLE_PICKS !== "undefined" && TITLE_PICKS) ? TITLE_PICKS[k] : null;
+    if(!p || !p.team) return;
+    var rid = resolveTeam(p.team);
+    var r = rid != null ? rosterById(rid) : null;
+    var st = (r && r.settings) || {};
+    out.push({
+      key:k, meta:ANALYSTS[k], pick:p, rid:rid,
+      name: rid != null ? teamName(rid) : p.team,
+      found: rid != null,
+      w:Number(st.wins)||0, l:Number(st.losses)||0, t:Number(st.ties)||0,
+      pf: pts(st.fpts, st.fpts_decimal),
+      rank: rid != null ? (rank[rid] || null) : null
+    });
+  });
+  out.sort(function(a,b){
+    if(a.rank == null && b.rank == null) return 0;
+    if(a.rank == null) return 1;
+    if(b.rank == null) return -1;
+    return a.rank - b.rank;
+  });
+  return out;
+}
+
+/* The verdict. This is the whole feature: a label that gets more
+   embarrassing the longer somebody is wrong. Short form for the table
+   -- a full sentence there pushes the numbers off a phone screen --
+   and a long form for the callout. */
+function pickVerdict(row, n){
+  var games = row.w + row.l + row.t;
+  if(!row.found) return {txt:"Unmatched", cls:"", long:"No team on Sleeper matches that name."};
+  if(row.rank == null) return {txt:"--", cls:"", long:"Nothing has been played yet."};
+  if(games >= 2 && row.w === 0)
+    return {txt:"Winless", cls:"neg", long:"Winless. There is no version of this that goes away quietly."};
+  if(row.rank === 1)
+    return {txt:"Genius", cls:"pos", long:"Currently the best team in the league, and he will not let anyone forget it."};
+  if(row.rank <= 3) return {txt:"Holding up", cls:"pos", long:"Holding up."};
+  if(row.rank >= n - 1)
+    return {txt:"Disaster", cls:"neg", long:"A disaster, and it is on the record permanently."};
+  if(row.rank > Math.ceil(n/2)){
+    return row.w > row.l
+      ? {txt:"Winning ugly", cls:"", long:"Winning without convincing anybody."}
+      : {txt:"Aging badly", cls:"neg", long:"Aging badly."};
+  }
+  return {txt:"Alive", cls:"", long:"Alive."};
+}
+
+function renderTitlePicks(){
+  var el = $("tab-champs");
+  if(!el) return;
+  var rows = titlePickRows();
+  if(!rows.length){
+    el.innerHTML = '<div class="msg">No championship picks on file yet.</div>';
+    return;
+  }
+  var n = S.rosters.length || 12;
+  var locked = rows[0].pick.locked;
+
+  var h = '<h2>Championship picks</h2>'
+    + '<p class="note">Every analyst named one team to win the whole thing'
+    + (locked ? ', locked in week ' + locked : '')
+    + '. They do not get to change them, they do not get to add a second one, and nobody '
+    + 'gets to quietly switch to whoever is winning in November. The table re-sorts itself '
+    + 'every week by how that team is actually doing.</p>';
+
+  h += '<div class="scroll"><table><thead><tr><th></th><th>Desk</th><th>Their champion</th>'
+    + '<th>Record</th><th>Points for</th><th>Power</th><th>Standing</th></tr></thead><tbody>';
+
+  rows.forEach(function(r,i){
+    var v = pickVerdict(r, n);
+    h += '<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td>'
+      + '<td><div class="team-cell"><div><div class="tname" style="color:'+r.meta.color+'">'
+      + esc(r.meta.name)+'</div><div class="mgr">'+esc(r.meta.role)+'</div></div></div></td>'
+      + '<td>'+(r.found ? teamCell(r.rid) : '<span class="mgr">'+esc(r.name)+'</span>')+'</td>'
+      + '<td>'+(r.found ? r.w+'-'+r.l+(r.t?'-'+r.t:'') : '--')+'</td>'
+      + '<td>'+(r.found ? num(r.pf,2) : '--')+'</td>'
+      + '<td>'+(r.rank!=null ? ordinal(r.rank) : '--')+'</td>'
+      + '<td class="'+v.cls+'">'+esc(v.txt)+'</td></tr>';
+  });
+  h += '</tbody></table></div>';
+
+  // Two analysts on the same team is allowed and worth pointing at.
+  var byTeam = {};
+  rows.forEach(function(r){
+    if(!r.found) return;
+    if(!byTeam[r.rid]) byTeam[r.rid] = [];
+    byTeam[r.rid].push(r.meta.name);
+  });
+  var shared = Object.keys(byTeam).filter(function(k){ return byTeam[k].length > 1; });
+  if(shared.length){
+    h += '<div class="wire" style="margin-top:14px">';
+    shared.forEach(function(k){
+      h += '<div class="wire-item"><div class="hl"><span class="tag">Consensus</span>'
+        + esc(teamName(Number(k))) + ' has more than one believer</div>'
+        + '<div class="dt">' + esc(byTeam[k].join(" and ")) + ' both put their season on it.</div></div>';
+    });
+    h += '</div>';
+  }
+
+  // The worst call currently on the desk, stated plainly.
+  var live = rows.filter(function(r){ return r.rank != null; });
+  if(live.length > 1){
+    var worst = live[live.length-1];
+    if(worst.rank > Math.ceil(n/2)){
+      h += '<div class="wire" style="margin-top:14px"><div class="wire-item">'
+        + '<div class="hl"><span class="tag">Aging</span>'
+        + esc(worst.meta.name) + ' picked the ' + ordinal(worst.rank) + '-best team in the league</div>'
+        + '<div class="dt">' + esc(worst.name) + ' is ' + worst.w + '-' + worst.l
+        + ' and ranked ' + ordinal(worst.rank) + ' of ' + n + '. He has until week 14 to be right.</div>'
+        + '</div></div>';
+    }
+  }
+
+  // What each of them said at the time.
+  h += '<h2 style="margin-top:34px">On the record</h2>'
+    + '<p class="note">What they said when they made the call. None of it has been edited since.</p>'
+    + '<div class="takes" style="border-top:none;padding-top:0">';
+  rows.forEach(function(r){
+    if(!r.pick.take) return;
+    h += '<div class="take">' + faceHTML(r.meta, false)
+      + '<div class="body"><div class="who">' + esc(r.meta.name)
+      + '<span class="role">on ' + esc(r.name) + '</span></div>'
+      + '<div class="txt">' + esc(r.pick.take) + '</div></div></div>';
+  });
+  h += '</div>';
+
+  el.innerHTML = h;
 }
 
 function projectedHTML(){
@@ -3970,6 +3948,7 @@ tabs.forEach(function(btn){
     if(btn.dataset.tab==="records") renderRecords();
     if(btn.dataset.tab==="rivalry") renderRivalry();
     if(btn.dataset.tab==="book") renderBook();
+    if(btn.dataset.tab==="champs") renderTitlePicks();
   });
 });
 
