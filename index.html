@@ -99,6 +99,8 @@
   .face.big{width:104px;height:104px;border-radius:10px;font-size:36px}
   .deskshot{border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:2px 0 22px}
   .deskshot svg,.deskshot img{width:100%;height:auto;display:block}
+  .riv-row{cursor:pointer}
+  .riv-row:hover td{background:var(--panel2)}
   .picker{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 20px}
   .picker select{font-family:var(--sans);font-size:15px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:3px;padding:8px 10px;max-width:100%}
   .picker select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
@@ -187,15 +189,15 @@
 
   <nav role="tablist">
     <button role="tab" data-tab="news" aria-selected="true">Newsroom</button>
-    <button role="tab" data-tab="week" aria-selected="false">Scoreboard</button>
-    <button role="tab" data-tab="book" aria-selected="false">The Book</button>
-    <button role="tab" data-tab="standings" aria-selected="false">Standings</button>
+    <button role="tab" data-tab="analysts" aria-selected="false">The Desk</button>
     <button role="tab" data-tab="power" aria-selected="false">Power</button>
+    <button role="tab" data-tab="rivalry" aria-selected="false">Rivalries</button>
+    <button role="tab" data-tab="book" aria-selected="false">The Book</button>
+    <button role="tab" data-tab="week" aria-selected="false">Scoreboard</button>
+    <button role="tab" data-tab="standings" aria-selected="false">Standings</button>
     <button role="tab" data-tab="moves" aria-selected="false">Moves</button>
     <button role="tab" data-tab="records" aria-selected="false">Records</button>
-    <button role="tab" data-tab="rivalry" aria-selected="false">Rivalries</button>
     <button role="tab" data-tab="history" aria-selected="false">History</button>
-    <button role="tab" data-tab="analysts" aria-selected="false">The Desk</button>
   </nav>
 
   <section id="tab-news"><div class="msg">Reading the league.</div></section>
@@ -3418,6 +3420,73 @@ function h2hPanel(uidA, uidB, seasons, heading, blurb){
   return h;
 }
 
+/* Every pair who has ever met, built in one pass over the seasons. */
+function allPairs(seasons){
+  var pairs = {};
+  (seasons||[]).forEach(function(s){
+    var rMap = {};
+    (s.rosters||[]).forEach(function(r){ rMap[r.roster_id] = r; });
+    var pStart = Number(s.league && s.league.settings && s.league.settings.playoff_week_start) || 99;
+    Object.keys(s.matchups||{}).forEach(function(w){
+      var g = {};
+      (s.matchups[w]||[]).forEach(function(m){
+        if(m.matchup_id == null) return;
+        (g[m.matchup_id] = g[m.matchup_id] || []).push(m);
+      });
+      Object.keys(g).forEach(function(k){
+        var p = g[k];
+        if(p.length !== 2) return;
+        var r0 = rMap[p[0].roster_id], r1 = rMap[p[1].roster_id];
+        if(!r0 || !r1 || !r0.owner_id || !r1.owner_id) return;
+        if((Number(p[0].points)||0) === 0 && (Number(p[1].points)||0) === 0) return;
+        // canonical side order, so a pair is the same pair whichever way round it appears
+        var first = p[0], second = p[1];
+        if(r0.owner_id > r1.owner_id){ first = p[1]; second = p[0]; }
+        var oa = rMap[first.roster_id].owner_id, ob = rMap[second.roster_id].owner_id;
+        var key = oa + "|" + ob;
+        if(!pairs[key]) pairs[key] = {a: oa, b: ob, games: []};
+        pairs[key].games.push({season: s.league.season, week: Number(w),
+          a: Number(first.points)||0, b: Number(second.points)||0,
+          playoff: Number(w) >= pStart});
+      });
+    });
+  });
+  Object.keys(pairs).forEach(function(k){
+    pairs[k].games.sort(function(x,y){
+      return (Number(x.season) - Number(y.season)) || (x.week - y.week);
+    });
+    pairs[k].sum = h2hSummary(pairs[k].games);
+  });
+  return pairs;
+}
+
+/* The tightest matchups in league history. A rivalry needs volume AND balance:
+   plenty of meetings, with neither side ever pulling away. Meetings count for
+   one point each, every game of separation costs one and a half, so 6-6 beats
+   8-4 and both beat 2-1. */
+var RIVALRY_MIN_MEETINGS = 3;
+
+function topRivalries(seasons, limit, precomputed){
+  var pairs = precomputed || allPairs(seasons), rows = [];
+  Object.keys(pairs).forEach(function(k){
+    var p = pairs[k], s = p.sum;
+    if(!s) return;
+    rows.push({key: k, a: p.a, b: p.b, games: p.games, s: s,
+               score: s.n - Math.abs(s.w - s.l) * 1.5});
+  });
+  // A young league may not have three meetings anywhere yet. Relax rather than
+  // show an empty table.
+  var min = RIVALRY_MIN_MEETINGS;
+  while(min > 1 && rows.filter(function(r){ return r.s.n >= min; }).length < 3) min--;
+  rows = rows.filter(function(r){ return r.s.n >= min; });
+  rows.sort(function(x,y){
+    return (y.score - x.score)
+        || (Math.abs(x.s.avg) - Math.abs(y.s.avg))
+        || (y.s.n - x.s.n);
+  });
+  return {rows: rows.slice(0, limit || 10), min: min, total: rows.length};
+}
+
 function renderRivalry(){
   var box = $("tab-rivalry");
   if(!box) return;
@@ -3430,29 +3499,65 @@ function renderRivalry(){
   var seasons = S.history || [];
   var all = allManagers(seasons);
 
-  // resolve the configured rivalries once
   RIVALRIES.forEach(function(r){
     if(r._resolved) return;
     r._a = resolveManager(r.between[0], seasons);
     r._b = resolveManager(r.between[1], seasons);
     r._resolved = true;
   });
-
-  var h = '<h2>Rivalries</h2>'
-    + '<p class="note">Every meeting on record, across every season Sleeper still has. '
-    + 'Matched on Sleeper accounts rather than team names, so renaming your team does not '
-    + 'wipe your history.</p>';
-
-  var named = RIVALRIES.filter(function(r){ return r._a && r._b; });
-  named.forEach(function(r){
-    h += '<div class="poll-wrap" style="margin-bottom:22px">'
-      + h2hPanel(r._a, r._b, seasons, r.name, r.blurb) + '</div>';
+  var namedBy = {};
+  RIVALRIES.forEach(function(r){
+    if(r._a && r._b) namedBy[[r._a, r._b].sort().join("|")] = r;
   });
-  RIVALRIES.filter(function(r){ return !r._a || !r._b; }).forEach(function(r){
-    h += '<div class="msg bad">Could not match &ldquo;' + esc(r.name) + '&rdquo; to two managers: '
-      + esc(r.between.map(function(x){ return [].concat(x).join("/"); }).join(" and "))
-      + ' is not resolving to a Sleeper account.</div>';
+
+  var pairs = allPairs(seasons);
+  var top = topRivalries(seasons, 10, pairs);
+  var listed = {};
+  top.rows.forEach(function(r){ listed[r.key] = 1; });
+
+  // a named rivalry always gets a row, even if it is lopsided or short
+  var extra = [];
+  Object.keys(namedBy).forEach(function(k){
+    if(listed[k]) return;
+    var p = pairs[k];
+    if(p && p.sum) extra.push({key: k, a: p.a, b: p.b, games: p.games, s: p.sum, pinned: true});
   });
+
+  var h = '<h2>Top rivalries</h2>'
+    + '<p class="note">The matchups nobody can put away. Ranked on meetings and how level the '
+    + 'record has stayed &mdash; plenty of games with neither side pulling ahead beats a lopsided '
+    + 'series every time. Matched on Sleeper accounts, so renaming your team does not wipe your '
+    + 'history. Minimum ' + top.min + ' meeting' + (top.min === 1 ? '' : 's') + '.</p>';
+
+  var rows = top.rows.concat(extra);
+  if(!rows.length){
+    h += '<div class="msg">Nobody has played anybody twice yet. Come back in a few weeks.</div>';
+  } else {
+    h += '<div class="scroll"><table><thead><tr><th></th><th>Matchup</th><th>Meetings</th>'
+      + '<th>Average margin</th><th>Last met</th></tr></thead><tbody>';
+    rows.forEach(function(r, i){
+      var s = r.s;
+      var nameA = all.names[r.a] || "Unknown", nameB = all.names[r.b] || "Unknown";
+      var lead = s.w >= s.l ? nameA : nameB;
+      var trail = s.w >= s.l ? nameB : nameA;
+      var hi = Math.max(s.w, s.l), lo = Math.min(s.w, s.l);
+      var last = r.games[r.games.length - 1];
+      var named = namedBy[r.key];
+      h += '<tr class="riv-row ' + (r.pinned ? '' : 'rank-' + (i + 1)) + '" '
+        + 'data-a="' + esc(r.a) + '" data-b="' + esc(r.b) + '">'
+        + '<td>' + (r.pinned ? '&mdash;' : (i + 1)) + '</td>'
+        + '<td><div class="tname">' + esc(lead) + ' ' + hi + '&ndash;' + lo + ' ' + esc(trail)
+        + (s.t ? ' (' + s.t + ' tied)' : '') + '</div>'
+        + (named ? '<div class="mgr" style="color:var(--gold)">' + esc(named.name) + '</div>' : '')
+        + '</td>'
+        + '<td>' + s.n + (s.playoffs ? ' <span class="champ">' + s.playoffs + ' playoff</span>' : '') + '</td>'
+        + '<td>' + num(Math.abs(s.avg), 1) + '</td>'
+        + '<td>' + esc(last.season) + ' wk ' + last.week + '</td>'
+        + '</tr>';
+    });
+    h += '</tbody></table></div>'
+      + '<p class="note">Tap any row to open the full history below.</p>';
+  }
 
   h += '<div class="season-head"><h3>Any two managers</h3></div>'
     + '<div class="picker">'
@@ -3465,6 +3570,12 @@ function renderRivalry(){
       }).join('') + '</select></div>'
     + '<div id="rivOut"></div>';
 
+  RIVALRIES.filter(function(r){ return !r._a || !r._b; }).forEach(function(r){
+    h += '<div class="msg bad">Could not match &ldquo;' + esc(r.name) + '&rdquo; to two managers: '
+      + esc(r.between.map(function(x){ return [].concat(x).join("/"); }).join(" and "))
+      + ' is not resolving to a Sleeper account.</div>';
+  });
+
   box.innerHTML = h;
 
   var selA = $("rivA"), selB = $("rivB");
@@ -3474,10 +3585,22 @@ function renderRivalry(){
     var a = selA.value, b = selB.value;
     $("rivOut").innerHTML = (a === b)
       ? '<div class="msg">Pick two different managers.</div>'
-      : h2hPanel(a, b, seasons);
+      : h2hPanel(a, b, seasons, null, namedBy[[a, b].sort().join("|")]
+          ? namedBy[[a, b].sort().join("|")].blurb : null);
   }
   selA.addEventListener("change", paint);
   selB.addEventListener("change", paint);
+  Array.prototype.forEach.call(box.querySelectorAll(".riv-row"), function(tr){
+    tr.addEventListener("click", function(){
+      selA.value = tr.dataset.a;
+      selB.value = tr.dataset.b;
+      paint();
+      var out = $("rivOut");
+      var reduce = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+      try { out.scrollIntoView({behavior: reduce ? "auto" : "smooth", block: "start"}); }
+      catch(e){ out.scrollIntoView(); }
+    });
+  });
   paint();
 }
 
