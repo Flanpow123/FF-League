@@ -99,6 +99,9 @@
   .face.big{width:104px;height:104px;border-radius:10px;font-size:36px}
   .deskshot{border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:2px 0 22px}
   .deskshot svg,.deskshot img{width:100%;height:auto;display:block}
+  .picker{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 20px}
+  .picker select{font-family:var(--sans);font-size:15px;background:var(--panel2);color:var(--text);border:1px solid var(--line);border-radius:3px;padding:8px 10px;max-width:100%}
+  .picker select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   .face{position:relative}
   .face img.face-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
   @media(max-width:520px){ .face.big{width:78px;height:78px;font-size:28px} }
@@ -190,6 +193,7 @@
     <button role="tab" data-tab="power" aria-selected="false">Power</button>
     <button role="tab" data-tab="moves" aria-selected="false">Moves</button>
     <button role="tab" data-tab="records" aria-selected="false">Records</button>
+    <button role="tab" data-tab="rivalry" aria-selected="false">Rivalries</button>
     <button role="tab" data-tab="history" aria-selected="false">History</button>
     <button role="tab" data-tab="analysts" aria-selected="false">The Desk</button>
   </nav>
@@ -201,6 +205,7 @@
   <section id="tab-power" hidden></section>
   <section id="tab-moves" hidden></section>
   <section id="tab-records" hidden></section>
+  <section id="tab-rivalry" hidden></section>
   <section id="tab-history" hidden></section>
   <section id="tab-analysts" hidden></section>
 
@@ -268,6 +273,26 @@ var ANALYSTS = {
     art:"<svg viewBox=\"0 0 100 100\" xmlns=\"http://www.w3.org/2000/svg\" role=\"img\" aria-label=\"Skip Baseless\"><rect x=\"-2\" y=\"-2\" width=\"104\" height=\"104\" fill=\"#A98BD6\"/><path d=\"M10 102C10 82 29 73 50 73s40 9 40 29z\" fill=\"#1E2A44\"/><path d=\"M38 74h24v28H38z\" fill=\"#F2F4F3\"/><path d=\"M38 73l12 17-6 12-8-25z\" fill=\"#2A3757\"/><path d=\"M62 73L50 90l6 12 8-25z\" fill=\"#2A3757\"/><g fill=\"#1E2A44\" font-family=\"Barlow Condensed, sans-serif\" font-weight=\"700\" font-size=\"9\"><text x=\"50\" y=\"90\" text-anchor=\"middle\">FAN</text><text x=\"50\" y=\"99\" text-anchor=\"middle\">CLUB</text></g><rect x=\"42\" y=\"58\" width=\"16\" height=\"18\" rx=\"7\" fill=\"#D9A06B\"/><ellipse cx=\"50\" cy=\"40\" rx=\"20\" ry=\"22.5\" fill=\"#F1C27D\"/><ellipse cx=\"28\" cy=\"43\" rx=\"4\" ry=\"5\" fill=\"#D9A06B\"/><ellipse cx=\"72\" cy=\"43\" rx=\"4\" ry=\"5\" fill=\"#D9A06B\"/><path d=\"M29 40c0-6 1-11 3-15 4 3 10 4 18 4s14-1 18-4c2 4 3 9 3 15-3-8-8-11-21-11s-18 3-21 11z\" fill=\"#C9CDD2\"/><path d=\"M27 30c0-12 10-18 23-18s23 6 23 18z\" fill=\"#1E2A44\"/><path d=\"M73 30c9 0 17 3 20 7H60z\" fill=\"#28365A\"/><path d=\"M50 17l2.2 5h5.3l-4.3 3.3 1.7 5.2-4.9-3.2-4.9 3.2 1.7-5.2L42.5 22h5.3z\" fill=\"#F2F4F3\"/><ellipse cx=\"41\" cy=\"41\" rx=\"2.6\" ry=\"2.8\" fill=\"#140E0A\"/><ellipse cx=\"59\" cy=\"40\" rx=\"2.9\" ry=\"3.2\" fill=\"#140E0A\"/><path d=\"M35 35q7-3 12 0\" stroke=\"#8A8F96\" stroke-width=\"2.6\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M53 32q8-2 13 4\" stroke=\"#8A8F96\" stroke-width=\"2.8\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M46 46q4 4 8 0\" stroke=\"#D9A06B\" stroke-width=\"2.2\" fill=\"none\" stroke-linecap=\"round\"/><path d=\"M40 54q11 10 21-4\" stroke=\"#8A4A44\" stroke-width=\"3.4\" fill=\"none\" stroke-linecap=\"round\"/></svg>"
   }
 };
+
+/* Sleeper only knows handles. Fill this in with Sleeper user_id -> real name
+   and the whole site starts using first names instead. Paste
+   api.sleeper.app/v1/league/<league id>/users to get the ids. */
+var MANAGERS = {};
+
+/* Give a matchup a name and a backstory and it gets its own panel on the
+   Rivalries tab, plus a section in the weekly briefing whenever the two are
+   scheduled against each other. Names are matched against the manager map,
+   then Sleeper display names, then team names. */
+var RIVALRIES = [
+  { name: "The Bagel Bowl",
+    // Each side lists every name that person answers to: real name, Sleeper
+    // handle, and any team name they have used. Any one of them matching is enough.
+    between: [["Adam", "Flanpow123", "Coker? I hardly know her!"],
+              ["Brian", "Team Mountain"]],
+    blurb: "Named for the night the turkey burgers came off the grill and nobody had bought buns. "
+         + "Bagels were pressed into service. Neither man has been allowed to forget it, and the "
+         + "fixture has carried the name ever since." }
+];
 
 /* The desk, drawn. Invented people, invented studio. */
 /* Bump this whenever a portrait file is replaced. Same filename means
@@ -2101,6 +2126,33 @@ function briefingText(){
   L.push("about somebody getting humiliated does not need a measured second opinion.");
   L.push("");
 
+  var rivs = rivalryThisWeek();
+  if(rivs.length && S.history){
+    rivs.forEach(function(r){
+      var games = headToHead(r._a, r._b, S.history);
+      var sm = h2hSummary(games);
+      var nA = managerLabel(r._a, S.history), nB = managerLabel(r._b, S.history);
+      L.push("NAMED RIVALRY ON THIS WEEK'S SCHEDULE: " + r.name);
+      L.push(nA + " vs " + nB + (r.blurb ? " -- " + r.blurb : ""));
+      if(sm){
+        L.push("All time: " + nA + " " + sm.w + "-" + sm.l + (sm.t ? "-" + sm.t : "")
+          + ", " + num(sm.pfA,1) + " to " + num(sm.pfB,1)
+          + ", average margin " + num(Math.abs(sm.avg),1)
+          + " to " + (sm.avg >= 0 ? nA : nB)
+          + (sm.streak > 1 ? ", " + (sm.dir === "A" ? nA : nB) + " has won the last " + sm.streak : ""));
+        games.slice(-6).forEach(function(g){
+          L.push("  " + g.season + " week " + g.week + ": " + num(g.a,1) + "-" + num(g.b,1)
+            + " " + (g.a > g.b ? nA : nB) + (g.playoff ? " (playoff)" : ""));
+        });
+      } else {
+        L.push("They have never played before. This is the first one.");
+      }
+      L.push("This matchup has a name for a reason. Use it, and use the history, but do not");
+      L.push("explain the backstory to the reader as if they have never heard it.");
+      L.push("");
+    });
+  }
+
   L.push("THE DESK");
   L.push("These are the only analyst keys news.json may use. Keep the voices apart -- if two");
   L.push("takes could swap bylines without anyone noticing, they are not doing their job.");
@@ -2345,6 +2397,7 @@ function loadPlayers(){
 function repaint(){
   computeEfficiency();
   renderStandings(); renderPower(); renderMoves(); renderNews(); renderWeek(); renderAnalysts();
+  if($("tab-rivalry") && $("tab-rivalry").innerHTML) renderRivalry();
 }
 
 function afterPlayers(){
@@ -3135,6 +3188,299 @@ function gotAwayHTML(){
 /* ============================================================
    RECORD BOOK
    ============================================================ */
+/* ============================================================
+   RIVALRIES
+   Head-to-head across every season Sleeper still has. Teams get
+   renamed constantly, so everything here is keyed on the Sleeper
+   owner id, which does not change.
+   ============================================================ */
+
+/* Match a name in RIVALRIES to an owner id. Tries the manager map first,
+   then display names, then team names, across every season. */
+/* Not every site defines a MANAGERS map, so ask for it carefully. */
+function managerMap(){
+  try { return (typeof MANAGERS !== "undefined" && MANAGERS) ? MANAGERS : {}; }
+  catch(e){ return {}; }
+}
+
+function resolveManager(label, seasons){
+  // A side can be a single name or a list of things that person has been
+  // called: real name, Sleeper handle, any team name they have used.
+  var wants = (Object.prototype.toString.call(label) === "[object Array]" ? label : [label])
+    .map(normKey).filter(Boolean);
+  if(!wants.length) return null;
+  var hit = null;
+
+  var mm = managerMap();
+  Object.keys(mm).forEach(function(uid){
+    if(!hit && wants.indexOf(normKey(mm[uid])) >= 0) hit = uid;
+  });
+  if(hit) return hit;
+
+  function scan(test){
+    (seasons||[]).forEach(function(s){
+      (s.users||[]).forEach(function(u){
+        if(hit) return;
+        var dn = normKey(u.display_name||"");
+        var tn = normKey((u.metadata&&u.metadata.team_name)||"");
+        if(test(dn) || test(tn)) hit = u.user_id;
+      });
+    });
+  }
+  scan(function(v){ return v && wants.indexOf(v) >= 0; });
+  if(!hit) scan(function(v){
+    if(!v) return false;
+    for(var i = 0; i < wants.length; i++){ if(v.indexOf(wants[i]) === 0) return true; }
+    return false;
+  });
+  return hit;
+}
+
+/* Every owner who has ever appeared, newest name first. */
+function allManagers(seasons){
+  var out = {}, order = [];
+  (seasons||[]).forEach(function(s){
+    var uMap = {};
+    (s.users||[]).forEach(function(u){ uMap[u.user_id] = u; });
+    (s.rosters||[]).forEach(function(r){
+      var uid = r.owner_id;
+      if(!uid || out[uid]) return;
+      var u = uMap[uid];
+      out[uid] = managerMap()[uid]
+        || (u && u.display_name)
+        || (u && u.metadata && u.metadata.team_name)
+        || ("Roster " + r.roster_id);
+      order.push(uid);
+    });
+  });
+  order.sort(function(a,b){ return out[a].localeCompare(out[b]); });
+  return {names: out, order: order};
+}
+
+function managerLabel(uid, seasons){
+  var all = allManagers(seasons);
+  return all.names[uid] || "Unknown";
+}
+
+/* Every game these two have played, oldest first. */
+function headToHead(ownerA, ownerB, seasons){
+  var games = [];
+  (seasons||[]).forEach(function(s){
+    var rMap = {}, uMap = {};
+    (s.rosters||[]).forEach(function(r){ rMap[r.roster_id] = r; });
+    (s.users||[]).forEach(function(u){ uMap[u.user_id] = u; });
+    var pStart = Number(s.league && s.league.settings && s.league.settings.playoff_week_start) || 99;
+    function ownerOf(rid){ var r = rMap[rid]; return r ? r.owner_id : null; }
+    function teamOf(rid){
+      var r = rMap[rid], u = r && uMap[r.owner_id];
+      if(!u) return "Roster " + rid;
+      return (u.metadata && u.metadata.team_name) || u.display_name || ("Roster " + rid);
+    }
+    Object.keys(s.matchups||{}).forEach(function(w){
+      var g = {};
+      (s.matchups[w]||[]).forEach(function(m){
+        if(m.matchup_id == null) return;
+        (g[m.matchup_id] = g[m.matchup_id] || []).push(m);
+      });
+      Object.keys(g).forEach(function(k){
+        var p = g[k];
+        if(p.length !== 2) return;
+        var o0 = ownerOf(p[0].roster_id), o1 = ownerOf(p[1].roster_id), a, b;
+        if(o0 === ownerA && o1 === ownerB){ a = p[0]; b = p[1]; }
+        else if(o0 === ownerB && o1 === ownerA){ a = p[1]; b = p[0]; }
+        else return;
+        var pa = Number(a.points)||0, pb = Number(b.points)||0;
+        if(!pa && !pb) return;
+        games.push({season: s.league.season, week: Number(w), a: pa, b: pb,
+                    teamA: teamOf(a.roster_id), teamB: teamOf(b.roster_id),
+                    playoff: Number(w) >= pStart});
+      });
+    });
+  });
+  games.sort(function(x,y){
+    return (Number(x.season) - Number(y.season)) || (x.week - y.week);
+  });
+  return games;
+}
+
+function h2hSummary(games){
+  if(!games || !games.length) return null;
+  var w=0, l=0, t=0, pfA=0, pfB=0, bigA=null, bigB=null, close=null;
+  games.forEach(function(g){
+    pfA += g.a; pfB += g.b;
+    var m = g.a - g.b;
+    if(m > 0) w++; else if(m < 0) l++; else t++;
+    if(m > 0 && (!bigA || m > bigA.m)) bigA = {g: g, m: m};
+    if(m < 0 && (!bigB || -m > bigB.m)) bigB = {g: g, m: -m};
+    if(!close || Math.abs(m) < close.m) close = {g: g, m: Math.abs(m)};
+  });
+  var streak = 0, dir = null;
+  for(var i = games.length - 1; i >= 0; i--){
+    var d = games[i].a > games[i].b ? "A" : (games[i].a < games[i].b ? "B" : null);
+    if(!d) break;
+    if(dir === null){ dir = d; streak = 1; }
+    else if(d === dir) streak++;
+    else break;
+  }
+  return {n: games.length, w: w, l: l, t: t, pfA: pfA, pfB: pfB,
+          avg: (pfA - pfB) / games.length, bigA: bigA, bigB: bigB,
+          close: close, streak: streak, dir: dir,
+          playoffs: games.filter(function(g){ return g.playoff; }).length};
+}
+
+/* Is a named rivalry on this week's schedule? Used by the briefing. */
+function rivalryThisWeek(){
+  if(!RIVALRIES.length || !S.rosters.length) return [];
+  var sched = schedulesByWeek()[S.week];
+  if(!sched) return [];
+  var out = [];
+  RIVALRIES.forEach(function(r){
+    var a = rosterOfOwner(r._a), b = rosterOfOwner(r._b);
+    if(a == null || b == null) return;
+    if(sched[a] === b) out.push(r);
+  });
+  return out;
+}
+function rosterOfOwner(uid){
+  for(var i = 0; i < S.rosters.length; i++){
+    if(S.rosters[i].owner_id === uid) return S.rosters[i].roster_id;
+  }
+  return null;
+}
+
+function h2hPanel(uidA, uidB, seasons, heading, blurb){
+  var nameA = managerLabel(uidA, seasons), nameB = managerLabel(uidB, seasons);
+  var games = headToHead(uidA, uidB, seasons);
+  var s = h2hSummary(games);
+  var h = '';
+
+  if(heading){
+    h += '<div class="season-head"><h3>' + esc(heading) + '</h3></div>';
+    if(blurb) h += '<p class="note">' + esc(blurb) + '</p>';
+  }
+
+  if(!s){
+    return h + '<div class="msg">' + esc(nameA) + ' and ' + esc(nameB)
+      + ' have never played each other in any season on record.</div>';
+  }
+
+  var lead = s.w > s.l ? (esc(nameA) + ' leads ' + s.w + '-' + s.l)
+           : s.l > s.w ? (esc(nameB) + ' leads ' + s.l + '-' + s.w)
+           : ('Dead level at ' + s.w + '-' + s.l);
+  if(s.t) lead += '-' + s.t;
+
+  h += '<div class="wire"><div class="wire-item">'
+    + '<div class="hl"><span class="tag">All time</span>' + lead + '</div>'
+    + '<div class="dt">' + s.n + ' meeting' + (s.n === 1 ? '' : 's')
+    + (s.playoffs ? ', ' + s.playoffs + ' in the playoffs' : '')
+    + ' &middot; ' + num(s.pfA, 1) + ' to ' + num(s.pfB, 1)
+    + ' &middot; average margin ' + num(Math.abs(s.avg), 1)
+    + ' to ' + esc(s.avg >= 0 ? nameA : nameB) + '</div></div>';
+
+  if(s.streak > 1){
+    h += '<div class="wire-item"><div class="hl"><span class="tag">Streak</span>'
+      + esc(s.dir === "A" ? nameA : nameB) + ' has won the last ' + s.streak + '</div></div>';
+  }
+  if(s.bigA){
+    h += '<div class="wire-item"><div class="hl"><span class="tag">Biggest win</span>'
+      + esc(nameA) + ' by ' + num(s.bigA.m, 1) + '</div>'
+      + '<div class="dt">' + s.bigA.g.season + ' week ' + s.bigA.g.week + ', '
+      + num(s.bigA.g.a, 1) + ' to ' + num(s.bigA.g.b, 1) + '</div></div>';
+  }
+  if(s.bigB){
+    h += '<div class="wire-item"><div class="hl"><span class="tag">Biggest win</span>'
+      + esc(nameB) + ' by ' + num(s.bigB.m, 1) + '</div>'
+      + '<div class="dt">' + s.bigB.g.season + ' week ' + s.bigB.g.week + ', '
+      + num(s.bigB.g.b, 1) + ' to ' + num(s.bigB.g.a, 1) + '</div></div>';
+  }
+  if(s.close && s.n > 1){
+    h += '<div class="wire-item"><div class="hl"><span class="tag">Closest</span>'
+      + num(s.close.m, 1) + ' points apart</div>'
+      + '<div class="dt">' + s.close.g.season + ' week ' + s.close.g.week + ', '
+      + num(s.close.g.a, 1) + ' to ' + num(s.close.g.b, 1) + '</div></div>';
+  }
+  h += '</div>';
+
+  h += '<div class="scroll"><table><thead><tr><th>Season</th><th>Week</th>'
+    + '<th>' + esc(nameA) + '</th><th>' + esc(nameB) + '</th><th>Margin</th><th>Won by</th>'
+    + '</tr></thead><tbody>';
+  games.slice().reverse().forEach(function(g){
+    var m = g.a - g.b;
+    var winner = m > 0 ? nameA : (m < 0 ? nameB : "Tie");
+    h += '<tr><td>' + esc(g.season) + '</td>'
+      + '<td>' + g.week + (g.playoff ? ' <span class="champ">playoff</span>' : '') + '</td>'
+      + '<td class="' + (m > 0 ? 'pos' : '') + '">' + num(g.a, 1) + '</td>'
+      + '<td class="' + (m < 0 ? 'pos' : '') + '">' + num(g.b, 1) + '</td>'
+      + '<td>' + num(Math.abs(m), 1) + '</td>'
+      + '<td>' + esc(winner) + '</td></tr>';
+  });
+  h += '</tbody></table></div>';
+  return h;
+}
+
+function renderRivalry(){
+  var box = $("tab-rivalry");
+  if(!box) return;
+  if(!S.history){
+    box.innerHTML = '<h2>Rivalries</h2><div class="msg">Reading every season Sleeper still has. '
+      + 'This one takes a few seconds.</div>';
+    loadHistory().then(function(){ renderRivalry(); });
+    return;
+  }
+  var seasons = S.history || [];
+  var all = allManagers(seasons);
+
+  // resolve the configured rivalries once
+  RIVALRIES.forEach(function(r){
+    if(r._resolved) return;
+    r._a = resolveManager(r.between[0], seasons);
+    r._b = resolveManager(r.between[1], seasons);
+    r._resolved = true;
+  });
+
+  var h = '<h2>Rivalries</h2>'
+    + '<p class="note">Every meeting on record, across every season Sleeper still has. '
+    + 'Matched on Sleeper accounts rather than team names, so renaming your team does not '
+    + 'wipe your history.</p>';
+
+  var named = RIVALRIES.filter(function(r){ return r._a && r._b; });
+  named.forEach(function(r){
+    h += '<div class="poll-wrap" style="margin-bottom:22px">'
+      + h2hPanel(r._a, r._b, seasons, r.name, r.blurb) + '</div>';
+  });
+  RIVALRIES.filter(function(r){ return !r._a || !r._b; }).forEach(function(r){
+    h += '<div class="msg bad">Could not match &ldquo;' + esc(r.name) + '&rdquo; to two managers: '
+      + esc(r.between.map(function(x){ return [].concat(x).join("/"); }).join(" and "))
+      + ' is not resolving to a Sleeper account.</div>';
+  });
+
+  h += '<div class="season-head"><h3>Any two managers</h3></div>'
+    + '<div class="picker">'
+    + '<select id="rivA">' + all.order.map(function(uid){
+        return '<option value="' + esc(uid) + '">' + esc(all.names[uid]) + '</option>';
+      }).join('') + '</select>'
+    + '<span class="note" style="margin:0">against</span>'
+    + '<select id="rivB">' + all.order.map(function(uid){
+        return '<option value="' + esc(uid) + '">' + esc(all.names[uid]) + '</option>';
+      }).join('') + '</select></div>'
+    + '<div id="rivOut"></div>';
+
+  box.innerHTML = h;
+
+  var selA = $("rivA"), selB = $("rivB");
+  if(!selA || !selB) return;
+  if(all.order.length > 1) selB.selectedIndex = 1;
+  function paint(){
+    var a = selA.value, b = selB.value;
+    $("rivOut").innerHTML = (a === b)
+      ? '<div class="msg">Pick two different managers.</div>'
+      : h2hPanel(a, b, seasons);
+  }
+  selA.addEventListener("change", paint);
+  selB.addEventListener("change", paint);
+  paint();
+}
+
 function loadHistory(){
   if(S.historyPromise) return S.historyPromise;
   var seasons=[];
@@ -3287,6 +3633,7 @@ tabs.forEach(function(btn){
     });
     if(btn.dataset.tab==="history") renderHistory();
     if(btn.dataset.tab==="records") renderRecords();
+    if(btn.dataset.tab==="rivalry") renderRivalry();
     if(btn.dataset.tab==="book") renderBook();
   });
 });
