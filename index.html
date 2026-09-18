@@ -99,6 +99,8 @@
   .face.big{width:104px;height:104px;border-radius:10px;font-size:36px}
   .deskshot{border:1px solid var(--line);border-radius:4px;overflow:hidden;margin:2px 0 22px}
   .deskshot svg,.deskshot img{width:100%;height:auto;display:block}
+  .sharebar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin:0 0 22px;padding:14px;border:1px solid var(--line);border-radius:3px;background:var(--panel)}
+  .sharebar .hint{color:var(--dim);font-size:14px}
   .riv-row{cursor:pointer}
   .riv-row:hover td{background:var(--panel2)}
   .picker{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:12px 0 20px}
@@ -1614,10 +1616,215 @@ function ballotsHTML(){
   return h+'<div style="height:34px"></div>';
 }
 
+/* ============================================================
+   SHARE CARD
+   Draws the week onto a canvas and hands it to the phone's share
+   sheet, or downloads it on desktop. The point is that the site
+   produces the thing that gets posted, instead of hoping somebody
+   remembers to open it.
+   ============================================================ */
+var SHARE_W = 1080, SHARE_H = 1350;
+var SHARE_PAL = {
+  turf:"#0D1411", panel:"#141F1A", panel2:"#1B2A23", line:"#25392F",
+  text:"#E9EFEA", dim:"#8CA398", gold:"#F0C24B", flag:"#E2593B", good:"#5FCB8B"
+};
+
+function shareFont(size, weight, cond){
+  return (weight||500) + " " + size + "px " +
+    (cond ? "'Barlow Condensed','Barlow'," : "'Barlow',") +
+    "system-ui,-apple-system,'Segoe UI',sans-serif";
+}
+
+/* Trim to fit, with an ellipsis, so a long team name never runs off the card. */
+function fitText(ctx, str, max){
+  str = String(str == null ? "" : str);
+  if(ctx.measureText(str).width <= max) return str;
+  var s = str;
+  while(s.length > 1 && ctx.measureText(s + "…").width > max) s = s.slice(0, -1);
+  return s + "…";
+}
+
+/* Wrap to at most `max` lines, ellipsing the last rather than cutting a word in half. */
+function wrapLines(ctx, text, maxW, max){
+  var words = String(text||"").split(/\s+/), line = "", lines = [];
+  for(var i = 0; i < words.length; i++){
+    var test = line ? line + " " + words[i] : words[i];
+    if(ctx.measureText(test).width > maxW && line){
+      lines.push(line); line = words[i];
+      if(lines.length === max - 1){
+        lines.push(fitText(ctx, words.slice(i).join(" "), maxW));
+        return lines;
+      }
+    } else line = test;
+  }
+  if(line) lines.push(line);
+  return lines.slice(0, max);
+}
+
+/* The shortest take that is still substantial. A card wants a punchline, not a
+   paragraph, and the one-liners are the ones people actually repeat. */
+function pickShareQuote(){
+  var best = null, fb = null;
+  ((S.news && S.news.stories) || []).forEach(function(st){
+    (st.takes || []).forEach(function(t){
+      var a = ANALYSTS[t.analyst];
+      if(!a || !t.text) return;
+      if(!fb) fb = {who: a.name, text: t.text};
+      if(t.text.length < 60) return;
+      if(!best || t.text.length < best.text.length) best = {who: a.name, text: t.text};
+    });
+  });
+  return best || fb;
+}
+
+function shareWeekNumber(){
+  // the most recent week with real scores, else whatever week we are in
+  var wk = S.week;
+  for(var w = S.week; w >= 1; w--){
+    var arr = S.matchups[w] || [];
+    if(arr.some(function(m){ return (Number(m.points)||0) > 0; })){ wk = w; break; }
+  }
+  return wk;
+}
+
+function drawShareCard(){
+  var c = document.createElement("canvas");
+  c.width = SHARE_W; c.height = SHARE_H;
+  var x = c.getContext("2d"), P = SHARE_PAL, pad = 64;
+
+  x.fillStyle = P.turf; x.fillRect(0, 0, SHARE_W, SHARE_H);
+
+  // accent bar
+  var seg = SHARE_W / 5, cols = [P.gold, P.flag, P.good, "#6FB3D2", "#A98BD6"];
+  cols.forEach(function(col, i){ x.fillStyle = col; x.fillRect(i*seg, 0, seg, 10); });
+
+  var wk = shareWeekNumber();
+  var y = 118;
+  x.fillStyle = P.gold; x.font = shareFont(30, 700, true);
+  x.fillText("WEEK " + wk, pad, y);
+  y += 66;
+  x.fillStyle = P.text; x.font = shareFont(62, 700, true);
+  x.fillText(fitText(x, (S.league && S.league.name) || "Fantasy Football", SHARE_W - pad*2), pad, y);
+
+  // ---- scoreboard
+  y += 54;
+  x.fillStyle = P.line; x.fillRect(pad, y, SHARE_W - pad*2, 2);
+  y += 46;
+  x.fillStyle = P.dim; x.font = shareFont(24, 600, true);
+  x.fillText("SCOREBOARD", pad, y);
+  y += 26;
+
+  var gs = games(wk);
+  var rowH = 78;
+  gs.slice(0, 6).forEach(function(g){
+    x.fillStyle = P.panel;
+    x.fillRect(pad, y, SHARE_W - pad*2, rowH - 10);
+    var midY = y + (rowH - 10)/2 + 9;
+
+    x.textAlign = "right";
+    x.fillStyle = P.gold; x.font = shareFont(30, 700, true);
+    x.fillText(num(g.winPts, 1), SHARE_W - pad - 22, midY - 16);
+    x.fillStyle = P.dim;
+    x.fillText(num(g.losePts, 1), SHARE_W - pad - 22, midY + 18);
+
+    x.textAlign = "left";
+    var nameMax = SHARE_W - pad*2 - 200;
+    x.fillStyle = P.text; x.font = shareFont(28, 600);
+    x.fillText(fitText(x, teamName(g.win.roster_id), nameMax), pad + 22, midY - 16);
+    x.fillStyle = P.dim; x.font = shareFont(26, 400);
+    x.fillText(fitText(x, teamName(g.lose.roster_id), nameMax), pad + 22, midY + 18);
+    y += rowH;
+  });
+
+  // ---- power rankings, top three
+  var pr = powerRows();
+  if(pr && pr.length){
+    y += 24;
+    x.fillStyle = P.dim; x.font = shareFont(24, 600, true);
+    x.fillText("POWER RANKINGS", pad, y);
+    y += 40;
+    pr.slice(0, 3).forEach(function(r, i){
+      x.fillStyle = i === 0 ? P.gold : P.text;
+      x.font = shareFont(32, 700, true);
+      x.fillText(String(i + 1), pad, y);
+      x.font = shareFont(30, i === 0 ? 700 : 500);
+      x.fillText(fitText(x, teamName(r.id), SHARE_W - pad*2 - 150), pad + 42, y);
+      x.textAlign = "right"; x.fillStyle = P.dim; x.font = shareFont(28, 500, true);
+      x.fillText(num(r.score, 1), SHARE_W - pad, y);
+      x.textAlign = "left";
+      y += 46;
+    });
+  }
+
+  // ---- one line from the desk, anchored to the bottom so the card never
+  //      ends with a slab of empty space
+  var quote = pickShareQuote();
+  if(quote){
+    x.font = shareFont(30, 400);
+    var lines = wrapLines(x, quote.text, SHARE_W - pad*2, 4);
+    var blockH = lines.length * 42 + 46;
+    var qy = SHARE_H - 76 - 40 - blockH;
+    if(qy < y + 20) qy = y + 20;           // never collide with the rankings
+    x.fillStyle = P.line; x.fillRect(pad, qy - 46, SHARE_W - pad*2, 2);
+    x.fillStyle = P.text;
+    lines.forEach(function(ln){ x.fillText(ln, pad, qy); qy += 42; });
+    qy += 8;
+    x.fillStyle = P.gold; x.font = shareFont(26, 600, true);
+    x.fillText("\u2014 " + quote.who, pad, qy);
+  }
+
+  // ---- footer
+  x.fillStyle = P.line; x.fillRect(0, SHARE_H - 76, SHARE_W, 2);
+  x.fillStyle = P.dim; x.font = shareFont(24, 500);
+  x.fillText(location.host + location.pathname.replace(/\/$/, ""), pad, SHARE_H - 30);
+
+  return c;
+}
+
+function shareWeek(){
+  var btn = $("shareBtn");
+  function done(msg){
+    if(!btn) return;
+    btn.textContent = msg;
+    setTimeout(function(){ btn.textContent = "Share this week"; }, 4000);
+  }
+  var ready = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  ready.then(function(){
+    var c;
+    try { c = drawShareCard(); }
+    catch(e){ done("Could not build the card"); return; }
+    if(!c.toBlob){ done("Not supported in this browser"); return; }
+    c.toBlob(function(blob){
+      if(!blob){ done("Could not build the card"); return; }
+      var name = "week-" + shareWeekNumber() + ".png";
+      var file = null;
+      try { file = new File([blob], name, {type: "image/png"}); } catch(e){}
+      if(file && navigator.canShare && navigator.canShare({files: [file]}) && navigator.share){
+        navigator.share({files: [file]}).then(function(){ done("Shared"); },
+          function(){ done("Share this week"); });
+        return;
+      }
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url; a.download = name;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+      done("Saved " + name);
+    }, "image/png");
+  });
+}
+
+function shareBarHTML(){
+  return '<div class="sharebar">'
+    + '<button class="btn" id="shareBtn">Share this week</button>'
+    + '<span class="hint">Builds an image of this week to drop in the group chat.</span>'
+    + '</div>';
+}
+
 function renderNews(){
   var stories=(S.news&&S.news.stories)||[];
 
-  var html=tocHTML(stories);
+  var html=shareBarHTML()+tocHTML(stories);
 
   html+='<h2>The wire</h2>'
     +'<p class="note">'
@@ -1657,6 +1864,9 @@ function renderNews(){
   }
 
   $("tab-news").innerHTML=html;
+
+  var sb=$("shareBtn");
+  if(sb) sb.addEventListener("click", shareWeek);
 
   Array.prototype.forEach.call(document.querySelectorAll(".toc-item"), function(el){
     el.addEventListener("click", function(){
