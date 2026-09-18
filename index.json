@@ -1,0 +1,10 @@
+{
+  "note": "Every past edition has to be listed here by hand. A static host cannot list a folder, so an edition missing from this array does not exist as far as the site is concerned. Two editions in one week is fine — give each its own file.",
+  "editions": [
+    {
+      "file": "2026-week-02-friday.json",
+      "week": 2,
+      "generated": "2026-09-18"
+    }
+  ]
+}
