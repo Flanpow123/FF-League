@@ -1814,17 +1814,19 @@ function shareWeek(){
   });
 }
 
+/* Desk tool. Regular visitors see no sign the card exists. */
 function shareBarHTML(){
   return '<div class="sharebar">'
     + '<button class="btn" id="shareBtn">Share this week</button>'
-    + '<span class="hint">Builds an image of this week to drop in the group chat.</span>'
+    + '<span class="hint">Builds an image of this week to drop in the group chat. '
+    + 'Only visible because this URL ends in ?desk.</span>'
     + '</div>';
 }
 
 function renderNews(){
   var stories=(S.news&&S.news.stories)||[];
 
-  var html=shareBarHTML()+tocHTML(stories);
+  var html=(DESK?shareBarHTML():"")+tocHTML(stories);
 
   html+='<h2>The wire</h2>'
     +'<p class="note">'
