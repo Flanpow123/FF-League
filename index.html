@@ -168,6 +168,8 @@
   .kind.trade{background:var(--good)}
   .when{color:var(--dim);font-size:12.5px;margin-left:auto}
   .line{display:flex;align-items:center;gap:9px;padding:3px 0;font-size:14.5px}
+  .inj{font-family:var(--cond);font-weight:700;font-size:11.5px;letter-spacing:.5px;padding:1px 5px;border-radius:2px;background:rgba(196,83,75,.18);color:#E08076;border:1px solid rgba(196,83,75,.45)}
+  .inj.warn{background:rgba(240,194,75,.14);color:#E3BC63;border-color:rgba(240,194,75,.4)}
   .line .pav{width:26px;height:26px;border-radius:3px;background:var(--panel2);flex:none;object-fit:cover}
   .who{color:var(--dim);font-size:13px}
   .bids{margin-top:9px;border-top:1px dashed var(--line);padding-top:8px}
@@ -495,11 +497,39 @@ function playerImg(pid){
   if(/^[A-Z]{2,3}$/.test(pid)) return "https://sleepercdn.com/images/team_logos/nfl/"+pid.toLowerCase()+".png";
   return "https://sleepercdn.com/content/nfl/players/thumb/"+pid+".jpg";
 }
+/* Sleeper carries the injury designation on the player object we already
+   download for names. injury_status is the weekly designation; status is
+   the season-long one (Injured Reserve, and so on) and only matters when
+   it is not Active. */
+function injuryOf(pid){
+  var p = S.players && S.players[pid];
+  if(!p) return null;
+  var st = p.injury_status || "";
+  if(!st && p.status && p.status !== "Active") st = p.status;
+  if(!st) return null;
+  return {
+    status: st,
+    part: p.injury_body_part || "",
+    note: p.injury_notes || "",
+    label: st + (p.injury_body_part ? " \u00b7 " + p.injury_body_part : "")
+  };
+}
+var INJURY_SHORT = {Questionable:"Q", Doubtful:"D", Out:"OUT", "Injured Reserve":"IR",
+                    IR:"IR", PUP:"PUP", Sus:"SUS", Suspended:"SUS", NA:"NA", Probable:"P"};
+function injuryTag(pid){
+  var inj = injuryOf(pid);
+  if(!inj) return "";
+  var short = INJURY_SHORT[inj.status] || inj.status;
+  var cls = (inj.status === "Questionable" || inj.status === "Probable") ? "inj warn" : "inj";
+  return '<span class="'+cls+'" title="'+esc(inj.label)+'">'+esc(short)+'</span>';
+}
+
 function playerLine(pid){
   var meta=playerMeta(pid);
   return '<div class="line">'
     +'<img class="pav" src="'+esc(playerImg(pid))+'" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">'
     +'<span>'+esc(playerName(pid))+'</span>'
+    +injuryTag(pid)
     +(meta?'<span class="who">'+esc(meta)+'</span>':'')+'</div>';
 }
 function when(ms){
@@ -1974,8 +2004,10 @@ function currentWeekPlayers(){
         var proj = (PJl && PJl[pid]!=null) ? num(PJl[pid],1) : "--";
         var meta = playerMeta(pid);
         var gs = stateLabel(playerGameState(pid));
+        var inj = injuryOf(pid);
         L.push("  " + playerName(pid) + (meta?" ("+meta+")":"") + " " + proj + " -> " + num(pp[pid]||0)
-          + (gs ? "  [" + gs + "]" : ""));
+          + (gs ? "  [" + gs + "]" : "")
+          + (inj ? "  [" + inj.label + "]" : ""));
       });
       var bench = [];
       (m.players||[]).forEach(function(pid){
@@ -1984,6 +2016,44 @@ function currentWeekPlayers(){
       if(bench.length) L.push("  bench: " + bench.join(", "));
     });
   });
+
+  // Collected in one place, because a bad score with an injury designation
+  // next to it is a different story from a bad score without one.
+  var hurt = [];
+  rows.forEach(function(m){
+    var pp = m.players_points || {};
+    (m.starters || []).forEach(function(pid){
+      if(!pid || pid === "0") return;
+      var inj = injuryOf(pid);
+      if(!inj) return;
+      var PJi = projections();
+      var proj = (PJi && PJi[pid] != null) ? Number(PJi[pid]) : null;
+      var actual = Number(pp[pid]) || 0;
+      var played = playerGameState(pid) === "post" || !S.gameStatus;
+      var short = played && proj != null && proj >= 6 && actual < proj * 0.4;
+      hurt.push("  " + playerName(pid) + (playerMeta(pid) ? " (" + playerMeta(pid) + ")" : "")
+        + ", " + teamName(m.roster_id) + " -- " + inj.label
+        + (proj != null ? " -- projected " + num(proj,1) + ", scored " + num(actual) : "")
+        + (short ? "   LIKELY LEFT THE GAME OR PLAYED HURT" : ""));
+    });
+  });
+
+  L.push("");
+  L.push("INJURY REPORT, WEEK " + S.week);
+  L.push("Sleeper's designation for every starter who currently carries one. A starter who");
+  L.push("finished well under his projection with a designation beside his name very likely");
+  L.push("left the game or played hurt, and is flagged below. Check this before writing a");
+  L.push("sentence about somebody having a bad game.");
+  if(hurt.length){
+    hurt.forEach(function(l){ L.push(l); });
+  } else {
+    L.push("  No starter in this week's lineups carries an injury designation.");
+  }
+  L.push("These designations come from Sleeper and update on their own schedule, so a");
+  L.push("Thursday night injury can take hours to appear and a player hurt in a game that");
+  L.push("has just finished may not be listed at all. If a number looks inexplicable and");
+  L.push("nothing here explains it, report the number and do not invent the reason.");
+
   L.push("");
   return L.join("\n");
 }
@@ -2292,6 +2362,9 @@ function briefingText(){
   L.push("Do not manufacture continuity and do not rerun last week's article unless the evidence moved.");
   L.push("Every factual claim must come from this briefing. Analysts may exaggerate what the facts mean;");
   L.push("they may not invent facts.");
+  L.push("Check the injury report before building a story on a bad performance. A player who left");
+  L.push("the game hurt is not a player who played badly, and the desk does not mock an injury.");
+  L.push("Equally, do not diagnose anybody: if the injury report is silent, so are the analysts.");
 
   return L.join("\n");
 }
