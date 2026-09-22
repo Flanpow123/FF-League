@@ -1,109 +1,105 @@
 {
-  "generated": "2026-09-21",
+  "generated": "2026-09-22",
   "week": 2,
   "stories": [
     {
-      "headline": "DJ Moore scored minus 0.10 and the game finished 143.14 to 143.10",
-      "body": "#CrookedAdam beat TeenageTutenNinjaTurtles by four hundredths of a point. It is the only matchup in this league that has finished.\n\nOn Friday this desk ran a story headlined \"DJ Moore scored minus 0.10 and it may decide a game.\" Moore was projected for 13.1 and finished on minus 0.10, and it was not a bad night. He went down diving for a pass in the end zone late in the second quarter against Detroit and did not come back. Buffalo called it a shoulder and a stinger; it has since been reported as an AC joint sprain, and he is day to day. The margin was 0.04.\n\nJack did almost everything right after Thursday. Travis Kelce went for 25.10, Jaylen Waddle for 21.80, Harrison Butker for 16.00, and from Friday morning onwards he outscored Kevin by 17.26. He lost anyway, because a receiver got hurt reaching for a touchdown two days before the rest of his week had started. Tyler Shough scored 24.38 on his bench. Patrick Mahomes scored 34.98 on the other one.",
-      "takes": [
-        {
-          "analyst": "analyst",
-          "text": "Four hundredths. I have been on the wrong end of a game decided by something that small and there is nothing anybody can say to you afterwards. Jack outscored the man by seventeen points over three days and it did not matter, because the scoreboard does not ask when you got them."
-        },
-        {
-          "analyst": "quant",
-          "text": "I called this variance on Friday and it was not. A projection prices what a player does, not whether he is on the field to do it, and 13.1 points of expected production walked to the locker room in the second quarter. Thirteen points of availability, a game decided by four hundredths. No model in this building was going to catch that."
-        },
-        {
-          "analyst": "firestarter",
-          "text": "POINT ZERO FOUR! A hundred and forty-three points! Starts Kelce, starts Waddle, gets sixteen from a KICKER, and loses a football game because a receiver dove for the end zone on Thursday night and did not get up. And there is nobody to be angry at! That is the part I cannot handle! Give me somebody to be angry at!"
-        },
-        {
-          "analyst": "troll",
-          "text": "Mahomes scored 34.98 on the winner's bench. Shough scored 24.38 on the loser's. Between them that is fifty-nine points nobody started in a game decided by four hundredths, and both these men are going to tell you tonight that they played it perfectly."
-        },
-        {
-          "analyst": "wildcard",
-          "text": "I said on Friday that minus zero point one was a statement of intent. It was a man getting hurt, and I will take that one back, which is not a sentence I use often. Here is the one I am keeping: this desk reads a Thursday number like it is information. Sometimes it is just a man walking to the locker room. Write it down."
-        }
-      ],
-      "storyline": "Does Jack's 143.10 in a loss turn into anything, or is this the week that follows him?"
-    },
-    {
-      "headline": "Brian benched Jared Goff for 37.78 and started Dak Prescott for 37.76",
-      "body": "Two weeks of this desk telling Brian Millan he is leaving Jared Goff on the bench, and this is how it resolves: Goff scored 37.78 from the bench, Dak Prescott scored 37.76 from the lineup, and the difference is two hundredths of a point.\n\nGoff has now been Team Mountain's best benched player in consecutive weeks. He was worth 20.4 of the 62.0 Brian left unstarted in week one.\n\nTeam Mountain lead I'sah Likely to win Deebo 97.56 to 83.42 with Kyren Williams and Davante Adams still to play, worth 29.1 projected. Chris has Isaiah Likely to come and needs 14.14 from him, which would take a career night from a tight end he left on his own bench in week one for 27.8.",
-      "takes": [
-        {
-          "analyst": "firestarter",
-          "text": "TWO HUNDREDTHS! I spent an entire story on Friday telling this man he was giving away a football game and he handed me back a quarterback who scored the same number to two decimal places! I am not apologising. I am refusing to apologise. He was still wrong, he was just wrong by nothing."
-        },
-        {
-          "analyst": "analyst",
-          "text": "This is the one that will make him do it again. He made the call, the call came back level, and now he has a season's worth of evidence that it does not matter who he starts. That is how a manager talks himself into the third week of it."
-        },
-        {
-          "analyst": "troll",
-          "text": "Fifty-eight points on the bench in two weeks and this week it cost him two hundredths of a point. Brian is going to walk around all season saying he was right. He was not right. He was lucky twice, which in this league is the same thing until suddenly it is not."
-        }
-      ],
-      "storyline": "Does Brian start Goff in week three now that benching him has cost him nothing?"
-    },
-    {
-      "headline": "The desk's called shots, with one football game left to settle them",
-      "body": "Five analysts called all six matchups on Friday. One has finished. Here is where it stands if every current leader holds, and five matchups are still live.\n\nShannon Larp 6-0. Mina Crimes 5-1. Stephen B Smith 4-2. Skip Baseless 4-2. Fat McCafferty 2-4.\n\nLarp is the only one with a clean sheet and he got there by taking every favourite in the building. Baseless went the other way, keeping five of the six Friday leaders on the theory that the team ahead on Friday stays ahead. Baltimore Boofers led by 46.82 on Friday and now trail by 2.04. Crashee'd My Ford led on Friday and now trail by 26.38. Both were his.\n\nAnd the only matchup that has actually finished was the one Fat McCafferty picked. He took TeenageTutenNinjaTurtles, who lost by 0.04.",
+      "headline": "Two games changed hands on Monday night and both of them were McCafferty's",
+      "body": "Week two is final and the called shots are graded. Shannon Larp, Skip Baseless and Fat McCafferty all finished four and two. Mina Crimes went three and three. Stephen B Smith went two and four.\n\nOn Monday morning, with five matchups still live, Larp was six for six and McCafferty was one for six with five to play. Two of those five flipped. Baltimore Boofers came from 2.04 down to beat Team Ketchup 125.72 to 122.76, and Kamara Sutra came from 0.20 down to beat CeeDee's TD's 124.58 to 118.28. McCafferty was the only man on this desk holding both.\n\nThree of the desk were wrong about Team Ketchup and four of the five were wrong about CeeDee's TD's. The one nobody missed was #CrookedAdam, who won by 0.04.",
       "takes": [
         {
           "analyst": "wildcard",
-          "text": "Point zero four. That is what separates me from three and three. I am not being graded on judgement here, I am being graded on a tenth of a point from a receiver in Buffalo, and every man on this desk knows it."
+          "text": "Four and two. From one and five. On Monday morning this desk had me buried and I said grade me at midnight, and at midnight I was level with the man who took six favourites. A deficit is stored energy. I have been saying it for two weeks and last night it paid twice."
+        },
+        {
+          "analyst": "analyst",
+          "text": "I had six for six sitting in my hand at breakfast and finished level with the man everybody spent the weekend laughing at. That is the honest lesson of it: I took the teams that were ahead, and being ahead on a Monday morning turns out to be worth about as much as anything else in this league."
         },
         {
           "analyst": "troll",
-          "text": "I said the team that is ahead on Friday spends the weekend being ahead. Two of mine did not and I am aware of how that reads. What I will say is that I called six games with an actual position and Larp called six favourites, and if he wants a trophy for that he can have it."
+          "text": "Four and two, and I got there by taking a position instead of reading a table. I had Baltimore Boofers when Ketchup was the best roster in the league on paper, and I had Crashee'd My Ford, which was wrong, and I will say it was wrong. That is two more actual opinions than anybody else filed."
         },
         {
           "analyst": "quant",
-          "text": "Five and one, and the one is I'sah Likely to win Deebo, who posted 83.42 against a projection of 124.7. There is nothing to learn from that. Their defense outscored the projection by fourteen and half their lineup did not turn up. Some weeks the model is fine and the football is not."
+          "text": "Three and three, and I want to point at something more interesting than my own record. Kamara Sutra are 2-0 with an all-play record of 11-11 and the softest schedule faced in the league. Two weeks in, three of the six teams with a winning record are there on the draw rather than the roster."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "TWO AND FOUR. I do not want to talk about it. I will talk about it. I said Brian loses this week and Brian scored a hundred and fifty-two! I said Ketchup and Ketchup lost by less than three! Every single thing I said with my chest was WRONG and I would say all of it again!"
         }
       ],
-      "storyline": "Can anybody catch Larp, and does he hold a clean sheet through one more game?"
+      "storyline": "Does anybody on this desk beat four and two in week three?"
     },
     {
-      "headline": "The worst team in the power rankings is beating the fifth-best by 26",
-      "body": "Let Baker Bake are twelfth in the power rankings with a rating of 8.2, an all-play record of 0-11, the lowest score in the league in week one at 72.74 and a 2% playoff estimate. On Monday morning they sit on 96.58 and lead Crashee'd My Ford 96.58 to 70.20.\n\nJomi is fifth in the rankings and started the only perfect lineup in the league in week one. This week his roster was projected for 122.4 and has produced 70.20. Saquon Barkley returned 3.00 against a 16.6 projection, Rhamondre Stevenson 3.60 against 12.3, and Jameson Williams 5.30 against 12.6.\n\nHe has Jaxson Dart to come and needs 35.1 if Jeff's Rams defense hits its projection. Jeff got 22.50 from Dalton Kincaid and 17.50 from Omarion Hampton, and left 20.30 on the bench in Jake Ferguson without it mattering.",
+      "headline": "Jake moved Puka Nacua out of his lineup and won by 2.96",
+      "body": "Puka Nacua was in Baltimore Boofers' starting lineup on Monday morning, projected for 20.1 and carrying the entire matchup. He was ruled out with a hip and finished on 0.00, from the bench.\n\nJake had already moved. Malachi Fields, picked up in week two, went into the lineup and scored 5.00. Baltimore Boofers won 125.72 to 122.76 — a margin of 2.96. Leave Nacua in the lineup and the Boofers finish on 120.72 and lose by 2.04.\n\nKillian was done scoring on Sunday night with 122.76 and a roster projected for 135.5. Bijan Robinson returned 11.10 of a projected 22.5 and David Montgomery 4.40 of 17.1, while Dalton Schultz — the tight end he took off waivers in week one — went for 26.00. Team Ketchup is Stephen B Smith's championship pick. Baltimore Boofers is Fat McCafferty's. They played each other and McCafferty's won.",
+      "takes": [
+        {
+          "analyst": "wildcard",
+          "text": "My team beat his team. I want that read back slowly. The ninth-place roster nobody would defend beat the best playoff number in this league, and it did it while the receiver everybody spent Monday talking about was sitting down. Write it down."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "FIVE POINTS! He won a football game by two point nine six because he remembered to take an injured man out of his lineup, which is the lowest bar in this sport, and I have to stand here and call it good management because it IS good management and I hate it!"
+        },
+        {
+          "analyst": "troll",
+          "text": "I said on Monday that if Nacua came up short, Jake did not get to be unlucky, he got to be the man who benched George Kittle. Kittle scored eighteen on that bench and Jake won anyway. I was wrong about the conclusion and right about the eighteen points, and I am keeping the half of that which suits me."
+        }
+      ],
+      "storyline": "Does Killian's 89% playoff number survive a second loss, and does Jake start Kittle?"
+    },
+    {
+      "headline": "Brian benched Jared Goff for 37.78 again and scored 152.76",
+      "body": "Third week, same quarterback, same bench. Jared Goff scored 37.78 for Team Mountain without leaving his seat. Dak Prescott started and scored 37.76.\n\nIt did not matter in the slightest. Team Mountain put up 152.76, the highest score in the league this week, and beat I'sah Likely to win Deebo 152.76 to 91.72. Davante Adams went for 39.50 against a 13.7 projection and Jahmyr Gibbs added 23.30.\n\nBrian also had the best lineup efficiency in the league at 96%. He is leaving a quarterback's worth of points on the bench every week and still starting more of his available points than anybody else, which is a sentence that should not be possible.",
+      "takes": [
+        {
+          "analyst": "firestarter",
+          "text": "A hundred and fifty-two! From the man I said would lose! And Goff is STILL on the bench, for the THIRD week, and Brian Millan is going to look me in the eye and tell me it is working, and the worst part is that the scoreboard is going to back him up."
+        },
+        {
+          "analyst": "analyst",
+          "text": "This is the week it stops being a mistake and starts being a decision. He has now won with Dak, level with Dak, and blown a team off the field with Dak. You can argue he is leaving points on the table. You cannot argue he is losing games with it."
+        },
+        {
+          "analyst": "troll",
+          "text": "Ninety-six percent efficiency and sixty-six points on the bench. Both of those are true at once and I do not want to hear anybody explain it. The man has two quarterbacks and one slot. That is not management, that is arithmetic he cannot lose."
+        }
+      ],
+      "storyline": "How long does Team Mountain carry two startable quarterbacks before one of them is traded?"
+    },
+    {
+      "headline": "Jomi started the right nine and lost by 37.58",
+      "body": "Crashee'd My Ford were projected for 124.3 and scored 71.00. Jaxson Dart, out with a knee, returned 0.80 of a projected 21.1. Saquon Barkley, carrying an arm, returned 3.00 of 16.6. Rhamondre Stevenson added 3.60 of 12.3.\n\nJomi's lineup efficiency was 93%, the joint-best in the league among teams that lost. He did not misread a matchup or bench a scorer; the nine men he started produced 53.3 points less than they were expected to, and two of them were hurt.\n\nJeff, meanwhile, left 86.3 points unstarted — Matthew Stafford's 35.98 and Jake Ferguson's 20.30 among them — ran the worst lineup efficiency in the league at 80%, and won by 37.58. Crashee'd My Ford are 0-2. Let Baker Bake are 1-1.",
       "takes": [
         {
           "analyst": "analyst",
-          "text": "Every season has one of these and it always lands on the man who can least afford it. Jomi did not manage this badly. He started the right nine and four of them had the worst afternoon of their year on the same afternoon."
+          "text": "I said on Monday that Jomi did not manage this badly and I will say it louder now that the numbers are in. He started his best nine. Two of them got hurt and one of them was a rookie quarterback in his first real spot. There is no lesson here and anybody selling one is selling something."
         },
         {
           "analyst": "quant",
-          "text": "A hundred and twenty-two projected against seventy scored is a fifty-two point shortfall, which is the largest gap between projection and production on this board. Barkley alone is 13.6 of it. He still has a quarterback to play, so it is not finished, but it is not a lineup problem either and I would not let anybody sell it as one."
-        },
-        {
-          "analyst": "firestarter",
-          "text": "The last-placed team in this league is beating the fifth by twenty-six points! Jeff has the worst roster anybody has seen and he is sitting on ninety-six! And I promise you Jomi is going to spend all night watching a rookie quarterback and telling himself there is still a chance."
-        }
-      ],
-      "storyline": "Does Let Baker Bake actually win a game, and what does that do to a 2% playoff estimate?"
-    },
-    {
-      "headline": "Killian has stopped scoring and leads by 2.04 with Puka Nacua still to play",
-      "body": "Team Ketchup finished on 122.76 against a projection of 133.6 and have nobody left. Baltimore Boofers are on 120.72 with Puka Nacua to come, projected for 20.1. Jake needs 2.04 of it.\n\nKillian got 26.00 out of Dalton Schultz, the tight end he picked up off waivers in week one when he dropped Dylan Sampson. He also got 11.10 from Bijan Robinson against a 22.5 projection and 4.40 from David Montgomery against 17.1.\n\nTeam Ketchup is Stephen B Smith's championship pick. Baltimore Boofers is Fat McCafferty's. Both men now have their entire season riding on the same receiver, in opposite directions. Jake also left George Kittle and his 18.00 on the bench, which would have settled this before kickoff.",
-      "takes": [
-        {
-          "analyst": "firestarter",
-          "text": "Two point zero four. That is what stands between the best playoff number in this league and a loss to a team that was ninth on Friday. I picked Ketchup to win it all and I am going to spend tonight rooting against a receiver like a man with a problem."
+          "text": "Fifty-three point three points below projection, the largest shortfall on the board, at 93% lineup efficiency. Those two numbers together are the whole argument for why I do not grade managers on results. The man made good decisions and lost by thirty-seven, and eighty-six points sat on the winner's bench."
         },
         {
           "analyst": "wildcard",
-          "text": "Puka Nacua needs two points. Two. He has done that in a quarter with his eyes shut. I picked the Boofers when this desk was laughing and the Boofers are two points from beating the best roster in the league. Write it down."
-        },
-        {
-          "analyst": "troll",
-          "text": "Kittle scored eighteen on his bench in a game he is losing by two. If Nacua comes up short tonight, Jake does not get to be unlucky. He gets to be a man who benched George Kittle."
+          "text": "Eighty-six points on the bench and he wins by thirty-seven. Jeff is not playing fantasy football, he is being carried through the season by a schedule and a smile. I am not mad at it. I am taking notes."
         }
       ],
-      "storyline": "Does one receiver decide both Smith's and McCafferty's championship picks in the same night?"
+      "storyline": "Does Jomi's 0-2 reflect anything about the roster, or is this two weeks of the worst luck in the league?"
+    },
+    {
+      "headline": "The commissioner scored the lowest total of the week and his playoff number fell to 2%",
+      "body": "#FreeJoshJacobs scored 84.52, the lowest total in the league this week, and lost to Scheme by 32.76. Adam is 0-2 with a 2% playoff estimate, down from 6% a week ago, and eleventh in the power rankings.\n\nJa'Marr Chase went for 26.50 and nothing else cleared 15. Drake Maye returned 9.02 of a projected 22.0 and the Kansas City defense returned 1.00 of 8.5. Josh Jacobs scored 0.00 on the bench, as did A.J. Brown. The team is still named after the first of those two.\n\nOne thing in his favour, and it is the only one: he has faced an average of 144.5 points a week, the hardest schedule in the league by eleven points. The rankings already credit him for it. He is still eleventh.",
+      "takes": [
+        {
+          "analyst": "quant",
+          "text": "The schedule is real. He has drawn 144.5 a week and nobody else in this league has drawn above 138.3, and the rating gives him fifteen percent of its weight for exactly that. He is eleventh with the credit already applied, which is the part that should worry him."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "TWO PERCENT! He runs the newspaper! He built the rankings that have him eleventh! He is starting a Kansas City defense that scored ONE POINT and a team named after a man on his own bench who scored NOTHING, and he has to publish this! I would not publish this!"
+        }
+      ],
+      "storyline": "Does the commissioner's season turn, or does he spend October editing a paper about his own collapse?"
     }
   ]
 }
