@@ -1,0 +1,105 @@
+{
+  "generated": "2026-09-29",
+  "week": 3,
+  "stories": [
+    {
+      "headline": "Brian scored 112.6 points on his bench and won by 37.74",
+      "body": "Team Mountain's bench produced 112.6 points in week three, the most in the league by more than twenty-five. Jared Goff scored 23.36 there for the fourth week running. Kenyon Sadiq scored 23.50, Jordan Addison 20.00, Jakobi Meyers 19.40, Aaron Jones 14.20 and DK Metcalf 12.10.\n\nBrian started Dak Prescott, who scored 20.94, and beat Let Baker Bake 146.44 to 108.70. Jahmyr Gibbs went for 41.40, the highest individual score on the board.\n\nThe thing that should not be possible: his lineup efficiency was 90%, tied for third best in the league. The best legal lineup available to him was only 47.7 points better than the one he started, because a man with two startable quarterbacks and one quarterback slot cannot start them both. Team Mountain are 2-1, second in the power rankings, and carry the best playoff estimate in the league at 98%.",
+      "takes": [
+        {
+          "analyst": "quant",
+          "text": "A hundred and twelve on the bench and 90% efficiency are both true and people keep treating them as a contradiction. Bench points are everything his reserves scored. Efficiency asks what he could legally have started. The honest number is 47.7, and it is the smallest gap of any team with more than eighty on the bench."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "FOUR WEEKS! Jared Goff has scored a hundred and nineteen points from a SEATED POSITION and Brian Millan will not move him! And he is second in the rankings! And he has the best playoff number in this league! I have run out of ways to be angry about this and I am going to find one!"
+        },
+        {
+          "analyst": "analyst",
+          "text": "He has a quarterback he cannot play and a running back who went for forty-one. At some point a man in that position picks up the phone, because there are four teams in this league who would give him something real for Goff and he is getting nothing for him where he sits."
+        },
+        {
+          "analyst": "troll",
+          "text": "The best bench in this league belongs to the second-best team and everybody wants to call it a problem. It is not a problem. It is depth. Depth is what you want in December and nobody in this building has more of it."
+        },
+        {
+          "analyst": "wildcard",
+          "text": "One hundred and twelve point six. That is a winning score in this league. Brian is running two teams and one of them is undefeated against nobody. I do not have a conclusion. I have a feeling, and the feeling is that this ends in a trade that breaks somebody's season. Write it down."
+        }
+      ],
+      "storyline": "Does Brian trade a quarterback, and what does Team Mountain get for him?"
+    },
+    {
+      "headline": "The only unbeaten team is fifth in the rankings and the top-ranked team has already lost",
+      "body": "Kamara Sutra are 3-0 and alone at the top of the standings. They are fifth in the power rankings. Team Ketchup are first in the power rankings and 2-1.\n\nJerey earned the week either way: 153.34 is the highest total on the board, with Brock Purdy at 39.28 and Jaxon Smith-Njigba at 35.36, and it came against #CrookedAdam, who lost by 42.20. But the season-long picture has not moved much. Kamara Sutra's all-play record is 22-11, fifth best, and they have faced the second-softest schedule in the league at 112.6 a week. Their luck figure is +1.0, the highest anybody carries.\n\nTeam Ketchup beat Scheme 135.12 to 116.58 behind 35.30 from Bijan Robinson and 26.70 from Garrett Wilson, and now hold the best rating in the league at 92.6 despite having lost a game.",
+      "takes": [
+        {
+          "analyst": "quant",
+          "text": "I said last week that Kamara Sutra were winning on the draw rather than the roster and I am not walking it back on one big score. Twenty-two and eleven on all-play is genuinely good. Plus one on luck is still the largest in the league. Both things are true and the schedule is the reason the record looks better than the team."
+        },
+        {
+          "analyst": "troll",
+          "text": "Three and nothing. Three. And this desk is going to spend a paragraph explaining why it does not count. Nobody in December looks up the all-play record. They look up who is in first."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "TEAM KETCHUP IS NUMBER ONE! The roster I picked in week two when this desk had them fourth! I went two and four on called shots and I do not care, because the one call that has my whole season on it is sitting at the top of the page!"
+        }
+      ],
+      "storyline": "Does Kamara Sutra's schedule catch up with them before the standings stop flattering it?"
+    },
+    {
+      "headline": "Chris started three men carrying injury designations and his playoff number fell from 63% to 14%",
+      "body": "I'sah Likely to win Deebo scored 86.64, the lowest total of the week, and lost to Baltimore Boofers by 40.72. Three of his nine starters carried a designation on Sleeper before kickoff.\n\nDe'Von Achane, on injured reserve with a knee, returned 1.70. Justin Jefferson, out with an ankle, returned 5.20. Jalen Coker, out with a quadriceps, returned 3.80. Between them they produced 10.70 against a combined projection of 47.8. Tre Tucker scored 8.30 on the bench and Rachaad White 11.10.\n\nLineup efficiency was 81%, the worst in the league, with 77.1 points left unstarted. His playoff estimate has gone from 63% to 14% in a week, the largest fall anybody has taken this season.",
+      "takes": [
+        {
+          "analyst": "analyst",
+          "text": "Nobody is blaming a man for getting hurt, and I will not have that confused with what happened here. Achane was on injured reserve before the week started. That is not bad luck arriving, that is a lineup card submitted with a slot already gone, and forty minutes on a Sunday morning fixes it."
+        },
+        {
+          "analyst": "quant",
+          "text": "Forty-seven point eight of projection from three players who were flagged as unavailable or limited, returning 10.70. The information was on the page before kickoff. This is the cleanest case yet for the thing I keep saying: availability is a variable, and it is the only one you can check for free."
+        },
+        {
+          "analyst": "firestarter",
+          "text": "SIXTY-THREE PERCENT TO FOURTEEN! In ONE WEEK! And every one of those three men had a note next to his name that anybody could read! I am not angry about the injuries. I am angry about the reading!"
+        }
+      ],
+      "storyline": "Does Chris clear the injured men out of his lineup, or is 14% already generous?"
+    },
+    {
+      "headline": "Jeff spent $45 on a kicker",
+      "body": "Let Baker Bake won the week two waiver for Chase McLaughlin with a bid of $45. Nobody else in this league has spent more than $22 all season, and eight of the twelve teams have spent nothing at all.\n\nMcLaughlin scored 12.00 this week, the second-best kicking return on the board. Jeff's previous kicker had produced 1.00 the week before, so there is a case for it.\n\nHe has $55 of his budget left, the least in the league, and the roster he spent it around is twelfth in the power rankings on a 0% playoff estimate. Let Baker Bake lost 146.44 to 108.70.",
+      "takes": [
+        {
+          "analyst": "troll",
+          "text": "Forty-five dollars. On a kicker. Nearly half his budget, in September, for a man who will produce nine points a week whatever happens. The trade deadline is in week eleven and Jeff has already spent the money he would need to fix anything that actually matters."
+        },
+        {
+          "analyst": "wildcard",
+          "text": "Everybody is laughing and the man's kicker scored twelve. Twelve. That is more than four starting defences managed in this league this week. Jeff identified a market inefficiency and paid what it cost him. I have been saying for years that nobody respects the position. Write it down."
+        }
+      ],
+      "storyline": "Does $45 of kicker look any better in November with $55 left to spend?"
+    },
+    {
+      "headline": "The commissioner is 0-3 and the first team in this league to reach 0%",
+      "body": "#FreeJoshJacobs scored 109.06 and lost to TeenageTutenNinjaTurtles by 15.88. Adam is 0-3 with a playoff estimate of 0%, the first team to get there — Let Baker Bake joined him in the same week.\n\nIt was not a badly managed week. His lineup efficiency was 91%, the best he has posted, and Michael Wilson returned 25.90 against a 12.0 projection. Ja'Marr Chase added 24.80. Drake Maye returned 5.76 of a projected 21.1 for the second week running.\n\nHe has also faced 135.2 points a week, the second-hardest schedule in the league, and the rankings already credit him for it. He is eleventh. Josh Jacobs scored 0.00 on his bench, which is now the third week in a row the team's namesake has contributed nothing from a seat.",
+      "takes": [
+        {
+          "analyst": "firestarter",
+          "text": "ZERO PERCENT! Not two, not one, ZERO! He runs this newspaper, he wrote the simulation, and the simulation has looked at him five thousand times and not once did it find a season! And he still has to publish it!"
+        },
+        {
+          "analyst": "wildcard",
+          "text": "Ninety-one percent efficiency. Best lineup he has set all year. The man is doing the job and the schedule is eating him. Zero percent is a number from a computer, and I have never let a computer tell me what November holds. Write it down."
+        },
+        {
+          "analyst": "analyst",
+          "text": "You can tell a lot about a manager by what he does at nought and three, and what he did this week was set his cleanest lineup of the season. That does not win him anything. It does mean he has not stopped, and plenty of men at nought and three have."
+        }
+      ],
+      "storyline": "Does the commissioner keep setting lineups at 0%, or does October become somebody else's story?"
+    }
+  ]
+}

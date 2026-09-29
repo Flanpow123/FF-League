@@ -15,6 +15,11 @@
       "file": "2026-week-02-tuesday.json",
       "week": 2,
       "generated": "2026-09-22"
+    },
+    {
+      "file": "2026-week-03.json",
+      "week": 3,
+      "generated": "2026-09-29"
     }
   ]
 }
