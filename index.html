@@ -210,11 +210,11 @@
       <button role="tab" data-tab="power" aria-selected="false">Power</button>
       <button role="tab" data-tab="rivalry" aria-selected="false">Rivalries</button>
       <button role="tab" data-tab="champs" aria-selected="false">Title Picks</button>
+      <button role="tab" data-tab="cash" aria-selected="false">Petty Cash</button>
     </div>
     <div class="tier tier2">
       <button role="tab" data-tab="week" aria-selected="false">Scoreboard</button>
       <button role="tab" data-tab="standings" aria-selected="false">Standings</button>
-      <button role="tab" data-tab="moves" aria-selected="false">Moves</button>
       <button role="tab" data-tab="records" aria-selected="false">Records</button>
       <button role="tab" data-tab="history" aria-selected="false">History</button>
     </div>
@@ -224,10 +224,10 @@
   <section id="tab-week" hidden></section>
   <section id="tab-standings" hidden></section>
   <section id="tab-power" hidden></section>
-  <section id="tab-moves" hidden></section>
   <section id="tab-records" hidden></section>
   <section id="tab-rivalry" hidden></section>
   <section id="tab-champs" hidden></section>
+  <section id="tab-cash" hidden></section>
   <section id="tab-history" hidden></section>
   <section id="tab-analysts" hidden></section>
 
@@ -337,26 +337,31 @@ var MANAGERS = {
 var TITLE_PICKS = {
   analyst: {
     team:"#CrookedAdam",
+    owner:"999795919220457472",    // Kevin
     locked:2,
     take:"Eleven and nothing on all-play. I have been in those huddles, and I am telling you nobody wants to see that name on the bracket. This is not a brave pick. It is the right one."
   },
   firestarter: {
     team:"Team Ketchup",
+    owner:"999813793624457216",    // Killian
     locked:2,
     take:"Killian has the roster. Killian has the number. Killian has everything except the thing you cannot give a man, and we will find out in December whether he has that too. TEAM KETCHUP."
   },
   quant: {
     team:"Scheme",
+    owner:"734797664390074368",    // Justin
     locked:2,
     take:"Nobody is pricing that roster correctly. The gap between what they have scored and what they have earned is the biggest in the league, and those gaps close. They just do not close on a schedule."
   },
   troll: {
     team:"TeenageTutenNinjaTurtles",
+    owner:"738831736687005696",    // Jack
     locked:2,
     take:"Fifth. Everybody has them fifth. Fifth is the coward's ranking. I am putting my whole season on the team this desk cannot be bothered to have an opinion about."
   },
   wildcard: {
     team:"Baltimore Boofers",
+    owner:"999391531633029120",    // Jake
     locked:2,
     take:"Boofers. Eighth in the rankings, ninth in the standings, one and one, and I do not care about any of the three. The standings are a lagging indicator and a perfect lineup is a man paying attention. Write it down."
   }
@@ -890,7 +895,7 @@ function boot(){
     })
     .then(function(){
       renderNews(); renderWeek(); renderStandings(); renderPower();
-      renderMoves(); renderBook(); renderAnalysts(); renderTitlePicks();
+      renderPettyCash(); renderBook(); renderAnalysts(); renderTitlePicks();
       loadPlayers();
     })
     .catch(function(e){ fail(e.message||String(e)); });
@@ -1608,18 +1613,44 @@ function wrapLines(ctx, text, maxW, max){
 
 /* The shortest take that is still substantial. A card wants a punchline, not a
    paragraph, and the one-liners are the ones people actually repeat. */
-function pickShareQuote(){
-  var best = null, fb = null;
-  ((S.news && S.news.stories) || []).forEach(function(st){
-    (st.takes || []).forEach(function(t){
-      var a = ANALYSTS[t.analyst];
-      if(!a || !t.text) return;
-      if(!fb) fb = {who: a.name, text: t.text};
-      if(t.text.length < 60) return;
-      if(!best || t.text.length < best.text.length) best = {who: a.name, text: t.text};
-    });
+/* The story the card should lead with: whichever one sets "share": true
+   in news.json, else the top story of the edition. */
+/* A story routes itself with "section": "wire". Anything else is news. */
+function storiesFor(section){
+  var list = (S.news && S.news.stories) || [];
+  return list.filter(function(st){
+    var s = (st && st.section) || "news";
+    return s === section;
   });
-  return best || fb;
+}
+
+function featuredStory(){
+  var list = storiesFor("news");
+  for(var i = 0; i < list.length; i++){ if(list[i] && list[i].share) return list[i]; }
+  return list[0] || null;
+}
+
+function pickShareQuote(){
+  var feat = featuredStory();
+  // A quote from the story on the card beats a better quote from a story
+  // that is not on it.
+  var pools = feat ? [[feat], ((S.news && S.news.stories) || [])]
+                   : [((S.news && S.news.stories) || [])];
+  var fb = null;
+  for(var p = 0; p < pools.length; p++){
+    var best = null;
+    pools[p].forEach(function(st){
+      ((st && st.takes) || []).forEach(function(t){
+        var a = ANALYSTS[t.analyst];
+        if(!a || !t.text) return;
+        if(!fb) fb = {who: a.name, text: t.text};
+        if(t.text.length < 60) return;
+        if(!best || t.text.length < best.text.length) best = {who: a.name, text: t.text};
+      });
+    });
+    if(best) return best;
+  }
+  return fb;
 }
 
 function shareWeekNumber(){
@@ -1651,6 +1682,20 @@ function drawShareCard(){
   x.fillStyle = P.text; x.font = shareFont(62, 700, true);
   x.fillText(fitText(x, (S.league && S.league.name) || "Fantasy Football", SHARE_W - pad*2), pad, y);
 
+  // ---- the week in one line
+  var feat = featuredStory();
+  if(feat && feat.headline){
+    y += 46;
+    x.fillStyle = P.gold; x.font = shareFont(22, 600, true);
+    x.fillText("THE STORY", pad, y);
+    y += 40;
+    x.fillStyle = P.text; x.font = shareFont(38, 600);
+    wrapLines(x, feat.headline, SHARE_W - pad*2, 2).forEach(function(ln){
+      x.fillText(ln, pad, y); y += 44;
+    });
+    y -= 34;
+  }
+
   // ---- scoreboard
   y += 54;
   x.fillStyle = P.line; x.fillRect(pad, y, SHARE_W - pad*2, 2);
@@ -1660,7 +1705,7 @@ function drawShareCard(){
   y += 26;
 
   var gs = games(wk);
-  var rowH = 78;
+  var rowH = 72;
   gs.slice(0, 6).forEach(function(g){
     x.fillStyle = P.panel;
     x.fillRect(pad, y, SHARE_W - pad*2, rowH - 10);
@@ -1705,14 +1750,14 @@ function drawShareCard(){
   //      ends with a slab of empty space
   var quote = pickShareQuote();
   if(quote){
-    x.font = shareFont(30, 400);
+    x.font = shareFont(27, 400);
     var lines = wrapLines(x, quote.text, SHARE_W - pad*2, 4);
-    var blockH = lines.length * 42 + 46;
+    var blockH = lines.length * 38 + 46;
     var qy = SHARE_H - 76 - 40 - blockH;
     if(qy < y + 20) qy = y + 20;           // never collide with the rankings
     x.fillStyle = P.line; x.fillRect(pad, qy - 46, SHARE_W - pad*2, 2);
     x.fillStyle = P.text;
-    lines.forEach(function(ln){ x.fillText(ln, pad, qy); qy += 42; });
+    lines.forEach(function(ln){ x.fillText(ln, pad, qy); qy += 38; });
     qy += 8;
     x.fillStyle = P.gold; x.font = shareFont(26, 600, true);
     x.fillText("\u2014 " + quote.who, pad, qy);
@@ -1769,7 +1814,7 @@ function shareBarHTML(){
 }
 
 function renderNews(){
-  var stories=(S.news&&S.news.stories)||[];
+  var stories=storiesFor("news");
 
   var html=(DESK?shareBarHTML():"")+tocHTML(stories);
 
@@ -2291,9 +2336,10 @@ function briefingText(){
       Object.keys(ANALYSTS).forEach(function(k){
         var p = (typeof TITLE_PICKS !== "undefined" && TITLE_PICKS) ? TITLE_PICKS[k] : null;
         if(!p || !p.team) return;
-        var rid = resolveTeam(p.team);
+        var rid = pickRosterId(p);
+        var nm = rid != null ? teamName(rid) : p.team;
         var pos = (rid != null && rk[rid]) ? " (currently " + ordinal(rk[rid]) + ")" : "";
-        L.push("  " + ANALYSTS[k].name + " -- " + p.team + pos);
+        L.push("  " + ANALYSTS[k].name + " -- " + nm + pos);
       });
     })();
     L.push("Reference a pick when the week made it look smart or made it look ridiculous. That is");
@@ -2362,6 +2408,10 @@ function briefingText(){
   L.push("Do not manufacture continuity and do not rerun last week's article unless the evidence moved.");
   L.push("Every factual claim must come from this briefing. Analysts may exaggerate what the facts mean;");
   L.push("they may not invent facts.");
+  L.push("Stories about waivers, FAAB and trades belong on the Petty Cash tab, not the Newsroom:");
+  L.push("give those stories \"section\": \"wire\" in news.json. Everything else needs no section key.");
+  L.push("That tab already shows the ledger -- who paid what and what it produced -- so a wire story");
+  L.push("should say what the money means, not recite the table.");
   L.push("Check the injury report before building a story on a bad performance. A player who left");
   L.push("the game hurt is not a player who played badly, and the desk does not mock an injury.");
   L.push("Equally, do not diagnose anybody: if the injury report is silent, so are the analysts.");
@@ -2490,7 +2540,163 @@ function renderStandings(){
 /* ============================================================
    MOVES
    ============================================================ */
+/* ============================================================
+   PETTY CASH -- every waiver bid, and what it bought
+   ============================================================ */
+/* pointsSince() answers "what has this player scored anywhere". For a
+   receipt we want the narrower question: what has he scored for the team
+   that paid, and how much of it did they actually start. */
+function claimValue(c){
+  var win = null;
+  (c.bids || []).forEach(function(b){ if(b.won && win === null) win = b; });
+  if(!win) return null;
+  var total = 0, started = 0, weeks = 0, has = false;
+  Object.keys(S.matchups).forEach(function(w){
+    var wk = Number(w);
+    if(wk < c.week || wk > S.finalWeek) return;
+    (S.matchups[w] || []).forEach(function(m){
+      if(m.roster_id !== win.roster) return;
+      var pp = m.players_points || {};
+      if(pp[c.pid] == null) return;
+      has = true; weeks++;
+      var pts = Number(pp[c.pid]) || 0;
+      total += pts;
+      if((m.starters || []).indexOf(c.pid) >= 0) started += pts;
+    });
+  });
+  if(!has) return null;
+  return {
+    win: win, price: Number(win.amount) || 0,
+    total: total, started: started, weeks: weeks,
+    perDollar: (Number(win.amount) || 0) > 0 ? started / win.amount : null
+  };
+}
+
+function ledgerRows(){
+  var rows = [];
+  S.claims.forEach(function(c){
+    var v = claimValue(c);
+    if(!v) return;
+    rows.push({c: c, v: v});
+  });
+  rows.sort(function(a, b){ return b.v.started - a.v.started; });
+  return rows;
+}
+
+function ledgerHTML(){
+  var rows = ledgerRows();
+  if(!rows.length){
+    return '<h2 style="margin-top:34px">The ledger</h2>'
+      + '<div class="msg">No waiver claims have been settled yet. The moment somebody pays for '
+      + 'a player, this is where the receipt lives.</div>';
+  }
+
+  var h = '<h2 style="margin-top:34px">The ledger</h2>'
+    + '<p class="note">Every winning bid this season and what it has produced <b>for the team that '
+    + 'paid</b>. Started is the part that actually counted; a player scoring 20 a week on somebody\'s '
+    + 'bench has not been bought, he has been stored. Per dollar divides started points by the bid.</p>'
+    + '<div class="scroll"><table><thead><tr><th></th><th>Player</th><th>Bought by</th><th>Wk</th>'
+    + '<th>Paid</th><th>Started</th><th>Total</th><th>Per $</th></tr></thead><tbody>';
+
+  rows.forEach(function(r, i){
+    var v = r.v, meta = playerMeta(r.c.pid);
+    h += '<tr class="rank-'+(i+1)+'"><td>'+(i+1)+'</td>'
+      + '<td><div class="team-cell"><div><div class="tname">'+esc(playerName(r.c.pid))+'</div>'
+      + (meta ? '<div class="mgr">'+esc(meta)+'</div>' : '')+'</div></div></td>'
+      + '<td>'+teamCell(v.win.roster)+'</td>'
+      + '<td>'+r.c.week+'</td>'
+      + '<td>'+(v.price ? '$'+v.price : '<span class="mgr">free</span>')+'</td>'
+      + '<td class="'+(v.started >= 30 ? 'pos' : (v.started < 5 ? 'neg' : ''))+'">'+num(v.started,1)+'</td>'
+      + '<td>'+num(v.total,1)+'</td>'
+      + '<td>'+(v.perDollar == null ? '<span class="mgr">--</span>' : num(v.perDollar,1))+'</td></tr>';
+  });
+  return h + '</tbody></table></div>' + verdictHTML(rows);
+}
+
+/* The two rows worth arguing about. */
+function verdictHTML(rows){
+  var paid = rows.filter(function(r){ return r.v.price >= 5; });
+  var cheap = rows.filter(function(r){ return r.v.price <= 1; });
+  var h = '';
+
+  var reach = null;
+  paid.forEach(function(r){
+    if(!reach || r.v.started < reach.v.started
+       || (r.v.started === reach.v.started && r.v.price > reach.v.price)) reach = r;
+  });
+  var steal = null;
+  cheap.forEach(function(r){ if(!steal || r.v.started > steal.v.started) steal = r; });
+
+  if(reach || steal) h += '<div class="wire" style="margin-top:14px">';
+  if(steal && steal.v.started > 0){
+    h += '<div class="wire-item"><div class="hl"><span class="tag">Steal</span>'
+      + esc(teamName(steal.v.win.roster)) + ' got ' + esc(playerName(steal.c.pid))
+      + ' for ' + (steal.v.price ? '$'+steal.v.price : 'nothing') + '</div>'
+      + '<div class="dt">' + num(steal.v.started,1) + ' points started since week '
+      + steal.c.week + '.</div></div>';
+  }
+  if(reach){
+    h += '<div class="wire-item"><div class="hl"><span class="tag">Reach</span>'
+      + esc(teamName(reach.v.win.roster)) + ' paid $' + reach.v.price + ' for '
+      + esc(playerName(reach.c.pid)) + '</div>'
+      + '<div class="dt">' + num(reach.v.started,1) + ' points started since week '
+      + reach.c.week + (reach.v.total > reach.v.started
+          ? ', with ' + num(reach.v.total - reach.v.started,1) + ' more scored from the bench' : '')
+      + '.</div></div>';
+  }
+  if(reach || steal) h += '</div>';
+  return h;
+}
+
+function renderPettyCash(){
+  var el = $("tab-cash");
+  if(!el) return;
+  var budget = (S.league.settings && S.league.settings.waiver_budget) || 100;
+
+  var html = "";
+
+  // The written side first, when there is one.
+  var told = storiesFor("wire");
+  if(told.length){
+    told.forEach(function(st, i){ html += storyHTML(st, i); });
+    html += '<div style="height:10px"></div>';
+  }
+
+  html += ledgerHTML();
+
+  var faab = '<h2 style="margin-top:34px">What is left</h2>'
+    + '<p class="note">Budget is $' + budget + ' a team, ranked by who has spent the most. '
+    + 'The trade deadline is the point at which this money stops being able to fix anything.</p>'
+    + '<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>FAAB left</th><th>Spent</th>'
+    + '<th>Moves</th></tr></thead><tbody>';
+  S.rosters.map(function(r){
+    var st = r.settings || {};
+    return {id:r.roster_id, used:Number(st.waiver_budget_used)||0, moves:Number(st.total_moves)||0};
+  }).sort(function(a, b){ return b.used - a.used; }).forEach(function(r, i){
+    faab += '<tr><td>'+(i+1)+'</td><td>'+teamCell(r.id)+'</td><td>$'+(budget-r.used)+'</td>'
+      + '<td>$'+r.used+'</td><td>'+r.moves+'</td></tr>';
+  });
+  html += faab + '</tbody></table></div>';
+
+  var items = [];
+  S.claims.forEach(function(c){ items.push({sort:c.when||0, html:claimHTML(c)}); });
+  S.transactions.forEach(function(t){
+    if(t.type !== "waiver" && t.status === "complete") items.push({sort:t.status_updated||0, html:otherHTML(t)});
+  });
+  items.sort(function(a, b){ return b.sort - a.sort; });
+  html += '<h2 style="margin-top:34px">Everything that moved</h2>'
+    + '<p class="note">Losing bids appear when Sleeper reports them, so you can see who got outbid '
+    + 'and by how much.</p>'
+    + (items.length
+        ? '<div class="feed">' + items.slice(0, 60).map(function(i){ return i.html; }).join("") + '</div>'
+        : '<div class="msg">No transactions yet this season.</div>');
+
+  html += gotAwayHTML();
+  el.innerHTML = html;
+}
+
 function renderMoves(){
+  if(!$("tab-moves")) return;
   var budget=(S.league.settings&&S.league.settings.waiver_budget)||100;
   var faab='<div class="scroll"><table><thead><tr><th></th><th>Team</th><th>FAAB left</th><th>Spent</th><th>Moves</th></tr></thead><tbody>';
   S.rosters.map(function(r){
@@ -2583,7 +2789,7 @@ function loadPlayers(){
 }
 function repaint(){
   computeEfficiency();
-  renderStandings(); renderPower(); renderMoves(); renderNews(); renderWeek(); renderAnalysts();
+  renderStandings(); renderPower(); renderPettyCash(); renderNews(); renderWeek(); renderAnalysts();
   renderTitlePicks();
   if($("tab-rivalry") && $("tab-rivalry").innerHTML) renderRivalry();
 }
@@ -3173,13 +3379,28 @@ function renderAnalysts(){
 /* ============================================================
    TITLE PICKS -- one call per analyst, tracked all season
    ============================================================ */
+/* Owner id first, team name second. A manager who renames his team should
+   not be able to shake off a prediction somebody made about him. */
+function rosterIdForOwner(uid){
+  if(uid == null) return null;
+  for(var i = 0; i < S.rosters.length; i++){
+    if(String(S.rosters[i].owner_id) === String(uid)) return S.rosters[i].roster_id;
+  }
+  return null;
+}
+function pickRosterId(p){
+  if(!p) return null;
+  var rid = rosterIdForOwner(p.owner);
+  return rid != null ? rid : resolveTeam(p.team);
+}
+
 function titlePickRows(){
   var rank = rankNow() || {};
   var out = [];
   Object.keys(ANALYSTS).forEach(function(k){
     var p = (typeof TITLE_PICKS !== "undefined" && TITLE_PICKS) ? TITLE_PICKS[k] : null;
     if(!p || !p.team) return;
-    var rid = resolveTeam(p.team);
+    var rid = pickRosterId(p);
     var r = rid != null ? rosterById(rid) : null;
     var st = (r && r.settings) || {};
     out.push({
@@ -3297,7 +3518,9 @@ function renderTitlePicks(){
     if(!r.pick.take) return;
     h += '<div class="take">' + faceHTML(r.meta, false)
       + '<div class="body"><div class="who">' + esc(r.meta.name)
-      + '<span class="role">on ' + esc(r.name) + '</span></div>'
+      + '<span class="role">on ' + esc(r.name)
+      + (r.pick.asNamed && r.pick.asNamed !== r.name ? ', picked as ' + esc(r.pick.asNamed) : '')
+      + '</span></div>'
       + '<div class="txt">' + esc(r.pick.take) + '</div></div></div>';
   });
   h += '</div>';
@@ -4054,6 +4277,7 @@ tabs.forEach(function(btn){
     if(btn.dataset.tab==="records") renderRecords();
     if(btn.dataset.tab==="rivalry") renderRivalry();
     if(btn.dataset.tab==="champs") renderTitlePicks();
+    if(btn.dataset.tab==="cash") renderPettyCash();
   });
 });
 
